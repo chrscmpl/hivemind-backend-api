@@ -5,8 +5,8 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  HealthCheck(): string {
-    return this.appService.getHealthStatus();
+  @Get(['/', '/health', '/ping'])
+  HealthCheck() {
+    return;
   }
 }
