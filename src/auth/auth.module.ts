@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
-import { UserService } from './services/user.service';
+import { AuthService } from './services/auth.service';
 import { JwtStrategy } from './config/jwt-strategy.config';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { RenewAuthInterceptor } from './interceptors/renew-auth.interceptor';
 
 @Module({
   imports: [
@@ -15,11 +15,11 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
   ],
   controllers: [AuthController],
   providers: [
-    UserService,
+    AuthService,
     JwtStrategy,
     {
       provide: APP_INTERCEPTOR,
-      useClass: AuthInterceptor,
+      useClass: RenewAuthInterceptor,
     },
   ],
   exports: [JwtModule],

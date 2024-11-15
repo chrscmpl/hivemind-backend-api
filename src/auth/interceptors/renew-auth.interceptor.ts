@@ -8,9 +8,10 @@ import { Observable, tap } from 'rxjs';
 import { AuthTokenPayload } from '../dto/auth-token-payload.dto';
 import { Request, Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
+import { omit } from 'lodash-es';
 
 @Injectable()
-export class AuthInterceptor implements NestInterceptor {
+export class RenewAuthInterceptor implements NestInterceptor {
   public constructor(private readonly jwt: JwtService) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
@@ -22,12 +23,13 @@ export class AuthInterceptor implements NestInterceptor {
         const authToken = req.user as AuthTokenPayload | null | undefined;
         const now = Date.now();
         if (
+          !res['grantAuth'] &&
           authToken &&
           authToken.exp - now < (authToken.exp - authToken.iat) / 2
         ) {
           res.setHeader(
             'X-Set-Auth',
-            this.jwt.sign({ sub: authToken.sub, username: authToken.username }),
+            this.jwt.sign(omit(authToken, ['iat', 'exp'])),
           );
         }
       }),
