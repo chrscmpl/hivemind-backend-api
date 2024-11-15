@@ -21,7 +21,7 @@ export class RenewAuthInterceptor implements NestInterceptor {
         const req: Request = http.getRequest();
         const res: Response = http.getResponse();
         const authToken = req.user as AuthTokenPayload | null | undefined;
-        const now = Date.now();
+        const now = Date.now() / 1000;
         if (
           !res['AuthRenewalDisabled'] &&
           authToken &&
