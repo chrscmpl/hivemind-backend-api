@@ -23,7 +23,7 @@ export class RenewAuthInterceptor implements NestInterceptor {
         const authToken = req.user as AuthTokenPayload | null | undefined;
         const now = Date.now();
         if (
-          !res['grantAuth'] && // grantAuth is set by GrantAuthInterceptor
+          !res['AuthRenewalDisabled'] &&
           authToken &&
           authToken.exp - now < (authToken.exp - authToken.iat) / 2
         ) {

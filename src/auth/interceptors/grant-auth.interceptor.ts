@@ -22,7 +22,7 @@ export class GrantAuthInterceptor implements NestInterceptor {
           'X-Set-Auth',
           this.jwt.sign({ sub: data.id, username: data.username }),
         );
-        res['grantAuth'] = true;
+        res['AuthRenewalDisabled'] = true;
       }),
     );
   }

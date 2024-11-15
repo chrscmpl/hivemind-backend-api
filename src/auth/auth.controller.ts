@@ -11,14 +11,15 @@ import {
   UseInterceptors,
   ConflictException,
 } from '@nestjs/common';
-import { SignInDto } from './dto/signin.dto';
+import { SigninDto } from './dto/signin.dto';
 import { AuthService } from './services/auth.service';
 import { AuthUser } from './decorators/auth-user.decorator';
 import { AuthenticatedUser } from './entities/authenticated-user.entity';
-import { SignUpDto } from './dto/signup.dto';
+import { SignupDto } from './dto/signup.dto';
 import { AuthGuard } from './guards/auth.guard';
 import { GrantAuthInterceptor } from './interceptors/grant-auth.interceptor';
 import { omit } from 'lodash';
+import { User } from './entities/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -26,29 +27,46 @@ export class AuthController {
 
   @Get()
   @UseGuards(AuthGuard())
-  getAccountData(@AuthUser() user: AuthenticatedUser) {
-    return omit(this.authService.getUserById(user.id), 'password');
+  public async getAccountData(
+    @AuthUser() user: AuthenticatedUser,
+  ): Promise<Omit<User, 'password'>> {
+    return this.authService
+      .getUserById(user.id)
+      .then((user) => omit(user, 'password'))
+      .catch(() => {
+        throw new UnauthorizedException();
+      });
   }
 
   @Post('signin')
   @UseInterceptors(GrantAuthInterceptor)
   @HttpCode(HttpStatus.OK)
-  signin(@Body() signinDto: SignInDto): AuthenticatedUser {
-    const user = this.authService.getUserByEmail(signinDto.email);
-    if (!user || user.password !== signinDto.password) {
-      throw new UnauthorizedException();
-    }
-    return AuthenticatedUser.fromUser(user);
+  public async signin(
+    @Body(ValidationPipe) signinDto: SigninDto,
+  ): Promise<AuthenticatedUser> {
+    return this.authService
+      .getUserByEmail(signinDto.email)
+      .then((user) => {
+        if (!user || user.password !== signinDto.password) {
+          throw new UnauthorizedException();
+        }
+        return AuthenticatedUser.fromUser(user);
+      })
+      .catch(() => {
+        throw new UnauthorizedException();
+      });
   }
 
   @Post('signup')
   @UseInterceptors(GrantAuthInterceptor)
-  signup(@Body(ValidationPipe) signupDto: SignUpDto): AuthenticatedUser {
-    try {
-      const user = this.authService.createUser(signupDto);
-      return AuthenticatedUser.fromUser(user);
-    } catch {
-      throw new ConflictException();
-    }
+  public async signup(
+    @Body(ValidationPipe) signupDto: SignupDto,
+  ): Promise<AuthenticatedUser> {
+    return this.authService
+      .createUser(signupDto)
+      .then((user) => AuthenticatedUser.fromUser(user))
+      .catch(() => {
+        throw new ConflictException();
+      });
   }
 }

@@ -1,18 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '../entities/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
-  public getUserById(id: number): User {
-    return new User();
+  public constructor(
+    @InjectRepository(User) private readonly usersRepository: Repository<User>,
+  ) {}
+
+  public getUserById(id: number): Promise<User> {
+    return this.usersRepository.findOneBy({ id });
   }
 
-  public getUserByEmail(email: string): User {
-    return new User();
+  public getUserByEmail(email: string): Promise<User> {
+    return this.usersRepository.findOneBy({ email });
   }
 
-  public createUser(user: Omit<User, 'id'>): User {
-    throw new Error('Method not implemented.');
-    return { ...user, id: 1 };
+  public createUser(user: Omit<User, 'id'>): Promise<User> {
+    return this.usersRepository.save(user);
   }
 }
