@@ -1,16 +1,11 @@
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
-import { JwtModule } from '@nestjs/jwt';
 import { UserService } from './services/user.service';
 import { JwtStrategy } from './config/jwt-strategy.config';
+import { JwtConfigModule } from './jwt-config.module';
 
 @Module({
-  imports: [
-    JwtModule.register({
-      secret: process.env.AUTH_TOKEN_SECRET,
-      signOptions: { expiresIn: process.env.AUTH_TOKEN_LIFE },
-    }),
-  ],
+  imports: [JwtConfigModule],
   controllers: [AuthController],
   providers: [UserService, JwtStrategy],
 })

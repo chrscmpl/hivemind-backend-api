@@ -27,13 +27,7 @@ export class AuthInterceptor implements NestInterceptor {
         ) {
           res.setHeader(
             'X-Set-Auth',
-            this.jwt.sign(
-              { sub: authToken.sub, username: authToken.username },
-              {
-                secret: process.env.AUTH_TOKEN_SECRET,
-                expiresIn: process.env.AUTH_TOKEN_LIFE,
-              },
-            ),
+            this.jwt.sign({ sub: authToken.sub, username: authToken.username }),
           );
         }
       }),
