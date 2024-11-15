@@ -10,6 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 
 // Should only be applied to routes that return an AuthenticatedUser
+// or Promise<AuthenticatedUser> or Observable<AuthenticatedUser>
 @Injectable()
 export class GrantAuthInterceptor implements NestInterceptor {
   public constructor(private readonly jwt: JwtService) {}

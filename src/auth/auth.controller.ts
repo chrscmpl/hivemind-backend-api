@@ -20,6 +20,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { GrantAuthInterceptor } from './interceptors/grant-auth.interceptor';
 import { omit } from 'lodash';
 import { User } from './entities/user.entity';
+import { catchError, map, Observable, throwError } from 'rxjs';
 
 @Controller('auth')
 export class AuthController {
@@ -27,46 +28,40 @@ export class AuthController {
 
   @Get()
   @UseGuards(AuthGuard())
-  public async getAccountData(
+  public getAccountData(
     @AuthUser() user: AuthenticatedUser,
-  ): Promise<Omit<User, 'password'>> {
-    return this.authService
-      .getUserById(user.id)
-      .then((user) => omit(user, 'password'))
-      .catch(() => {
-        throw new UnauthorizedException();
-      });
+  ): Observable<Omit<User, 'password'>> {
+    return this.authService.getUserById(user.id).pipe(
+      map((user) => omit(user, 'password')),
+      catchError(() => throwError(() => new UnauthorizedException())),
+    );
   }
 
   @Post('signin')
   @UseInterceptors(GrantAuthInterceptor)
   @HttpCode(HttpStatus.OK)
-  public async signin(
+  public signin(
     @Body(ValidationPipe) signinDto: SigninDto,
-  ): Promise<AuthenticatedUser> {
-    return this.authService
-      .getUserByEmail(signinDto.email)
-      .then((user) => {
-        if (!user || user.password !== signinDto.password) {
+  ): Observable<AuthenticatedUser> {
+    return this.authService.getUserByEmail(signinDto.email).pipe(
+      map((user) => {
+        if (user.password !== signinDto.password) {
           throw new UnauthorizedException();
         }
         return AuthenticatedUser.fromUser(user);
-      })
-      .catch(() => {
-        throw new UnauthorizedException();
-      });
+      }),
+      catchError(() => throwError(() => new UnauthorizedException())),
+    );
   }
 
   @Post('signup')
   @UseInterceptors(GrantAuthInterceptor)
-  public async signup(
+  public signup(
     @Body(ValidationPipe) signupDto: SignupDto,
-  ): Promise<AuthenticatedUser> {
-    return this.authService
-      .createUser(signupDto)
-      .then((user) => AuthenticatedUser.fromUser(user))
-      .catch(() => {
-        throw new ConflictException();
-      });
+  ): Observable<AuthenticatedUser> {
+    return this.authService.createUser(signupDto).pipe(
+      map((user) => AuthenticatedUser.fromUser(user)),
+      catchError(() => throwError(() => new ConflictException())),
+    );
   }
 }
