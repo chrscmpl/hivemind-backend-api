@@ -2,7 +2,7 @@ import { createParamDecorator } from '@nestjs/common';
 import { AuthTokenPayload } from '../dto/auth-token-payload.dto';
 import { AuthenticatedUser } from '../entities/authenticated-user.entity';
 
-// Req.user is set by the AuthenticationGuard
+// Req.user is set by AuthGuard
 export const AuthUser = createParamDecorator((_, context) => {
   const user = context.switchToHttp().getRequest().user as
     | AuthTokenPayload
