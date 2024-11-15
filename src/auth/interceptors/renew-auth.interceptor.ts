@@ -8,7 +8,7 @@ import { Observable, tap } from 'rxjs';
 import { AuthTokenPayload } from '../dto/auth-token-payload.dto';
 import { Request, Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
-import { omit } from 'lodash-es';
+import { omit } from 'lodash';
 
 @Injectable()
 export class RenewAuthInterceptor implements NestInterceptor {
@@ -23,7 +23,7 @@ export class RenewAuthInterceptor implements NestInterceptor {
         const authToken = req.user as AuthTokenPayload | null | undefined;
         const now = Date.now();
         if (
-          !res['grantAuth'] &&
+          !res['grantAuth'] && // grantAuth is set by GrantAuthInterceptor
           authToken &&
           authToken.exp - now < (authToken.exp - authToken.iat) / 2
         ) {

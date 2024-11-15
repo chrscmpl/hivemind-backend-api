@@ -7,6 +7,6 @@ export class SignUpDto {
   @Length(6, 20)
   username: string;
 
-  @Matches(process.env.PASSWORD_REGEX)
+  @Matches(/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,64}$/)
   password: string;
 }

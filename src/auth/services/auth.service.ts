@@ -3,7 +3,7 @@ import { User } from '../entities/user.entity';
 
 @Injectable()
 export class AuthService {
-  public getUserById(id: string): User {
+  public getUserById(id: number): User {
     return new User();
   }
 
@@ -12,6 +12,7 @@ export class AuthService {
   }
 
   public createUser(user: Omit<User, 'id'>): User {
+    throw new Error('Method not implemented.');
     return { ...user, id: 1 };
   }
 }
