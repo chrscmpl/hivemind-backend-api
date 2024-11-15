@@ -20,6 +20,17 @@ module.exports = {
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
-    '@typescript-eslint/no-explicit-any': 'off',
+    'no-restricted-imports': [
+      'error',
+      {
+        paths: [
+          {
+            name: '@nestjs/passport',
+            importNames: ['AuthGuard'],
+            message: 'Use the AuthGuard defined in the auth module',
+          },
+        ],
+      },
+    ],
   },
 };
