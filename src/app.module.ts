@@ -5,9 +5,11 @@ import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { PostsModule } from './posts/posts.module';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
+    CommonModule,
     TypeOrmModule.forRoot({
       type: process.env.DB_TYPE as any, // eslint-disable-line @typescript-eslint/no-explicit-any
       database: process.env.DB_URL,

@@ -11,6 +11,7 @@ import {
   UnauthorizedException,
   DefaultValuePipe,
   ParseIntPipe,
+  ValidationPipe,
 } from '@nestjs/common';
 import { PostsService } from './services/posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -30,7 +31,7 @@ export class PostsController {
   @Post()
   @UseGuards(AuthGuard())
   create(
-    @Body() createPostDto: CreatePostDto,
+    @Body(ValidationPipe) createPostDto: CreatePostDto,
     @AuthUser() user: AuthenticatedUser,
   ): Observable<PostEntity> {
     return this.postsService.create(createPostDto, user.id);

@@ -1,22 +1,14 @@
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './services/auth.service';
-import { JwtStrategy } from './config/jwt-strategy.config';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtStrategy } from '../common/jwt-strategy';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { RenewAuthInterceptor } from './interceptors/renew-auth.interceptor';
 import { UsersModule } from 'src/users/users.module';
-import { PassportModule } from '@nestjs/passport';
+import { CommonModule } from 'src/common/common.module';
 
 @Module({
-  imports: [
-    PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.register({
-      secret: process.env.AUTH_TOKEN_SECRET,
-      signOptions: { expiresIn: process.env.AUTH_TOKEN_LIFE },
-    }),
-    UsersModule,
-  ],
+  imports: [CommonModule, UsersModule],
   controllers: [AuthController],
   providers: [
     AuthService,
@@ -26,6 +18,5 @@ import { PassportModule } from '@nestjs/passport';
       useClass: RenewAuthInterceptor,
     },
   ],
-  exports: [PassportModule, JwtModule],
 })
 export class AuthModule {}
