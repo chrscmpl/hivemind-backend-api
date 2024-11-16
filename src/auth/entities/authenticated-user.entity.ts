@@ -1,5 +1,5 @@
 import { AuthTokenPayload } from '../dto/auth-token-payload.dto';
-import { User } from './user.entity';
+import { User } from '../../users/entities/user.entity';
 
 export class AuthenticatedUser {
   id: number;
