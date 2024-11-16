@@ -11,7 +11,9 @@ export const AuthUser = createParamDecorator((_, context) => {
 
   if (!user) {
     if (user === undefined) {
-      throw new Error('@AuthUser needs AuthGuard to function');
+      throw new Error(
+        '@AuthUser needs AuthGuard or OptionalAuthGuard to function',
+      );
     }
     return user;
   }

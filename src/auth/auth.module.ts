@@ -6,9 +6,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { RenewAuthInterceptor } from './interceptors/renew-auth.interceptor';
 import { UsersModule } from 'src/users/users.module';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret: process.env.AUTH_TOKEN_SECRET,
       signOptions: { expiresIn: process.env.AUTH_TOKEN_LIFE },
@@ -24,6 +26,6 @@ import { UsersModule } from 'src/users/users.module';
       useClass: RenewAuthInterceptor,
     },
   ],
-  exports: [JwtModule],
+  exports: [PassportModule, JwtModule],
 })
 export class AuthModule {}

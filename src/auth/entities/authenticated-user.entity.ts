@@ -5,14 +5,14 @@ export class AuthenticatedUser {
   id: number;
   username: string;
 
-  public static fromPayload(payload: AuthTokenPayload) {
+  public static fromPayload(payload: AuthTokenPayload): AuthenticatedUser {
     const user = new AuthenticatedUser();
     user.id = payload.sub;
     user.username = payload.username;
     return user;
   }
 
-  public static fromUser(user: User) {
+  public static fromUser(user: User): AuthenticatedUser {
     const authUser = new AuthenticatedUser();
     authUser.id = user.id;
     authUser.username = user.username;

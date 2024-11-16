@@ -15,10 +15,10 @@ import { SigninDto } from './dto/signin.dto';
 import { AuthUser } from './decorators/auth-user.decorator';
 import { AuthenticatedUser } from './entities/authenticated-user.entity';
 import { SignupDto } from './dto/signup.dto';
-import { AuthGuard } from './guards/auth.guard';
+import { AuthGuard } from '@nestjs/passport';
 import { GrantAuthInterceptor } from './interceptors/grant-auth.interceptor';
 import { catchError, Observable, throwError } from 'rxjs';
-import { SanitizedUser } from './entities/sanitized-user.entity';
+import { SanitizedPrivateUser } from './entities/sanitized-private-user.entity';
 import { AuthService } from './services/auth.service';
 
 @Controller('auth')
@@ -29,7 +29,7 @@ export class AuthController {
   @UseGuards(AuthGuard())
   public getAccountData(
     @AuthUser() user: AuthenticatedUser,
-  ): Observable<SanitizedUser> {
+  ): Observable<SanitizedPrivateUser> {
     return this.authService
       .getSanitizedUser(user.id)
       .pipe(catchError(() => throwError(() => new UnauthorizedException())));
