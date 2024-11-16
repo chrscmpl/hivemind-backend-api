@@ -1,5 +1,5 @@
 import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
-import { UsersService } from './users.service';
+import { UsersService } from './services/users.service';
 import { PublicUser } from './entities/public-user.entity';
 import { Observable, catchError, map, throwError } from 'rxjs';
 

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { SanitizedPrivateUser } from '../entities/sanitized-private-user.entity';
 import { User } from 'src/users/entities/user.entity';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from 'src/users/services/users.service';
 import { map, Observable } from 'rxjs';
 import { AuthenticatedUser } from '../entities/authenticated-user.entity';
 

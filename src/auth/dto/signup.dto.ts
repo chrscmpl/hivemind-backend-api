@@ -7,6 +7,6 @@ export class SignupDto {
   @Length(6, 20)
   username: string;
 
-  @Matches(/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,64}$/)
+  @Matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^\w\s]).{8,32}$/)
   password: string;
 }
