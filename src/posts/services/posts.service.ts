@@ -30,8 +30,10 @@ export class PostsService {
     return from(paginate<PostEntity>(this.postsRepository, options));
   }
 
-  findOne(id: number): Observable<PostEntity> {
-    return from(this.postsRepository.findOneByOrFail({ id }));
+  findOne(id: number, relations: string[] = []): Observable<PostEntity> {
+    return from(
+      this.postsRepository.findOneOrFail({ where: { id }, relations }),
+    );
   }
 
   update(id: number, updatePostDto: UpdatePostDto): Observable<PostEntity> {

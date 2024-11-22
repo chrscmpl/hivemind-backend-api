@@ -11,7 +11,7 @@ import {
   UseInterceptors,
   ConflictException,
 } from '@nestjs/common';
-import { SigninDto } from './dto/signin.dto';
+import { LoginDto } from './dto/login.dto';
 import { AuthUser } from './decorators/auth-user.decorator';
 import { AuthenticatedUser } from './entities/authenticated-user.entity';
 import { SignupDto } from './dto/signup.dto';
@@ -20,7 +20,9 @@ import { GrantAuthInterceptor } from './interceptors/grant-auth.interceptor';
 import { catchError, Observable, throwError } from 'rxjs';
 import { SanitizedPrivateUserDto } from './dto/sanitized-private-user.dto';
 import { AuthService } from './services/auth.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -35,14 +37,14 @@ export class AuthController {
       .pipe(catchError(() => throwError(() => new UnauthorizedException())));
   }
 
-  @Post('signin')
+  @Post('login')
   @UseInterceptors(GrantAuthInterceptor)
   @HttpCode(HttpStatus.OK)
-  public signin(
-    @Body(ValidationPipe) signinDto: SigninDto,
+  public login(
+    @Body(ValidationPipe) loginDto: LoginDto,
   ): Observable<AuthenticatedUser> {
     return this.authService
-      .signin(signinDto.email, signinDto.password)
+      .login(loginDto.email, loginDto.password)
       .pipe(catchError(() => throwError(() => new UnauthorizedException())));
   }
 

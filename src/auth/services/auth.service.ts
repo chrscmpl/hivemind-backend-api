@@ -19,10 +19,7 @@ export class AuthService {
       .pipe(map((user) => this.sanitizeUser(user)));
   }
 
-  public signin(
-    email: string,
-    password: string,
-  ): Observable<AuthenticatedUser> {
+  public login(email: string, password: string): Observable<AuthenticatedUser> {
     return this.usersService.findOneByEmail(email).pipe(
       map((user) => {
         if (user.password !== password) {

@@ -24,9 +24,23 @@ import { OptionalAuthGuard } from 'src/auth/guards/optional-auth.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { PostEntity } from './entities/post.entity';
 import { catchError, map, Observable, switchMap, tap, throwError } from 'rxjs';
-import { Pagination } from 'nestjs-typeorm-paginate';
-import { defaults, omit } from 'lodash';
+import { defaults, isNil, omitBy } from 'lodash';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { PostDto } from './dto/post.dto';
+import { UnauthorizedExceptionDto } from 'src/common/dto/unauthorized-exception.dto';
+import { PostPaginationDto } from './dto/post-pagination.dto';
+import { NotFoundExceptionDto } from 'src/common/dto/not-found-exception.dto';
+import { ForbiddenExceptionDto } from 'src/common/dto/forbidden-exception.dto';
 
+@ApiTags('Posts')
 @Controller('posts')
 export class PostsController {
   private static readonly DEFAULT_LIMIT = 10;
@@ -34,17 +48,52 @@ export class PostsController {
 
   public constructor(private readonly postsService: PostsService) {}
 
+  @ApiOperation({
+    summary: 'Create a post',
+    description: 'Requires authentication',
+  })
+  @ApiBearerAuth()
+  @ApiBody({ type: CreatePostDto, required: true })
+  @ApiResponse({
+    status: 201,
+    description: 'The post has been successfully created.',
+    type: PostDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized.',
+    type: UnauthorizedExceptionDto,
+  })
   @Post()
   @UseGuards(AuthGuard())
   public create(
     @Body(ValidationPipe) createPostDto: CreatePostDto,
     @AuthUser() user: AuthenticatedUser,
-  ): Observable<Omit<PostEntity, 'user'>> {
+  ): Observable<PostDto> {
     return this.postsService
       .create(createPostDto, user.id)
-      .pipe(map((post) => omit(post, 'user')));
+      .pipe(map((post) => PostDto.fromEntity(post)));
   }
 
+  @ApiOperation({
+    summary: 'Paginated request for posts',
+    description:
+      'Requires authentication if the include query parameter contains ownReaction',
+  })
+  @ApiBearerAuth()
+  @ApiQuery({ name: 'include', required: false, type: 'string', example: 'ownReaction' }) // prettier-ignore
+  @ApiQuery({ name: 'page', required: false, type: 'number', example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: 'number', example: 10 })
+  @ApiResponse({
+    status: 200,
+    description: 'The posts have been successfully found.',
+    type: PostPaginationDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized.',
+    type: UnauthorizedExceptionDto,
+  })
   @Get()
   @UseGuards(OptionalAuthGuard)
   public findAll(
@@ -53,52 +102,137 @@ export class PostsController {
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
     @Query('limit', new DefaultValuePipe(PostsController.DEFAULT_LIMIT), ParseIntPipe) // prettier-ignore
       limit: number = PostsController.DEFAULT_LIMIT, // prettier-ignore
-  ): Observable<Pagination<PostEntity>> {
+  ): Observable<PostPaginationDto> {
     if (limit > PostsController.MAX_LIMIT) limit = PostsController.MAX_LIMIT;
 
     const includeLike: boolean = include.includes('ownReaction');
     if (includeLike && !user) throw new UnauthorizedException();
 
-    return this.postsService.paginate({ page, limit });
+    return this.postsService
+      .paginate({ page, limit })
+      .pipe(map((pagination) => PostPaginationDto.fromPagination(pagination)));
   }
 
+  @ApiOperation({
+    summary: 'Find a post by ID',
+    description:
+      'Requires authentication if the include query parameter contains ownReaction',
+  })
+  @ApiBearerAuth()
+  @ApiParam({ name: 'id', required: true, type: 'number', example: 1 })
+  @ApiQuery({ name: 'include', required: false, type: 'string', example: 'ownReaction' }) // prettier-ignore
+  @ApiResponse({
+    status: 200,
+    description: 'The post has been successfully found.',
+    type: PostDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized.',
+    type: UnauthorizedExceptionDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found.',
+    type: NotFoundExceptionDto,
+  })
   @Get(':id')
   public findOne(
     @Param('id', ParseIntPipe) id: number,
     @Query('include', new DefaultValuePipe('')) include: string = '',
     @AuthUser({ nullable: true }) user: AuthenticatedUser | null,
-  ): Observable<PostEntity> {
+  ): Observable<PostDto> {
     const includeLike: boolean = include.includes('ownReaction');
     if (includeLike && !user) throw new UnauthorizedException();
-    return this.postsService
-      .findOne(id)
-      .pipe(catchError(() => throwError(() => new NotFoundException())));
+    return this.postsService.findOne(id, ['user']).pipe(
+      map((post) => PostDto.fromEntity(post)),
+      catchError(() => throwError(() => new NotFoundException())),
+    );
   }
 
-  @UseGuards(AuthGuard())
+  @ApiOperation({
+    summary: 'Update a post',
+    description: 'Requires authentication',
+  })
+  @ApiBearerAuth()
+  @ApiParam({ name: 'id', required: true, type: 'number', example: 1 })
+  @ApiBody({ type: UpdatePostDto, required: true })
+  @ApiResponse({
+    status: 200,
+    description: 'The post has been successfully updated.',
+    type: PostDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized.',
+    type: UnauthorizedExceptionDto,
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden.',
+    type: ForbiddenExceptionDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Post not found.',
+    type: NotFoundExceptionDto,
+  })
   @Patch(':id')
+  @UseGuards(AuthGuard())
   public update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updatePostDto: UpdatePostDto,
     @AuthUser() user: AuthenticatedUser,
-  ): Observable<PostEntity> {
+  ): Observable<PostDto> {
     return this.checkAuthorization(id, user).pipe(
       switchMap((oldPost) =>
         this.postsService
           .update(id, updatePostDto)
-          .pipe(map((newPost) => defaults(newPost, oldPost))),
+          .pipe(
+            map((newPost) =>
+              PostDto.fromEntity(defaults(omitBy(newPost, isNil), oldPost)),
+            ),
+          ),
       ),
     );
   }
 
-  @UseGuards(AuthGuard())
+  @ApiOperation({
+    summary: 'Delete a post',
+    description: 'Requires authentication',
+  })
+  @ApiBearerAuth()
+  @ApiParam({ name: 'id', required: true, type: 'number', example: 1 })
+  @ApiResponse({
+    status: 200,
+    description: 'The post has been successfully deleted.',
+    type: PostDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized.',
+    type: UnauthorizedExceptionDto,
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden.',
+    type: ForbiddenExceptionDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Post not found.',
+    type: NotFoundExceptionDto,
+  })
   @Delete(':id')
+  @UseGuards(AuthGuard())
   public remove(
     @Param('id', ParseIntPipe) id: number,
     @AuthUser() user: AuthenticatedUser,
-  ): Observable<PostEntity> {
+  ): Observable<PostDto> {
     return this.checkAuthorization(id, user).pipe(
-      switchMap((post) => this.postsService.remove(id).pipe(map(() => post))),
+      switchMap((post) =>
+        this.postsService.remove(id).pipe(map(() => PostDto.fromEntity(post))),
+      ),
     );
   }
 

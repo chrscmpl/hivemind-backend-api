@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../entities/user.entity';
 import { Repository } from 'typeorm';
 import { from, Observable } from 'rxjs';
-import { PublicUserDto } from '../dto/public-user.dto';
+import { UserDto } from '../dto/user.dto';
 
 @Injectable()
 export class UsersService {
@@ -12,8 +12,8 @@ export class UsersService {
     private readonly usersRepository: Repository<UserEntity>,
   ) {}
 
-  public sanitizeUser(user: UserEntity): PublicUserDto {
-    return PublicUserDto.fromUser(user);
+  public sanitizeUser(user: UserEntity): UserDto {
+    return UserDto.fromUser(user);
   }
 
   public findOne(id: number): Observable<UserEntity> {
