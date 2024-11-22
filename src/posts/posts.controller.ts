@@ -39,6 +39,7 @@ import { UnauthorizedExceptionDto } from 'src/common/dto/unauthorized-exception.
 import { PostPaginationDto } from './dto/post-pagination.dto';
 import { NotFoundExceptionDto } from 'src/common/dto/not-found-exception.dto';
 import { ForbiddenExceptionDto } from 'src/common/dto/forbidden-exception.dto';
+import { BadRequestExceptionDto } from 'src/common/dto/bad-request-exception.dto';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -88,6 +89,11 @@ export class PostsController {
     status: 200,
     description: 'The posts have been successfully found.',
     type: PostPaginationDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid request body.',
+    type: BadRequestExceptionDto,
   })
   @ApiResponse({
     status: 401,
@@ -163,6 +169,11 @@ export class PostsController {
     type: PostDto,
   })
   @ApiResponse({
+    status: 400,
+    description: 'Invalid request body.',
+    type: BadRequestExceptionDto,
+  })
+  @ApiResponse({
     status: 401,
     description: 'Unauthorized.',
     type: UnauthorizedExceptionDto,
@@ -207,6 +218,11 @@ export class PostsController {
     status: 200,
     description: 'The post has been successfully deleted.',
     type: PostDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid request body.',
+    type: BadRequestExceptionDto,
   })
   @ApiResponse({
     status: 401,
