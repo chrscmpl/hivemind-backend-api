@@ -16,11 +16,11 @@ export class UsersService {
   }
 
   public findOne(id: number): Observable<User> {
-    return from(this.usersRepository.findOneBy({ id }));
+    return from(this.usersRepository.findOneByOrFail({ id }));
   }
 
   public findOneByEmail(email: string): Observable<User> {
-    return from(this.usersRepository.findOneBy({ email }));
+    return from(this.usersRepository.findOneByOrFail({ email }));
   }
 
   public create(user: Omit<User, 'id' | 'posts'>): Observable<User> {

@@ -29,15 +29,15 @@ export class PostsService {
     return from(paginate<Post>(this.postsRepository, options));
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} post`;
+  findOne(id: number): Observable<Post> {
+    return from(this.postsRepository.findOneByOrFail({ id }));
   }
 
   update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
+    return from(this.postsRepository.update(id, updatePostDto));
   }
 
   remove(id: number) {
-    return `This action removes a #${id} post`;
+    return from(this.postsRepository.delete(id));
   }
 }

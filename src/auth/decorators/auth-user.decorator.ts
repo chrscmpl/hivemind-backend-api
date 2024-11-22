@@ -10,13 +10,10 @@ export const AuthUser = createParamDecorator(
       | null
       | undefined;
 
-    if (!user) {
-      if (!data.nullable || user === undefined) {
-        throw new Error('@AuthUser: Unexpected null or undefined user');
-      }
-      return user;
+    if (!user && !data.nullable) {
+      throw new Error('@AuthUser: Unexpected null or undefined user');
     }
 
-    return AuthenticatedUser.fromPayload(user);
+    return user ? AuthenticatedUser.fromPayload(user) : null;
   },
 );

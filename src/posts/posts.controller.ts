@@ -12,6 +12,8 @@ import {
   DefaultValuePipe,
   ParseIntPipe,
   ValidationPipe,
+  NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { PostsService } from './services/posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -21,8 +23,9 @@ import { AuthenticatedUser } from 'src/auth/entities/authenticated-user.entity';
 import { OptionalAuthGuard } from 'src/auth/guards/optional-auth.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { Post as PostEntity } from './entities/post.entity';
-import { Observable } from 'rxjs';
+import { catchError, map, Observable, switchMap, tap, throwError } from 'rxjs';
 import { Pagination } from 'nestjs-typeorm-paginate';
+import { omit } from 'lodash';
 
 @Controller('posts')
 export class PostsController {
@@ -30,45 +33,76 @@ export class PostsController {
 
   @Post()
   @UseGuards(AuthGuard())
-  create(
+  public create(
     @Body(ValidationPipe) createPostDto: CreatePostDto,
     @AuthUser() user: AuthenticatedUser,
-  ): Observable<PostEntity> {
-    return this.postsService.create(createPostDto, user.id);
+  ): Observable<Omit<PostEntity, 'user'>> {
+    return this.postsService
+      .create(createPostDto, user.id)
+      .pipe(map((post) => omit(post, 'user')));
   }
 
   @Get()
   @UseGuards(OptionalAuthGuard)
-  findAll(
+  public findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number = 10,
     @Query('include', new DefaultValuePipe('')) include: string = '',
     @AuthUser({ nullable: true }) user: AuthenticatedUser | null,
   ): Observable<Pagination<PostEntity>> {
-    const includeLike: boolean = include.includes('ownLike');
+    const includeLike: boolean = include.includes('ownReaction');
     if (includeLike && !user) throw new UnauthorizedException();
 
     return this.postsService.paginate({ page, limit });
   }
 
   @Get(':id')
-  findOne(
-    @Param('id') id: string,
+  public findOne(
+    @Param('id', ParseIntPipe) id: number,
     @Query('include', new DefaultValuePipe('')) include: string = '',
     @AuthUser({ nullable: true }) user: AuthenticatedUser | null,
-  ) {
-    const includeLike: boolean = include.includes('ownLike');
+  ): Observable<PostEntity> {
+    const includeLike: boolean = include.includes('ownReaction');
     if (includeLike && !user) throw new UnauthorizedException();
-    return this.postsService.findOne(+id);
+    return this.postsService
+      .findOne(id)
+      .pipe(catchError(() => throwError(() => new NotFoundException())));
   }
 
+  @UseGuards(AuthGuard())
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-    return this.postsService.update(+id, updatePostDto);
+  public update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updatePostDto: UpdatePostDto,
+    @AuthUser() user: AuthenticatedUser,
+  ) {
+    return this.checkAuthorization(id, user).pipe(
+      switchMap(() => this.postsService.update(id, updatePostDto)),
+    );
   }
 
+  @UseGuards(AuthGuard())
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.postsService.remove(+id);
+  public remove(
+    @Param('id', ParseIntPipe) id: number,
+    @AuthUser() user: AuthenticatedUser,
+  ) {
+    return this.checkAuthorization(id, user).pipe(
+      switchMap(() => this.postsService.remove(id)),
+    );
+  }
+
+  private checkAuthorization(
+    postId: number,
+    user: AuthenticatedUser,
+  ): Observable<PostEntity> {
+    return this.postsService.findOne(postId).pipe(
+      catchError(() => throwError(() => new NotFoundException())),
+      tap((post) => {
+        if (post.userId !== user.id) {
+          throw new ForbiddenException();
+        }
+      }),
+    );
   }
 }
