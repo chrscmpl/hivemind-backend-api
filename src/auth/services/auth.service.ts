@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { SanitizedPrivateUser } from '../entities/sanitized-private-user.entity';
-import { User } from 'src/users/entities/user.entity';
+import { SanitizedPrivateUserDto } from '../dto/sanitized-private-user.dto';
+import { UserEntity } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/services/users.service';
 import { map, Observable } from 'rxjs';
 import { AuthenticatedUser } from '../entities/authenticated-user.entity';
@@ -9,11 +9,11 @@ import { AuthenticatedUser } from '../entities/authenticated-user.entity';
 export class AuthService {
   public constructor(private readonly usersService: UsersService) {}
 
-  public sanitizeUser(user: User): SanitizedPrivateUser {
-    return SanitizedPrivateUser.fromUser(user);
+  public sanitizeUser(user: UserEntity): SanitizedPrivateUserDto {
+    return SanitizedPrivateUserDto.fromUser(user);
   }
 
-  public getSanitizedUser(id: number): Observable<SanitizedPrivateUser> {
+  public getSanitizedUser(id: number): Observable<SanitizedPrivateUserDto> {
     return this.usersService
       .findOne(id)
       .pipe(map((user) => this.sanitizeUser(user)));

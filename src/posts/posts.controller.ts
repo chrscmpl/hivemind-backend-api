@@ -22,10 +22,10 @@ import { AuthUser } from 'src/auth/decorators/auth-user.decorator';
 import { AuthenticatedUser } from 'src/auth/entities/authenticated-user.entity';
 import { OptionalAuthGuard } from 'src/auth/guards/optional-auth.guard';
 import { AuthGuard } from '@nestjs/passport';
-import { Post as PostEntity } from './entities/post.entity';
+import { PostEntity } from './entities/post.entity';
 import { catchError, map, Observable, switchMap, tap, throwError } from 'rxjs';
 import { Pagination } from 'nestjs-typeorm-paginate';
-import { omit } from 'lodash';
+import { defaults, omit } from 'lodash';
 
 @Controller('posts')
 export class PostsController {
@@ -75,9 +75,13 @@ export class PostsController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updatePostDto: UpdatePostDto,
     @AuthUser() user: AuthenticatedUser,
-  ) {
+  ): Observable<PostEntity> {
     return this.checkAuthorization(id, user).pipe(
-      switchMap(() => this.postsService.update(id, updatePostDto)),
+      switchMap((oldPost) =>
+        this.postsService
+          .update(id, updatePostDto)
+          .pipe(map((newPost) => defaults(newPost, oldPost))),
+      ),
     );
   }
 
@@ -86,9 +90,9 @@ export class PostsController {
   public remove(
     @Param('id', ParseIntPipe) id: number,
     @AuthUser() user: AuthenticatedUser,
-  ) {
+  ): Observable<PostEntity> {
     return this.checkAuthorization(id, user).pipe(
-      switchMap(() => this.postsService.remove(id)),
+      switchMap((post) => this.postsService.remove(id).pipe(map(() => post))),
     );
   }
 

@@ -18,7 +18,7 @@ import { SignupDto } from './dto/signup.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { GrantAuthInterceptor } from './interceptors/grant-auth.interceptor';
 import { catchError, Observable, throwError } from 'rxjs';
-import { SanitizedPrivateUser } from './entities/sanitized-private-user.entity';
+import { SanitizedPrivateUserDto } from './dto/sanitized-private-user.dto';
 import { AuthService } from './services/auth.service';
 
 @Controller('auth')
@@ -29,7 +29,7 @@ export class AuthController {
   @UseGuards(AuthGuard())
   public getAccountData(
     @AuthUser() user: AuthenticatedUser,
-  ): Observable<SanitizedPrivateUser> {
+  ): Observable<SanitizedPrivateUserDto> {
     return this.authService
       .getSanitizedUser(user.id)
       .pipe(catchError(() => throwError(() => new UnauthorizedException())));
