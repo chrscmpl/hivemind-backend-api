@@ -29,7 +29,10 @@ import { defaults, omit } from 'lodash';
 
 @Controller('posts')
 export class PostsController {
-  constructor(private readonly postsService: PostsService) {}
+  private static readonly DEFAULT_LIMIT = 10;
+  private static readonly MAX_LIMIT = 100;
+
+  public constructor(private readonly postsService: PostsService) {}
 
   @Post()
   @UseGuards(AuthGuard())
@@ -45,11 +48,14 @@ export class PostsController {
   @Get()
   @UseGuards(OptionalAuthGuard)
   public findAll(
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
-    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number = 10,
-    @Query('include', new DefaultValuePipe('')) include: string = '',
     @AuthUser({ nullable: true }) user: AuthenticatedUser | null,
+    @Query('include', new DefaultValuePipe('')) include: string = '',
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
+    @Query('limit', new DefaultValuePipe(PostsController.DEFAULT_LIMIT), ParseIntPipe) // prettier-ignore
+      limit: number = PostsController.DEFAULT_LIMIT, // prettier-ignore
   ): Observable<Pagination<PostEntity>> {
+    if (limit > PostsController.MAX_LIMIT) limit = PostsController.MAX_LIMIT;
+
     const includeLike: boolean = include.includes('ownReaction');
     if (includeLike && !user) throw new UnauthorizedException();
 
