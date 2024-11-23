@@ -26,8 +26,26 @@ export class PostsService {
     return from(this.postsRepository.save(post));
   }
 
-  paginate(options: IPaginationOptions): Observable<Pagination<PostEntity>> {
-    return from(paginate<PostEntity>(this.postsRepository, options));
+  paginate(
+    options: IPaginationOptions & {
+      includeVoteOf?: number;
+      includeContent?: boolean;
+    },
+  ): Observable<Pagination<PostEntity>> {
+    const columns: (keyof PostEntity)[] = [
+      'id',
+      'title',
+      'createdAt',
+      'updatedAt',
+      'userId',
+    ];
+    if (options.includeContent) columns.push('content');
+
+    return from(
+      paginate<PostEntity>(this.postsRepository, options, {
+        select: columns,
+      }),
+    );
   }
 
   findOne(id: number, relations: string[] = []): Observable<PostEntity> {

@@ -38,7 +38,7 @@ export class AuthController {
 
   @ApiOperation({
     summary: 'Get the account data of the authenticated user',
-    description: 'Requires authentication',
+    description: 'Requires authorization',
   })
   @ApiBearerAuth()
   @ApiResponse({
@@ -70,7 +70,7 @@ export class AuthController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid request body.',
+    description: 'Invalid request payload.',
     type: BadRequestExceptionDto,
   })
   @ApiResponse({
@@ -98,12 +98,12 @@ export class AuthController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid request body.',
+    description: 'Invalid request payload.',
     type: BadRequestExceptionDto,
   })
   @ApiResponse({
     status: 409,
-    description: 'User with this email already exists.',
+    description: 'User with this email or username already exists.',
     type: ConflictExceptionDto,
   })
   @Post('signup')

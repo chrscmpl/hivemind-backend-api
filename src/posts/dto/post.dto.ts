@@ -31,6 +31,20 @@ export class PostDto {
   })
   public content?: string;
 
+  @ApiProperty({
+    nullable: false,
+    type: 'string',
+    example: '2024-12-12T12:00:00Z',
+  })
+  public createdAt: string;
+
+  @ApiProperty({
+    nullable: false,
+    type: 'string',
+    example: '2024-12-12T12:00:00Z',
+  })
+  public updatedAt: string;
+
   @ApiProperty({ nullable: false, type: UserPreviewDto })
   public user: UserPreviewDto;
 
@@ -40,6 +54,8 @@ export class PostDto {
     postDto.id = post.id;
     postDto.title = post.title;
     postDto.content = post.content;
+    postDto.createdAt = `${post.createdAt.toISOString().split('.')[0]}Z`;
+    postDto.updatedAt = `${post.updatedAt.toISOString().split('.')[0]}Z`;
     postDto.user = UserPreviewDto.fromUser(
       defaults({ id: post.userId }, post.user),
     );

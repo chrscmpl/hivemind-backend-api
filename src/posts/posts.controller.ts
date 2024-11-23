@@ -51,7 +51,7 @@ export class PostsController {
 
   @ApiOperation({
     summary: 'Create a post',
-    description: 'Requires authentication',
+    description: 'Requires authorization',
   })
   @ApiBearerAuth()
   @ApiBody({ type: CreatePostDto, required: true })
@@ -59,6 +59,11 @@ export class PostsController {
     status: 201,
     description: 'The post has been successfully created.',
     type: PostDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid parameters or payload.',
+    type: BadRequestExceptionDto,
   })
   @ApiResponse({
     status: 401,
@@ -79,7 +84,8 @@ export class PostsController {
   @ApiOperation({
     summary: 'Paginated request for posts',
     description:
-      'Requires authentication if the include query parameter contains ownReaction',
+      'Requires authorization if the include query parameter contains ownReaction' +
+      'Posts do not contain content by default, unless the include query parameter contains content',
   })
   @ApiBearerAuth()
   @ApiQuery({ name: 'include', required: false, type: 'string', example: 'ownReaction' }) // prettier-ignore
@@ -92,7 +98,7 @@ export class PostsController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid request body.',
+    description: 'Invalid parameters or query parameters.',
     type: BadRequestExceptionDto,
   })
   @ApiResponse({
@@ -111,18 +117,25 @@ export class PostsController {
   ): Observable<PostPaginationDto> {
     if (limit > PostsController.MAX_LIMIT) limit = PostsController.MAX_LIMIT;
 
-    const includeLike: boolean = include.includes('ownReaction');
-    if (includeLike && !user) throw new UnauthorizedException();
+    const includeVote: boolean = include.includes('ownReaction');
+    const includeContent: boolean = include.includes('content');
+
+    if (includeVote && !user) throw new UnauthorizedException();
 
     return this.postsService
-      .paginate({ page, limit })
+      .paginate({
+        page,
+        limit,
+        includeContent,
+        includeVoteOf: includeVote ? user.id : null,
+      })
       .pipe(map((pagination) => PostPaginationDto.fromPagination(pagination)));
   }
 
   @ApiOperation({
     summary: 'Find a post by ID',
     description:
-      'Requires authentication if the include query parameter contains ownReaction',
+      'Requires authorization if the include query parameter contains ownReaction',
   })
   @ApiBearerAuth()
   @ApiParam({ name: 'id', required: true, type: 'number', example: 1 })
@@ -131,6 +144,11 @@ export class PostsController {
     status: 200,
     description: 'The post has been successfully found.',
     type: PostDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid parameters (id not numeric).',
+    type: BadRequestExceptionDto,
   })
   @ApiResponse({
     status: 401,
@@ -148,8 +166,8 @@ export class PostsController {
     @Query('include', new DefaultValuePipe('')) include: string = '',
     @AuthUser({ nullable: true }) user: AuthenticatedUser | null,
   ): Observable<PostDto> {
-    const includeLike: boolean = include.includes('ownReaction');
-    if (includeLike && !user) throw new UnauthorizedException();
+    const includeVote: boolean = include.includes('ownReaction');
+    if (includeVote && !user) throw new UnauthorizedException();
     return this.postsService.findOne(id, ['user']).pipe(
       map((post) => PostDto.fromEntity(post)),
       catchError(() => throwError(() => new NotFoundException())),
@@ -158,7 +176,7 @@ export class PostsController {
 
   @ApiOperation({
     summary: 'Update a post',
-    description: 'Requires authentication',
+    description: 'Requires authorization',
   })
   @ApiBearerAuth()
   @ApiParam({ name: 'id', required: true, type: 'number', example: 1 })
@@ -170,7 +188,7 @@ export class PostsController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid request body.',
+    description: 'Invalid parameters or payload.',
     type: BadRequestExceptionDto,
   })
   @ApiResponse({
@@ -210,7 +228,7 @@ export class PostsController {
 
   @ApiOperation({
     summary: 'Delete a post',
-    description: 'Requires authentication',
+    description: 'Requires authorization',
   })
   @ApiBearerAuth()
   @ApiParam({ name: 'id', required: true, type: 'number', example: 1 })
@@ -221,7 +239,7 @@ export class PostsController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid request body.',
+    description: 'Invalid parameters.',
     type: BadRequestExceptionDto,
   })
   @ApiResponse({

@@ -10,6 +10,7 @@ import { UserDto } from './dto/user.dto';
 import { Observable, catchError, map, throwError } from 'rxjs';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { NotFoundExceptionDto } from 'src/common/dto/not-found-exception.dto';
+import { BadRequestExceptionDto } from 'src/common/dto/bad-request-exception.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -22,6 +23,11 @@ export class UsersController {
     status: 200,
     description: 'The user has been successfully found.',
     type: UserDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid parameters (id not numeric).',
+    type: BadRequestExceptionDto,
   })
   @ApiResponse({
     status: 404,
