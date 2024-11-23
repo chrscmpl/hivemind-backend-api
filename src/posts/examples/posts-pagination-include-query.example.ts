@@ -4,10 +4,10 @@ export function getPostsPaginationIncludeQueryExamples() {
       summary: 'Default',
       description: 'Includes no additional fields',
     },
-    ownReaction: {
-      summary: 'Include own reaction',
+    ownVote: {
+      summary: 'Include own vote',
       description: "Includes the authenticated user's vote to the posts",
-      value: 'ownReaction',
+      value: 'ownVote',
     },
     content: {
       summary: 'Include content',
@@ -17,7 +17,7 @@ export function getPostsPaginationIncludeQueryExamples() {
     all: {
       summary: 'Include all',
       description: 'Includes all additional fields',
-      value: 'content,ownReaction',
+      value: 'content,ownVote',
     },
   };
 }

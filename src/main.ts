@@ -5,14 +5,14 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 
 function setupSwagger(app: Parameters<typeof SwaggerModule.createDocument>[0]) {
-  const swaggerConfig = new DocumentBuilder()
+  const swaggerBuilder = new DocumentBuilder()
     .setTitle('HiveMind API')
     .setDescription('The HiveMind API specification')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
 
-  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
+  const swaggerDocument = SwaggerModule.createDocument(app, swaggerBuilder);
 
   SwaggerModule.setup('api-docs', app, swaggerDocument);
 

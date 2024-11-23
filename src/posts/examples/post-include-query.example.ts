@@ -4,10 +4,10 @@ export function getPostIncludeQueryExamples() {
       summary: 'Default',
       description: 'Includes no additional fields',
     },
-    ownReaction: {
-      summary: 'Include own reaction',
+    ownVote: {
+      summary: 'Include own vote',
       description: "Includes the authenticated user's vote to the post",
-      value: 'ownReaction',
+      value: 'ownVote',
     },
   };
 }

@@ -5,19 +5,19 @@ import { ApiProperty } from '@nestjs/swagger';
 import { getPostArrayDtoExample } from '../examples/post-array.example';
 
 class PostPaginationMetaDto {
-  @ApiProperty({ nullable: false, type: 'number', example: 995 })
+  @ApiProperty({ nullable: false, type: 'number', example: 1002 })
   public totalItems: number;
 
-  @ApiProperty({ nullable: false, type: 'number', example: 5 })
+  @ApiProperty({ nullable: false, type: 'number', example: 10 })
   public itemCount: number;
 
   @ApiProperty({ nullable: false, type: 'number', example: 10 })
   public itemsPerPage: number;
 
-  @ApiProperty({ nullable: false, type: 'number', example: 100 })
+  @ApiProperty({ nullable: false, type: 'number', example: 101 })
   public totalPages: number;
 
-  @ApiProperty({ nullable: false, type: 'number', example: 100 })
+  @ApiProperty({ nullable: false, type: 'number', example: 25 })
   public currentPage: number;
 }
 

@@ -20,17 +20,10 @@ export class PostEntity {
   @Column({ nullable: true })
   public content?: string | null;
 
-  @CreateDateColumn({
-    type: 'datetime',
-    default: () => 'current_timestamp',
-  })
+  @CreateDateColumn()
   public createdAt: Date;
 
-  @UpdateDateColumn({
-    type: 'datetime',
-    default: () => 'current_timestamp',
-    onUpdate: 'current_timestamp',
-  })
+  @UpdateDateColumn()
   public updatedAt: Date;
 
   @Column({ name: 'user_id', nullable: false })

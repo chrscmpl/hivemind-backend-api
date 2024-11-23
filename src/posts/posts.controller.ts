@@ -86,7 +86,7 @@ export class PostsController {
     summary: 'Paginated request for posts',
     description:
       'Posts do not contain their content by default, unless the "include" query parameter contains the value "content".<br/><br/>' +
-      'Authentication is required for the value "ownReaction" of the "include" query parameter to take effect.<br/><br/>',
+      'Authentication is required for the value "ownVote" of the "include" query parameter to take effect.<br/><br/>',
   })
   @ApiBearerAuth()
   @ApiQuery({ name: 'page', required: false, type: 'number', example: 1, default: 1, minimum: 1 }) // prettier-ignore
@@ -115,8 +115,7 @@ export class PostsController {
 
     const includedFields: string[] = include.split(',');
 
-    const includeVote: boolean =
-      includedFields.includes('ownReaction') && !!user;
+    const includeVote: boolean = includedFields.includes('ownVote') && !!user;
     const includeContent: boolean = includedFields.includes('content');
 
     return this.postsService
@@ -132,7 +131,7 @@ export class PostsController {
   @ApiOperation({
     summary: 'Find a post by ID',
     description:
-      'Authentication is required for the value "ownReaction" of the "include" query parameter to take effect.',
+      'Authentication is required for the value "ownVote" of the "include" query parameter to take effect.',
   })
   @ApiBearerAuth()
   @ApiParam({ name: 'id', required: true, type: 'number', example: 1 })
@@ -160,8 +159,7 @@ export class PostsController {
   ): Observable<PostDto> {
     const includedFields: string[] = include.split(',');
 
-    const includeVote: boolean =
-      includedFields.includes('ownReaction') && !!user;
+    const includeVote: boolean = includedFields.includes('ownVote') && !!user;
 
     return this.postsService
       .findOne(id, {
