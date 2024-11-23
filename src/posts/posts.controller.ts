@@ -8,7 +8,6 @@ import {
   Delete,
   UseGuards,
   Query,
-  UnauthorizedException,
   DefaultValuePipe,
   ParseIntPipe,
   ValidationPipe,
@@ -40,7 +39,8 @@ import { PostPaginationDto } from './dto/post-pagination.dto';
 import { NotFoundExceptionDto } from 'src/common/dto/not-found-exception.dto';
 import { ForbiddenExceptionDto } from 'src/common/dto/forbidden-exception.dto';
 import { BadRequestExceptionDto } from 'src/common/dto/bad-request-exception.dto';
-import { getPostsPaginationIncludeQueryExamples } from './dto/examples/pagination-include-query.example.dto';
+import { getPostsPaginationIncludeQueryExamples } from './examples/posts-pagination-include-query.example';
+import { getPostIncludeQueryExamples } from './examples/post-include-query.example';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -52,7 +52,7 @@ export class PostsController {
 
   @ApiOperation({
     summary: 'Create a post',
-    description: 'Requires authorization',
+    description: 'Requires authentication',
   })
   @ApiBearerAuth()
   @ApiBody({ type: CreatePostDto, required: true })
@@ -85,13 +85,13 @@ export class PostsController {
   @ApiOperation({
     summary: 'Paginated request for posts',
     description:
-      'Requires authorization if the include query parameter contains ownReaction.\n' +
-      'Posts do not contain content by default, unless the include query parameter contains content',
+      'Posts do not contain their content by default, unless the "include" query parameter contains the value "content".<br/><br/>' +
+      'Authentication is required for the value "ownReaction" of the "include" query parameter to take effect.<br/><br/>',
   })
   @ApiBearerAuth()
   @ApiQuery({ name: 'page', required: false, type: 'number', example: 1, default: 1, minimum: 1 }) // prettier-ignore
   @ApiQuery({ name: 'limit', required: false, type: 'number', example: 10, default: PostsController.DEFAULT_LIMIT, maximum: PostsController.MAX_LIMIT }) // prettier-ignore
-  @ApiQuery({ name: 'include', required: false, type: 'string', examples: getPostsPaginationIncludeQueryExamples() }) // prettier-ignore
+  @ApiQuery({ name: 'include', description: 'comma-separated list of additional parameters', required: false, type: 'string', examples: getPostsPaginationIncludeQueryExamples() }) // prettier-ignore
   @ApiResponse({
     status: 200,
     description: 'The posts have been successfully found.',
@@ -101,11 +101,6 @@ export class PostsController {
     status: 400,
     description: 'Invalid parameters or query parameters.',
     type: BadRequestExceptionDto,
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized.',
-    type: UnauthorizedExceptionDto,
   })
   @Get()
   @UseGuards(OptionalAuthGuard)
@@ -118,10 +113,11 @@ export class PostsController {
   ): Observable<PostPaginationDto> {
     if (limit > PostsController.MAX_LIMIT) limit = PostsController.MAX_LIMIT;
 
-    const includeVote: boolean = include.includes('ownReaction');
-    const includeContent: boolean = include.includes('content');
+    const includedFields: string[] = include.split(',');
 
-    if (includeVote && !user) throw new UnauthorizedException();
+    const includeVote: boolean =
+      includedFields.includes('ownReaction') && !!user;
+    const includeContent: boolean = includedFields.includes('content');
 
     return this.postsService
       .paginate({
@@ -133,15 +129,14 @@ export class PostsController {
       .pipe(map((pagination) => PostPaginationDto.fromPagination(pagination)));
   }
 
-  /***********************************OPENAPI***********************************/
   @ApiOperation({
     summary: 'Find a post by ID',
     description:
-      'Requires authorization if the include query parameter contains ownReaction',
+      'Authentication is required for the value "ownReaction" of the "include" query parameter to take effect.',
   })
   @ApiBearerAuth()
   @ApiParam({ name: 'id', required: true, type: 'number', example: 1 })
-  @ApiQuery({ name: 'include', required: false, type: 'string', example: 'ownReaction' }) // prettier-ignore
+  @ApiQuery({ name: 'include', description: 'comma-separated list of additional parameters', required: false, type: 'string', examples: getPostIncludeQueryExamples() }) // prettier-ignore
   @ApiResponse({
     status: 200,
     description: 'The post has been successfully found.',
@@ -153,28 +148,30 @@ export class PostsController {
     type: BadRequestExceptionDto,
   })
   @ApiResponse({
-    status: 401,
-    description: 'Unauthorized.',
-    type: UnauthorizedExceptionDto,
-  })
-  @ApiResponse({
     status: 404,
     description: 'User not found.',
     type: NotFoundExceptionDto,
   })
-  /*****************************************************************************/
   @Get(':id')
   public findOne(
     @Param('id', ParseIntPipe) id: number,
     @Query('include', new DefaultValuePipe('')) include: string = '',
     @AuthUser({ nullable: true }) user: AuthenticatedUser | null,
   ): Observable<PostDto> {
-    const includeVote: boolean = include.includes('ownReaction');
-    if (includeVote && !user) throw new UnauthorizedException();
-    return this.postsService.findOne(id, ['user']).pipe(
-      map((post) => PostDto.fromEntity(post)),
-      catchError(() => throwError(() => new NotFoundException())),
-    );
+    const includedFields: string[] = include.split(',');
+
+    const includeVote: boolean =
+      includedFields.includes('ownReaction') && !!user;
+
+    return this.postsService
+      .findOne(id, {
+        relations: ['user'],
+        includeVoteOf: includeVote ? user.id : null,
+      })
+      .pipe(
+        map((post) => PostDto.fromEntity(post)),
+        catchError(() => throwError(() => new NotFoundException())),
+      );
   }
 
   @ApiOperation({

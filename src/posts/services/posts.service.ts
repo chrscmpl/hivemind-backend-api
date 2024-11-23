@@ -48,9 +48,18 @@ export class PostsService {
     );
   }
 
-  findOne(id: number, relations: string[] = []): Observable<PostEntity> {
+  findOne(
+    id: number,
+    options: { relations: string[]; includeVoteOf: number | null } = {
+      relations: [],
+      includeVoteOf: null,
+    },
+  ): Observable<PostEntity> {
     return from(
-      this.postsRepository.findOneOrFail({ where: { id }, relations }),
+      this.postsRepository.findOneOrFail({
+        where: { id },
+        relations: options.relations,
+      }),
     );
   }
 

@@ -2,7 +2,7 @@ import { Pagination } from 'nestjs-typeorm-paginate';
 import { PostEntity } from '../entities/post.entity';
 import { PostDto } from './post.dto';
 import { ApiProperty } from '@nestjs/swagger';
-import { getPostArrayDtoExample } from './examples/post-array.dto.example';
+import { getPostArrayDtoExample } from '../examples/post-array.example';
 
 class PostPaginationMetaDto {
   @ApiProperty({ nullable: false, type: 'number', example: 995 })

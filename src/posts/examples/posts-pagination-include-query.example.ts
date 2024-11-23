@@ -6,12 +6,12 @@ export function getPostsPaginationIncludeQueryExamples() {
     },
     ownReaction: {
       summary: 'Include own reaction',
-      description: "Includes the authenticated user's vote to the post",
+      description: "Includes the authenticated user's vote to the posts",
       value: 'ownReaction',
     },
     content: {
       summary: 'Include content',
-      description: 'Includes the content of the post',
+      description: 'Includes the content of the posts',
       value: 'content',
     },
     all: {
