@@ -65,6 +65,11 @@ export class AuthController {
   @ApiBody({ type: LoginDto, required: true })
   @ApiResponse({
     status: 200,
+    headers: {
+      'X-Set-Auth': {
+        description: 'The token to be used for authentication.',
+      },
+    },
     description: 'The user has been successfully logged in.',
     type: PrivateUserDto,
   })
@@ -93,6 +98,11 @@ export class AuthController {
   @ApiBody({ type: SignupDto, required: true })
   @ApiResponse({
     status: 201,
+    headers: {
+      'X-Set-Auth': {
+        description: 'The token to be used for authentication.',
+      },
+    },
     description: 'The user has been successfully created.',
     type: PrivateUserDto,
   })

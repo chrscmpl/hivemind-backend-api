@@ -13,6 +13,7 @@ import {
   ValidationPipe,
   NotFoundException,
   ForbiddenException,
+  ParseArrayPipe,
 } from '@nestjs/common';
 import { PostsService } from './services/posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -41,6 +42,8 @@ import { ForbiddenExceptionDto } from 'src/common/dto/forbidden-exception.dto';
 import { BadRequestExceptionDto } from 'src/common/dto/bad-request-exception.dto';
 import { getPostsPaginationIncludeQueryExamples } from './examples/posts-pagination-include-query.example';
 import { getPostIncludeQueryExamples } from './examples/post-include-query.example';
+import { MaxValuePipe } from 'src/common/pipes/max-value.pipe';
+import { MinValuePipe } from 'src/common/pipes/min-value.pipe';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -106,17 +109,24 @@ export class PostsController {
   @UseGuards(OptionalAuthGuard)
   public findAll(
     @AuthUser({ nullable: true }) user: AuthenticatedUser | null,
-    @Query('include', new DefaultValuePipe('')) include: string = '',
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
-    @Query('limit', new DefaultValuePipe(PostsController.DEFAULT_LIMIT), ParseIntPipe) // prettier-ignore
-      limit: number = PostsController.DEFAULT_LIMIT, // prettier-ignore
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe, new MinValuePipe(1))
+    page: number = 1,
+    @Query(
+      'limit',
+      new DefaultValuePipe(PostsController.DEFAULT_LIMIT),
+      ParseIntPipe,
+      new MinValuePipe(1),
+      new MaxValuePipe(PostsController.MAX_LIMIT),
+    )
+    limit: number = PostsController.DEFAULT_LIMIT,
+    @Query(
+      'include',
+      new ParseArrayPipe({ items: String, separator: ',', optional: true }),
+    )
+    include: string[] = [],
   ): Observable<PostPaginationDto> {
-    if (limit > PostsController.MAX_LIMIT) limit = PostsController.MAX_LIMIT;
-
-    const includedFields: string[] = include.split(',');
-
-    const includeVote: boolean = includedFields.includes('ownVote') && !!user;
-    const includeContent: boolean = includedFields.includes('content');
+    const includeVote: boolean = include.includes('ownVote') && !!user;
+    const includeContent: boolean = include.includes('content');
 
     return this.postsService
       .paginate({
@@ -154,12 +164,14 @@ export class PostsController {
   @Get(':id')
   public findOne(
     @Param('id', ParseIntPipe) id: number,
-    @Query('include', new DefaultValuePipe('')) include: string = '',
+    @Query(
+      'include',
+      new ParseArrayPipe({ items: String, separator: ',', optional: true }),
+    )
+    include: string[] = [],
     @AuthUser({ nullable: true }) user: AuthenticatedUser | null,
   ): Observable<PostDto> {
-    const includedFields: string[] = include.split(',');
-
-    const includeVote: boolean = includedFields.includes('ownVote') && !!user;
+    const includeVote: boolean = include.includes('ownVote') && !!user;
 
     return this.postsService
       .findOne(id, {

@@ -1,1 +1,1 @@
-export class Vote {}
+export class VoteEntity {}
