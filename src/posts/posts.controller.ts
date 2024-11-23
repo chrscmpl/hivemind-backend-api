@@ -40,6 +40,7 @@ import { PostPaginationDto } from './dto/post-pagination.dto';
 import { NotFoundExceptionDto } from 'src/common/dto/not-found-exception.dto';
 import { ForbiddenExceptionDto } from 'src/common/dto/forbidden-exception.dto';
 import { BadRequestExceptionDto } from 'src/common/dto/bad-request-exception.dto';
+import { getPostsPaginationIncludeQueryExamples } from './dto/examples/pagination-include-query.example.dto';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -84,13 +85,13 @@ export class PostsController {
   @ApiOperation({
     summary: 'Paginated request for posts',
     description:
-      'Requires authorization if the include query parameter contains ownReaction' +
+      'Requires authorization if the include query parameter contains ownReaction.\n' +
       'Posts do not contain content by default, unless the include query parameter contains content',
   })
   @ApiBearerAuth()
-  @ApiQuery({ name: 'include', required: false, type: 'string', example: 'ownReaction' }) // prettier-ignore
-  @ApiQuery({ name: 'page', required: false, type: 'number', example: 1 })
-  @ApiQuery({ name: 'limit', required: false, type: 'number', example: 10 })
+  @ApiQuery({ name: 'page', required: false, type: 'number', example: 1, default: 1, minimum: 1 }) // prettier-ignore
+  @ApiQuery({ name: 'limit', required: false, type: 'number', example: 10, default: PostsController.DEFAULT_LIMIT, maximum: PostsController.MAX_LIMIT }) // prettier-ignore
+  @ApiQuery({ name: 'include', required: false, type: 'string', examples: getPostsPaginationIncludeQueryExamples() }) // prettier-ignore
   @ApiResponse({
     status: 200,
     description: 'The posts have been successfully found.',
@@ -132,6 +133,7 @@ export class PostsController {
       .pipe(map((pagination) => PostPaginationDto.fromPagination(pagination)));
   }
 
+  /***********************************OPENAPI***********************************/
   @ApiOperation({
     summary: 'Find a post by ID',
     description:
@@ -160,6 +162,7 @@ export class PostsController {
     description: 'User not found.',
     type: NotFoundExceptionDto,
   })
+  /*****************************************************************************/
   @Get(':id')
   public findOne(
     @Param('id', ParseIntPipe) id: number,
