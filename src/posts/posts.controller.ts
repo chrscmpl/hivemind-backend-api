@@ -108,14 +108,20 @@ export class PostsController {
   @Get()
   @UseGuards(OptionalAuthGuard)
   public findAll(
-    @AuthUser({ nullable: true }) user: AuthenticatedUser | null,
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe, new MinValuePipe(1))
+    @AuthUser({ nullable: true })
+    user: AuthenticatedUser | null,
+    @Query(
+      'page',
+      new DefaultValuePipe(1),
+      ParseIntPipe,
+      new MinValuePipe(1, { strict: true }),
+    )
     page: number = 1,
     @Query(
       'limit',
       new DefaultValuePipe(PostsController.DEFAULT_LIMIT),
       ParseIntPipe,
-      new MinValuePipe(1),
+      new MinValuePipe(1, { strict: true }),
       new MaxValuePipe(PostsController.MAX_LIMIT),
     )
     limit: number = PostsController.DEFAULT_LIMIT,
