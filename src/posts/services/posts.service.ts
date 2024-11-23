@@ -18,7 +18,10 @@ export class PostsService {
     private readonly postsRepository: Repository<PostEntity>,
   ) {}
 
-  create(createPostDto: CreatePostDto, userId: number): Observable<PostEntity> {
+  public create(
+    createPostDto: CreatePostDto,
+    userId: number,
+  ): Observable<PostEntity> {
     const post = this.postsRepository.create({
       ...createPostDto,
       user: { id: userId },
@@ -26,7 +29,7 @@ export class PostsService {
     return from(this.postsRepository.save(post));
   }
 
-  paginate(
+  public paginate(
     options: IPaginationOptions & {
       includeVoteOf?: number;
       includeContent?: boolean;
@@ -48,7 +51,7 @@ export class PostsService {
     );
   }
 
-  findOne(
+  public findOne(
     id: number,
     options: { relations: string[]; includeVoteOf: number | null } = {
       relations: [],
@@ -63,11 +66,14 @@ export class PostsService {
     );
   }
 
-  update(id: number, updatePostDto: UpdatePostDto): Observable<PostEntity> {
+  public update(
+    id: number,
+    updatePostDto: UpdatePostDto,
+  ): Observable<PostEntity> {
     return from(this.postsRepository.save({ id, ...updatePostDto }));
   }
 
-  remove(id: number): Observable<unknown> {
+  public remove(id: number): Observable<unknown> {
     return from(this.postsRepository.delete(id));
   }
 }

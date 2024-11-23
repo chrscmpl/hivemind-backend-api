@@ -68,7 +68,7 @@ export class PostsController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Unauthorized.',
+    description: 'User is not authenticated.',
     type: UnauthorizedExceptionDto,
   })
   @Post()
@@ -191,12 +191,12 @@ export class PostsController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Unauthorized.',
+    description: 'User is not authenticated.',
     type: UnauthorizedExceptionDto,
   })
   @ApiResponse({
     status: 403,
-    description: 'Forbidden.',
+    description: 'User is not the owner of the post.',
     type: ForbiddenExceptionDto,
   })
   @ApiResponse({
@@ -242,12 +242,12 @@ export class PostsController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Unauthorized.',
+    description: 'User is not authenticated.',
     type: UnauthorizedExceptionDto,
   })
   @ApiResponse({
     status: 403,
-    description: 'Forbidden.',
+    description: 'User is not the owner of the post.',
     type: ForbiddenExceptionDto,
   })
   @ApiResponse({
