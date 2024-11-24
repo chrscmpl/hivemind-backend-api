@@ -1,7 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreatePostDto } from './create-post.dto';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, Length, MaxLength } from 'class-validator';
+import { IsOptional, IsString, Length, MaxLength } from 'class-validator';
 
 export class UpdatePostDto extends PartialType(CreatePostDto) {
   @ApiProperty({
@@ -12,6 +12,7 @@ export class UpdatePostDto extends PartialType(CreatePostDto) {
     maxLength: 100,
   })
   @IsOptional()
+  @IsString()
   @Length(5, 100)
   public title: string;
 
@@ -22,6 +23,7 @@ export class UpdatePostDto extends PartialType(CreatePostDto) {
     maxLength: 1000,
   })
   @IsOptional()
+  @IsString()
   @MaxLength(1000)
   public content?: string;
 }

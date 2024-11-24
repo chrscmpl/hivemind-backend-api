@@ -18,8 +18,10 @@ import {
 import { PostsService } from './services/posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { AuthUser } from 'src/common/decorators/auth-user.decorator';
-import { AuthUserEntity } from 'src/common/entities/auth-user.entity';
+import {
+  AuthUser,
+  AuthenticatedUser,
+} from 'src/common/decorators/auth-user.decorator';
 import { OptionalAuthGuard } from 'src/common/guards/optional-auth.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { PostEntity } from './entities/post.entity';
@@ -78,7 +80,7 @@ export class PostsController {
   @UseGuards(AuthGuard())
   public create(
     @Body(ValidationPipe) createPostDto: CreatePostDto,
-    @AuthUser() user: AuthUserEntity,
+    @AuthUser() user: AuthenticatedUser,
   ): Observable<PostDto> {
     return this.postsService
       .create(createPostDto, user.id)
@@ -86,7 +88,7 @@ export class PostsController {
   }
 
   @ApiOperation({
-    summary: 'Paginated request for posts',
+    summary: 'Request for paginated  posts',
     description:
       'Posts do not contain their content by default, unless the "include" query parameter contains the value "content".<br/><br/>' +
       'Authentication is required for the value "ownVote" of the "include" query parameter to take effect.<br/><br/>',
@@ -94,7 +96,7 @@ export class PostsController {
   @ApiBearerAuth()
   @ApiQuery({ name: 'page', required: false, type: 'number', example: 1, default: 1, minimum: 1 }) // prettier-ignore
   @ApiQuery({ name: 'limit', required: false, type: 'number', example: 10, default: PostsController.DEFAULT_LIMIT, maximum: PostsController.MAX_LIMIT }) // prettier-ignore
-  @ApiQuery({ name: 'include', description: 'comma-separated list of additional parameters', required: false, type: 'string', examples: getPostsPaginationIncludeQueryExamples() }) // prettier-ignore
+  @ApiQuery({ name: 'include', description: 'Comma-separated list of additional parameters', required: false, type: 'string', examples: getPostsPaginationIncludeQueryExamples() }) // prettier-ignore
   @ApiResponse({
     status: 200,
     description: 'The posts have been successfully found.',
@@ -109,7 +111,7 @@ export class PostsController {
   @UseGuards(OptionalAuthGuard)
   public findAll(
     @AuthUser({ nullable: true })
-    user: AuthUserEntity | null,
+    user: AuthenticatedUser | null,
     @Query(
       'page',
       new DefaultValuePipe(1),
@@ -175,7 +177,7 @@ export class PostsController {
       new ParseArrayPipe({ items: String, separator: ',', optional: true }),
     )
     include: string[] = [],
-    @AuthUser({ nullable: true }) user: AuthUserEntity | null,
+    @AuthUser({ nullable: true }) user: AuthenticatedUser | null,
   ): Observable<PostDto> {
     const includeVote: boolean = include.includes('ownVote') && !!user;
 
@@ -227,7 +229,7 @@ export class PostsController {
   public update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updatePostDto: UpdatePostDto,
-    @AuthUser() user: AuthUserEntity,
+    @AuthUser() user: AuthenticatedUser,
   ): Observable<PostDto> {
     return this.checkAuthorization(id, user).pipe(
       switchMap((oldPost) =>
@@ -277,7 +279,7 @@ export class PostsController {
   @UseGuards(AuthGuard())
   public remove(
     @Param('id', ParseIntPipe) id: number,
-    @AuthUser() user: AuthUserEntity,
+    @AuthUser() user: AuthenticatedUser,
   ): Observable<PostDto> {
     return this.checkAuthorization(id, user).pipe(
       switchMap((post) =>
@@ -288,7 +290,7 @@ export class PostsController {
 
   private checkAuthorization(
     postId: number,
-    user: AuthUserEntity,
+    user: AuthenticatedUser,
   ): Observable<PostEntity> {
     return this.postsService.findOne(postId).pipe(
       catchError(() => throwError(() => new NotFoundException())),

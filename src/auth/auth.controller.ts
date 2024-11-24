@@ -11,8 +11,10 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
-import { AuthUser } from '../common/decorators/auth-user.decorator';
-import { AuthUserEntity } from '../common/entities/auth-user.entity';
+import {
+  AuthUser,
+  AuthenticatedUser,
+} from '../common/decorators/auth-user.decorator';
 import { SignupDto } from './dto/signup.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { catchError, map, Observable, throwError } from 'rxjs';
@@ -53,7 +55,7 @@ export class AuthController {
   @Get('account')
   @UseGuards(AuthGuard())
   public getAccountData(
-    @AuthUser() user: AuthUserEntity,
+    @AuthUser() user: AuthenticatedUser,
   ): Observable<PrivateUserDto> {
     return this.authService.getUser(user.id).pipe(
       catchError(() => throwError(() => new UnauthorizedException())),
@@ -134,7 +136,7 @@ export class AuthController {
   @Post('renew')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard())
-  public renew(@AuthUser() user: AuthUserEntity): Observable<AuthTokenDto> {
+  public renew(@AuthUser() user: AuthenticatedUser): Observable<AuthTokenDto> {
     return this.authService.getUser(user.id).pipe(
       catchError(() => throwError(() => new UnauthorizedException())),
       map((user) => new AuthTokenDto(this.authService.signToken(user))),
