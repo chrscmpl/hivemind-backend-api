@@ -1,6 +1,6 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { AuthTokenPayload } from '../dto/auth-token-payload.dto';
-import { AuthenticatedUser } from '../entities/authenticated-user.entity';
+import { AuthUserEntity } from '../entities/auth-user.entity';
 
 // Req.user is set by AuthGuard
 export const AuthUser = createParamDecorator(
@@ -14,6 +14,6 @@ export const AuthUser = createParamDecorator(
       throw new Error('@AuthUser: Unexpected null or undefined user');
     }
 
-    return user ? AuthenticatedUser.fromPayload(user) : null;
+    return user ? AuthUserEntity.fromPayload(user) : null;
   },
 );

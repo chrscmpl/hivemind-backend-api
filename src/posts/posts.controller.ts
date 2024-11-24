@@ -18,9 +18,9 @@ import {
 import { PostsService } from './services/posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { AuthUser } from 'src/auth/decorators/auth-user.decorator';
-import { AuthenticatedUser } from 'src/auth/entities/authenticated-user.entity';
-import { OptionalAuthGuard } from 'src/auth/guards/optional-auth.guard';
+import { AuthUser } from 'src/common/decorators/auth-user.decorator';
+import { AuthUserEntity } from 'src/common/entities/auth-user.entity';
+import { OptionalAuthGuard } from 'src/common/guards/optional-auth.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { PostEntity } from './entities/post.entity';
 import { catchError, map, Observable, switchMap, tap, throwError } from 'rxjs';
@@ -35,11 +35,11 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { PostDto } from './dto/post.dto';
-import { UnauthorizedExceptionDto } from 'src/common/dto/unauthorized-exception.dto';
+import { UnauthorizedExceptionDto } from 'src/common/dto/exceptions/unauthorized-exception.dto';
 import { PostPaginationDto } from './dto/post-pagination.dto';
-import { NotFoundExceptionDto } from 'src/common/dto/not-found-exception.dto';
-import { ForbiddenExceptionDto } from 'src/common/dto/forbidden-exception.dto';
-import { BadRequestExceptionDto } from 'src/common/dto/bad-request-exception.dto';
+import { NotFoundExceptionDto } from 'src/common/dto/exceptions/not-found-exception.dto';
+import { ForbiddenExceptionDto } from 'src/common/dto/exceptions/forbidden-exception.dto';
+import { BadRequestExceptionDto } from 'src/common/dto/exceptions/bad-request-exception.dto';
 import { getPostsPaginationIncludeQueryExamples } from './examples/posts-pagination-include-query.example';
 import { getPostIncludeQueryExamples } from './examples/post-include-query.example';
 import { MaxValuePipe } from 'src/common/pipes/max-value.pipe';
@@ -78,7 +78,7 @@ export class PostsController {
   @UseGuards(AuthGuard())
   public create(
     @Body(ValidationPipe) createPostDto: CreatePostDto,
-    @AuthUser() user: AuthenticatedUser,
+    @AuthUser() user: AuthUserEntity,
   ): Observable<PostDto> {
     return this.postsService
       .create(createPostDto, user.id)
@@ -109,7 +109,7 @@ export class PostsController {
   @UseGuards(OptionalAuthGuard)
   public findAll(
     @AuthUser({ nullable: true })
-    user: AuthenticatedUser | null,
+    user: AuthUserEntity | null,
     @Query(
       'page',
       new DefaultValuePipe(1),
@@ -175,7 +175,7 @@ export class PostsController {
       new ParseArrayPipe({ items: String, separator: ',', optional: true }),
     )
     include: string[] = [],
-    @AuthUser({ nullable: true }) user: AuthenticatedUser | null,
+    @AuthUser({ nullable: true }) user: AuthUserEntity | null,
   ): Observable<PostDto> {
     const includeVote: boolean = include.includes('ownVote') && !!user;
 
@@ -227,7 +227,7 @@ export class PostsController {
   public update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updatePostDto: UpdatePostDto,
-    @AuthUser() user: AuthenticatedUser,
+    @AuthUser() user: AuthUserEntity,
   ): Observable<PostDto> {
     return this.checkAuthorization(id, user).pipe(
       switchMap((oldPost) =>
@@ -277,7 +277,7 @@ export class PostsController {
   @UseGuards(AuthGuard())
   public remove(
     @Param('id', ParseIntPipe) id: number,
-    @AuthUser() user: AuthenticatedUser,
+    @AuthUser() user: AuthUserEntity,
   ): Observable<PostDto> {
     return this.checkAuthorization(id, user).pipe(
       switchMap((post) =>
@@ -288,7 +288,7 @@ export class PostsController {
 
   private checkAuthorization(
     postId: number,
-    user: AuthenticatedUser,
+    user: AuthUserEntity,
   ): Observable<PostEntity> {
     return this.postsService.findOne(postId).pipe(
       catchError(() => throwError(() => new NotFoundException())),

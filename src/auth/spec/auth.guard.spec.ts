@@ -1,4 +1,4 @@
-import { OptionalAuthGuard } from '../guards/optional-auth.guard';
+import { OptionalAuthGuard } from '../../common/guards/optional-auth.guard';
 
 describe('OptionalAuthGuard', () => {
   it('should be defined', () => {

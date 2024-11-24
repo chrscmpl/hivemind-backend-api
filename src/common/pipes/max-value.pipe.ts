@@ -20,7 +20,7 @@ export class MaxValuePipe implements PipeTransform {
 
     if (ret !== value && this.strict) {
       throw new BadRequestException(
-        `The value of ${metadata.data} must be less than or equal to ${this.max}.`,
+        `${metadata.data} must be less than or equal to ${this.max}.`,
       );
     }
 

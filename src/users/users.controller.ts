@@ -9,8 +9,8 @@ import { UsersService } from './services/users.service';
 import { UserDto } from './dto/user.dto';
 import { Observable, catchError, map, throwError } from 'rxjs';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { NotFoundExceptionDto } from 'src/common/dto/not-found-exception.dto';
-import { BadRequestExceptionDto } from 'src/common/dto/bad-request-exception.dto';
+import { NotFoundExceptionDto } from 'src/common/dto/exceptions/not-found-exception.dto';
+import { BadRequestExceptionDto } from 'src/common/dto/exceptions/bad-request-exception.dto';
 
 @ApiTags('Users')
 @Controller('users')

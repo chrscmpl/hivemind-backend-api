@@ -20,7 +20,7 @@ export class MinValuePipe implements PipeTransform {
 
     if (ret !== value && this.strict) {
       throw new BadRequestException(
-        `The value of ${metadata.data} must be greater than or equal to ${this.min}.`,
+        `${metadata.data} must be greater than or equal to ${this.min}.`,
       );
     }
 

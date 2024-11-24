@@ -1,39 +1,35 @@
 import { Injectable } from '@nestjs/common';
-import { PrivateUserDto } from '../dto/private-user.dto';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/services/users.service';
-import { map, Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  public constructor(private readonly usersService: UsersService) {}
+  public constructor(
+    private readonly usersService: UsersService,
+    private readonly jwt: JwtService,
+  ) {}
 
-  public sanitizeUser(user: UserEntity): PrivateUserDto {
-    return PrivateUserDto.fromUser(user);
+  public getUser(id: number): Observable<UserEntity> {
+    return this.usersService.findOne(id);
   }
 
-  public getSanitizedUser(id: number): Observable<PrivateUserDto> {
-    return this.usersService
-      .findOne(id)
-      .pipe(map((user) => this.sanitizeUser(user)));
-  }
-
-  public login(email: string, password: string): Observable<PrivateUserDto> {
+  public login(email: string, password: string): Observable<UserEntity> {
     return this.usersService.findOneByEmail(email).pipe(
-      map((user) => {
-        if (user.password !== password) {
-          throw new Error('Invalid password');
-        }
-        return PrivateUserDto.fromUser(user);
+      tap((user) => {
+        if (user.password !== password) throw new Error('Invalid password');
       }),
     );
   }
 
   public signup(
     user: Parameters<UsersService['create']>[0],
-  ): Observable<PrivateUserDto> {
-    return this.usersService
-      .create(user)
-      .pipe(map((user) => PrivateUserDto.fromUser(user)));
+  ): Observable<UserEntity> {
+    return this.usersService.create(user);
+  }
+
+  public signToken(user: UserEntity): string {
+    return this.jwt.sign({ sub: user.id, username: user.username });
   }
 }
