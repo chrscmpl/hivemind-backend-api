@@ -69,7 +69,7 @@ export class PostsService {
   public update(
     id: number,
     updatePostDto: UpdatePostDto,
-  ): Observable<PostEntity> {
+  ): Observable<Partial<PostEntity>> {
     return from(this.postsRepository.save({ id, ...updatePostDto }));
   }
 

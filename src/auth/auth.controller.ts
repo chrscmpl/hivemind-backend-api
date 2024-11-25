@@ -17,7 +17,7 @@ import {
 } from '../common/decorators/auth-user.decorator';
 import { SignupDto } from './dto/signup.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { catchError, map, Observable, throwError } from 'rxjs';
+import { catchError, map, Observable, switchMap, throwError } from 'rxjs';
 import { PrivateUserDto } from './dto/private-user.dto';
 import { AuthService } from './services/auth.service';
 import {
@@ -87,7 +87,8 @@ export class AuthController {
   ): Observable<AuthTokenDto> {
     return this.authService.login(loginDto.email, loginDto.password).pipe(
       catchError(() => throwError(() => new UnauthorizedException())),
-      map((user) => new AuthTokenDto(this.authService.signToken(user))),
+      switchMap((user) => this.authService.signToken(user)),
+      map((token) => new AuthTokenDto(token)),
     );
   }
 
@@ -114,7 +115,8 @@ export class AuthController {
   ): Observable<AuthTokenDto> {
     return this.authService.signup(signupDto).pipe(
       catchError(() => throwError(() => new ConflictException())),
-      map((user) => new AuthTokenDto(this.authService.signToken(user))),
+      switchMap((user) => this.authService.signToken(user)),
+      map((token) => new AuthTokenDto(token)),
     );
   }
 
@@ -133,13 +135,16 @@ export class AuthController {
     description: 'User is not authenticated.',
     type: UnauthorizedExceptionDto,
   })
-  @Post('renew')
+  @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard())
-  public renew(@AuthUser() user: AuthenticatedUser): Observable<AuthTokenDto> {
+  public refresh(
+    @AuthUser() user: AuthenticatedUser,
+  ): Observable<AuthTokenDto> {
     return this.authService.getUser(user.id).pipe(
       catchError(() => throwError(() => new UnauthorizedException())),
-      map((user) => new AuthTokenDto(this.authService.signToken(user))),
+      switchMap((user) => this.authService.signToken(user)),
+      map((token) => new AuthTokenDto(token)),
     );
   }
 }

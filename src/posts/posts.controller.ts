@@ -228,14 +228,13 @@ export class PostsController {
   ): Observable<PostDto> {
     return this.checkAuthorization(id, user).pipe(
       switchMap((oldPost) =>
-        this.postsService
-          .update(id, updatePostDto)
-          .pipe(
-            map(
-              (newPost) =>
-                new PostDto(defaults(omitBy(newPost, isNil), oldPost)),
-            ),
+        this.postsService.update(id, updatePostDto).pipe(
+          map(
+            (newPost) =>
+              // returns the updated post, adding the old values that were not updated
+              new PostDto(defaults(omitBy(newPost, isNil), oldPost)),
           ),
+        ),
       ),
     );
   }
