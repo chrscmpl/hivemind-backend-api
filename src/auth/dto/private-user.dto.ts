@@ -15,9 +15,25 @@ export class PrivateUserDto {
   })
   public email: string;
 
+  @ApiProperty({
+    nullable: false,
+    type: 'string',
+    example: '2024-12-12T12:00:00Z',
+  })
+  public createdAt!: string;
+
+  @ApiProperty({
+    nullable: false,
+    type: 'string',
+    example: '2024-12-12T12:00:00Z',
+  })
+  public updatedAt!: string;
+
   public constructor(user: UserEntity) {
     this.id = user.id;
     this.username = user.username;
     this.email = user.email;
+    this.createdAt = `${user.createdAt.toISOString().split('.')[0]}Z`;
+    this.updatedAt = `${user.updatedAt.toISOString().split('.')[0]}Z`;
   }
 }

@@ -20,16 +20,16 @@ export class PostEntity {
   @Column({ nullable: true, type: 'text' })
   public content?: string | null;
 
-  @CreateDateColumn()
-  public createdAt!: Date;
-
-  @UpdateDateColumn()
-  public updatedAt!: Date;
-
   @Column({ name: 'user_id', nullable: false })
   public userId!: number;
 
   @ManyToOne(() => UserEntity, (user) => user.posts, { nullable: false })
   @JoinColumn({ name: 'user_id' })
   public user!: UserEntity;
+
+  @CreateDateColumn()
+  public createdAt!: Date;
+
+  @UpdateDateColumn()
+  public updatedAt!: Date;
 }

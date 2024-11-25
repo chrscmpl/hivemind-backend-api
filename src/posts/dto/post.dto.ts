@@ -39,7 +39,7 @@ export class PostDto {
   @ApiProperty({
     nullable: false,
     type: 'string',
-    example: '2024-12-12T12:00:00Z',
+    example: '2024-12-13T18:30:00Z',
   })
   public updatedAt: string;
 
