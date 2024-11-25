@@ -6,12 +6,12 @@ export class BadRequestExceptionDto {
     type: 'string',
     example: 'Bad Request',
   })
-  public message: string;
+  public message!: string;
 
   @ApiProperty({
     nullable: false,
     type: 'number',
     example: 400,
   })
-  public statusCode: number;
+  public statusCode!: number;
 }

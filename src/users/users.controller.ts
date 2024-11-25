@@ -37,7 +37,7 @@ export class UsersController {
   @Get(':id')
   public findOne(@Param('id', ParseIntPipe) id: number): Observable<UserDto> {
     return this.usersService.findOne(id).pipe(
-      map((user) => this.usersService.sanitizeUser(user)),
+      map((user) => new UserDto(user)),
       catchError(() => throwError(() => new NotFoundException())),
     );
   }

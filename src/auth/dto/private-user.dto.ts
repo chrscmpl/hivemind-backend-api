@@ -15,11 +15,9 @@ export class PrivateUserDto {
   })
   public email: string;
 
-  public static fromUser(user: UserEntity): PrivateUserDto {
-    const sanitizedUser = new PrivateUserDto();
-    sanitizedUser.id = user.id;
-    sanitizedUser.username = user.username;
-    sanitizedUser.email = user.email;
-    return sanitizedUser;
+  public constructor(user: UserEntity) {
+    this.id = user.id;
+    this.username = user.username;
+    this.email = user.email;
   }
 }

@@ -14,7 +14,7 @@ export class SignupDto {
     example: 'chrscmpl@example.com',
   })
   @IsEmail()
-  email: string;
+  email!: string;
 
   @ApiProperty({
     nullable: false,
@@ -29,7 +29,7 @@ export class SignupDto {
   @Matches(/^[a-zA-Z0-9_]*$/, {
     message: 'username must contain only letters, numbers, and underscores',
   })
-  username: string;
+  username!: string;
 
   @ApiProperty({
     nullable: false,
@@ -45,5 +45,5 @@ export class SignupDto {
     message:
       'password must contain at least one lowercase letter, one uppercase letter, one number, and one special character',
   })
-  password: string;
+  password!: string;
 }

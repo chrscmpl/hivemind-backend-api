@@ -8,10 +8,8 @@ export class UserDto {
   @ApiProperty({ nullable: false, type: 'string', example: 'chrscmpl' })
   username: string;
 
-  public static fromUser(user: UserEntity): UserDto {
-    const publicUser = new UserDto();
-    publicUser.id = user.id;
-    publicUser.username = user.username;
-    return publicUser;
+  public constructor(user: UserEntity) {
+    this.id = user.id;
+    this.username = user.username;
   }
 }

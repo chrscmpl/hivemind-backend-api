@@ -6,12 +6,12 @@ export class ForbiddenExceptionDto {
     type: 'string',
     example: 'Forbidden',
   })
-  public message: string;
+  public message!: string;
 
   @ApiProperty({
     nullable: false,
     type: 'number',
     example: 403,
   })
-  public statusCode: number;
+  public statusCode!: number;
 }

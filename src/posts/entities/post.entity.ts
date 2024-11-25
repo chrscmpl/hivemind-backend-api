@@ -12,24 +12,24 @@ import {
 @Entity()
 export class PostEntity {
   @PrimaryGeneratedColumn()
-  public id: number;
+  public id!: number;
 
   @Column({ nullable: false })
-  public title: string;
+  public title!: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'text' })
   public content?: string | null;
 
   @CreateDateColumn()
-  public createdAt: Date;
+  public createdAt!: Date;
 
   @UpdateDateColumn()
-  public updatedAt: Date;
+  public updatedAt!: Date;
 
   @Column({ name: 'user_id', nullable: false })
-  public userId: number;
+  public userId!: number;
 
   @ManyToOne(() => UserEntity, (user) => user.posts, { nullable: false })
   @JoinColumn({ name: 'user_id' })
-  public user: UserEntity;
+  public user!: UserEntity;
 }

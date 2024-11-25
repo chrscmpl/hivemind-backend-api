@@ -1,4 +1,4 @@
-import { defaults, isNil, omitBy } from 'lodash';
+import { defaults } from 'lodash';
 import { PostEntity } from '../entities/post.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -9,11 +9,9 @@ class UserPreviewDto {
   @ApiProperty({ nullable: true, type: 'string', example: 'chrscmpl' })
   public username?: string;
 
-  public static fromUser(user: PostEntity['user']): UserPreviewDto {
-    const userPreviewDto = new UserPreviewDto();
-    userPreviewDto.id = user.id;
-    userPreviewDto.username = user.username;
-    return omitBy(userPreviewDto, isNil) as UserPreviewDto;
+  public constructor(user: PostEntity['user']) {
+    this.id = user.id;
+    if (user.username) this.username = user.username;
   }
 }
 
@@ -48,17 +46,12 @@ export class PostDto {
   @ApiProperty({ nullable: false, type: UserPreviewDto })
   public user: UserPreviewDto;
 
-  public static fromEntity(post: PostEntity): PostDto {
-    const postDto = new PostDto();
-    post = omitBy(post, isNil) as PostEntity;
-    postDto.id = post.id;
-    postDto.title = post.title;
-    postDto.content = post.content;
-    postDto.createdAt = `${post.createdAt.toISOString().split('.')[0]}Z`;
-    postDto.updatedAt = `${post.updatedAt.toISOString().split('.')[0]}Z`;
-    postDto.user = UserPreviewDto.fromUser(
-      defaults({ id: post.userId }, post.user),
-    );
-    return postDto;
+  public constructor(post: PostEntity) {
+    this.id = post.id;
+    this.title = post.title;
+    if (post.content) this.content = post.content;
+    this.createdAt = `${post.createdAt.toISOString().split('.')[0]}Z`;
+    this.updatedAt = `${post.updatedAt.toISOString().split('.')[0]}Z`;
+    this.user = new UserPreviewDto(defaults({ id: post.userId }, post.user));
   }
 }

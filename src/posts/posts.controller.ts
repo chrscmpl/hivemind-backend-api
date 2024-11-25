@@ -84,7 +84,7 @@ export class PostsController {
   ): Observable<PostDto> {
     return this.postsService
       .create(createPostDto, user.id)
-      .pipe(map((post) => PostDto.fromEntity(post)));
+      .pipe(map((post) => new PostDto(post)));
   }
 
   @ApiOperation({
@@ -95,7 +95,7 @@ export class PostsController {
   })
   @ApiBearerAuth()
   @ApiQuery({ name: 'page', required: false, type: 'number', example: 1, default: 1, minimum: 1 }) // prettier-ignore
-  @ApiQuery({ name: 'limit', required: false, type: 'number', example: 10, default: PostsController.DEFAULT_LIMIT, maximum: PostsController.MAX_LIMIT }) // prettier-ignore
+  @ApiQuery({ name: 'limit', required: false, type: 'number', example: PostsController.DEFAULT_LIMIT, default: PostsController.DEFAULT_LIMIT, maximum: PostsController.MAX_LIMIT }) // prettier-ignore
   @ApiQuery({ name: 'include', description: 'Comma-separated list of additional parameters', required: false, type: 'string', examples: getPostsPaginationIncludeQueryExamples() }) // prettier-ignore
   @ApiResponse({
     status: 200,
@@ -112,19 +112,14 @@ export class PostsController {
   public findAll(
     @AuthUser({ nullable: true })
     user: AuthenticatedUser | null,
-    @Query(
-      'page',
-      new DefaultValuePipe(1),
-      ParseIntPipe,
-      new MinValuePipe(1, { strict: true }),
-    )
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe, new MinValuePipe(1))
     page: number = 1,
     @Query(
       'limit',
       new DefaultValuePipe(PostsController.DEFAULT_LIMIT),
       ParseIntPipe,
-      new MinValuePipe(1, { strict: true }),
-      new MaxValuePipe(PostsController.MAX_LIMIT),
+      new MinValuePipe(1),
+      new MaxValuePipe(PostsController.MAX_LIMIT, { replace: true }),
     )
     limit: number = PostsController.DEFAULT_LIMIT,
     @Query(
@@ -141,9 +136,9 @@ export class PostsController {
         page,
         limit,
         includeContent,
-        includeVoteOf: includeVote ? user.id : null,
+        includeVoteOf: includeVote ? user!.id : null,
       })
-      .pipe(map((pagination) => PostPaginationDto.fromPagination(pagination)));
+      .pipe(map((pagination) => new PostPaginationDto(pagination)));
   }
 
   @ApiOperation({
@@ -184,10 +179,10 @@ export class PostsController {
     return this.postsService
       .findOne(id, {
         relations: ['user'],
-        includeVoteOf: includeVote ? user.id : null,
+        includeVoteOf: includeVote ? user!.id : null,
       })
       .pipe(
-        map((post) => PostDto.fromEntity(post)),
+        map((post) => new PostDto(post)),
         catchError(() => throwError(() => new NotFoundException())),
       );
   }
@@ -236,8 +231,9 @@ export class PostsController {
         this.postsService
           .update(id, updatePostDto)
           .pipe(
-            map((newPost) =>
-              PostDto.fromEntity(defaults(omitBy(newPost, isNil), oldPost)),
+            map(
+              (newPost) =>
+                new PostDto(defaults(omitBy(newPost, isNil), oldPost)),
             ),
           ),
       ),
@@ -283,7 +279,7 @@ export class PostsController {
   ): Observable<PostDto> {
     return this.checkAuthorization(id, user).pipe(
       switchMap((post) =>
-        this.postsService.remove(id).pipe(map(() => PostDto.fromEntity(post))),
+        this.postsService.remove(id).pipe(map(() => new PostDto(post))),
       ),
     );
   }

@@ -6,7 +6,7 @@ import { getPostArrayDtoExample } from '../examples/post-array.example';
 
 class PostPaginationMetaDto {
   @ApiProperty({ nullable: false, type: 'number', example: 1002 })
-  public totalItems: number;
+  public totalItems?: number;
 
   @ApiProperty({ nullable: false, type: 'number', example: 10 })
   public itemCount: number;
@@ -15,10 +15,18 @@ class PostPaginationMetaDto {
   public itemsPerPage: number;
 
   @ApiProperty({ nullable: false, type: 'number', example: 101 })
-  public totalPages: number;
+  public totalPages?: number;
 
   @ApiProperty({ nullable: false, type: 'number', example: 25 })
   public currentPage: number;
+
+  public constructor(meta: Pagination<PostEntity>['meta']) {
+    this.totalItems = meta.totalItems;
+    this.itemCount = meta.itemCount;
+    this.itemsPerPage = meta.itemsPerPage;
+    this.totalPages = meta.totalPages;
+    this.currentPage = meta.currentPage;
+  }
 }
 
 export class PostPaginationDto {
@@ -32,14 +40,8 @@ export class PostPaginationDto {
   })
   public items: PostDto[];
 
-  public static fromPagination(
-    pagination: Pagination<PostEntity>,
-  ): PostPaginationDto {
-    const postPaginationDto = new PostPaginationDto();
-    postPaginationDto.meta = pagination.meta as PostPaginationMetaDto;
-    postPaginationDto.items = pagination.items.map((post) =>
-      PostDto.fromEntity(post),
-    );
-    return postPaginationDto;
+  public constructor(pagination: Pagination<PostEntity>) {
+    this.meta = new PostPaginationMetaDto(pagination.meta);
+    this.items = pagination.items.map((post) => new PostDto(post));
   }
 }

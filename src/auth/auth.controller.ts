@@ -59,7 +59,7 @@ export class AuthController {
   ): Observable<PrivateUserDto> {
     return this.authService.getUser(user.id).pipe(
       catchError(() => throwError(() => new UnauthorizedException())),
-      map((user) => PrivateUserDto.fromUser(user)),
+      map((user) => new PrivateUserDto(user)),
     );
   }
 

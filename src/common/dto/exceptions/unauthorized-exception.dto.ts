@@ -6,12 +6,12 @@ export class UnauthorizedExceptionDto {
     type: 'string',
     example: 'Unauthorized',
   })
-  public message: string;
+  public message!: string;
 
   @ApiProperty({
     nullable: false,
     type: 'number',
     example: 401,
   })
-  public statusCode: number;
+  public statusCode!: number;
 }

@@ -31,7 +31,7 @@ export class PostsService {
 
   public paginate(
     options: IPaginationOptions & {
-      includeVoteOf?: number;
+      includeVoteOf?: number | null;
       includeContent?: boolean;
     },
   ): Observable<Pagination<PostEntity>> {

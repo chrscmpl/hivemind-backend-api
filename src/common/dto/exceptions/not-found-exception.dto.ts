@@ -6,12 +6,12 @@ export class NotFoundExceptionDto {
     type: 'string',
     example: 'Not Found',
   })
-  public message: string;
+  public message!: string;
 
   @ApiProperty({
     nullable: false,
     type: 'number',
     example: 404,
   })
-  public statusCode: number;
+  public statusCode!: number;
 }

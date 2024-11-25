@@ -6,12 +6,12 @@ export class ConflictExceptionDto {
     type: 'string',
     example: 'Conflict',
   })
-  public message: string;
+  public message!: string;
 
   @ApiProperty({
     nullable: false,
     type: 'number',
     example: 409,
   })
-  public statusCode: number;
+  public statusCode!: number;
 }
