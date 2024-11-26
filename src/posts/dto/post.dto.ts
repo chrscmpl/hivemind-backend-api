@@ -11,7 +11,9 @@ class UserPreviewDto {
 
   public constructor(user: PostEntity['user']) {
     this.id = user.id;
-    if (user.username) this.username = user.username;
+    if (user.username) {
+      this.username = user.username;
+    }
   }
 }
 
@@ -49,7 +51,9 @@ export class PostDto {
   public constructor(post: PostEntity) {
     this.id = post.id;
     this.title = post.title;
-    if (post.content) this.content = post.content;
+    if (post.content) {
+      this.content = post.content;
+    }
     this.createdAt = `${post.createdAt.toISOString().split('.')[0]}Z`;
     this.updatedAt = `${post.updatedAt.toISOString().split('.')[0]}Z`;
     this.user = new UserPreviewDto(defaults({ id: post.userId }, post.user));

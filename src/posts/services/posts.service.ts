@@ -42,7 +42,9 @@ export class PostsService {
       'updatedAt',
       'userId',
     ];
-    if (options.includeContent) columns.push('content');
+    if (options.includeContent) {
+      columns.push('content');
+    }
 
     return from(
       paginate<PostEntity>(this.postsRepository, options, {
