@@ -7,7 +7,6 @@ import {
   UnauthorizedException,
   Get,
   UseGuards,
-  ValidationPipe,
   ConflictException,
 } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
@@ -82,9 +81,7 @@ export class AuthController {
   })
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  public login(
-    @Body(ValidationPipe) loginDto: LoginDto,
-  ): Observable<AuthTokenDto> {
+  public login(@Body() loginDto: LoginDto): Observable<AuthTokenDto> {
     return this.authService.login(loginDto.email, loginDto.password).pipe(
       catchError(() => throwError(() => new UnauthorizedException())),
       switchMap((user) => this.authService.signToken(user)),
@@ -110,9 +107,7 @@ export class AuthController {
     type: ConflictExceptionDto,
   })
   @Post('signup')
-  public signup(
-    @Body(ValidationPipe) signupDto: SignupDto,
-  ): Observable<AuthTokenDto> {
+  public signup(@Body() signupDto: SignupDto): Observable<AuthTokenDto> {
     return this.authService.signup(signupDto).pipe(
       catchError(() => throwError(() => new ConflictException())),
       switchMap((user) => this.authService.signToken(user)),

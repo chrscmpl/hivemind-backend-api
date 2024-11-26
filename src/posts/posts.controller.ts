@@ -10,7 +10,6 @@ import {
   Query,
   DefaultValuePipe,
   ParseIntPipe,
-  ValidationPipe,
   NotFoundException,
   ForbiddenException,
   ParseArrayPipe,
@@ -79,7 +78,7 @@ export class PostsController {
   @Post()
   @UseGuards(AuthGuard())
   public create(
-    @Body(ValidationPipe) createPostDto: CreatePostDto,
+    @Body() createPostDto: CreatePostDto,
     @AuthUser() user: AuthenticatedUser,
   ): Observable<PostDto> {
     return this.postsService
@@ -128,6 +127,7 @@ export class PostsController {
     )
     include: string[] = [],
   ): Observable<PostPaginationDto> {
+    console.log(page, limit, include);
     const includeVote: boolean = include.includes('ownVote') && !!user;
     const includeContent: boolean = include.includes('content');
 
