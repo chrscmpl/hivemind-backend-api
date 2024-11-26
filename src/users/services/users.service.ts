@@ -20,7 +20,15 @@ export class UsersService {
   }
 
   public create(
-    user: Omit<UserEntity, 'id' | 'posts' | 'createdAt' | 'updatedAt'>,
+    user: Omit<
+      UserEntity,
+      | 'id'
+      | 'posts'
+      | 'createdAt'
+      | 'updatedAt'
+      | 'hashPassword'
+      | 'validatePassword'
+    >,
   ): Observable<UserEntity> {
     const userEntity = this.usersRepository.create(user);
     return from(this.usersRepository.save(userEntity));

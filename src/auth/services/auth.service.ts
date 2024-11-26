@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/services/users.service';
-import { from, Observable, tap } from 'rxjs';
+import { from, map, Observable, switchMap } from 'rxjs';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
@@ -17,9 +17,16 @@ export class AuthService {
 
   public login(email: string, password: string): Observable<UserEntity> {
     return this.usersService.findOneByEmail(email).pipe(
-      tap((user) => {
-        if (user.password !== password) throw new Error('Invalid password');
-      }),
+      switchMap((user) =>
+        from(user.validatePassword(password)).pipe(
+          map((isPasswordValid) => {
+            if (!isPasswordValid) {
+              throw new Error('Invalid password');
+            }
+            return user;
+          }),
+        ),
+      ),
     );
   }
 

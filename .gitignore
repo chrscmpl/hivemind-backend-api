@@ -1,4 +1,5 @@
 sqlite
+database.db
 
 # compiled output
 /dist

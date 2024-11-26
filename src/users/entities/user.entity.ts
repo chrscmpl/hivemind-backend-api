@@ -1,5 +1,8 @@
+import { compare, genSalt, hash } from 'bcrypt';
 import { PostEntity } from 'src/posts/entities/post.entity';
 import {
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   CreateDateColumn,
   Entity,
@@ -8,7 +11,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity()
+@Entity({ name: 'users' })
 export class UserEntity {
   @PrimaryGeneratedColumn()
   public id!: number;
@@ -30,4 +33,16 @@ export class UserEntity {
 
   @UpdateDateColumn()
   public updatedAt!: Date;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  public async hashPassword(): Promise<void> {
+    if (!this.password) return;
+    const salt = await genSalt();
+    this.password = await hash(this.password, salt);
+  }
+
+  public async validatePassword(plainPassword: string): Promise<boolean> {
+    return compare(plainPassword, this.password);
+  }
 }
