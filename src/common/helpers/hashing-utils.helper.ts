@@ -2,7 +2,7 @@ import { hash as bcryptHash, compare as bcryptCompare } from 'bcrypt';
 
 const saltRounds = +process.env.SALT_ROUNDS!;
 
-if (isNaN(saltRounds)) {
+if (isNaN(saltRounds) || Math.floor(saltRounds) !== saltRounds) {
   throw new Error('Invalid value for SALT_ROUNDS');
 }
 
