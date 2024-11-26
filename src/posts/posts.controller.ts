@@ -90,7 +90,8 @@ export class PostsController {
     summary: 'Request for paginated  posts',
     description:
       'Posts do not contain their content by default, unless the "include" query parameter contains the value "content".<br/><br/>' +
-      'Authentication is required for the value "ownVote" of the "include" query parameter to take effect.<br/><br/>',
+      'Similarly, they only contain user data if the "include" query parameter contains the value "user" (except for the id).<br/><br/>' +
+      'Authentication is required for the value "ownVote" of the "include" query parameter to take effect.',
   })
   @ApiBearerAuth()
   @ApiQuery({ name: 'page', required: false, type: 'number', example: 1, default: 1, minimum: 1 }) // prettier-ignore
@@ -127,15 +128,16 @@ export class PostsController {
     )
     include: string[] = [],
   ): Observable<PostPaginationDto> {
-    console.log(page, limit, include);
     const includeVote: boolean = include.includes('ownVote') && !!user;
     const includeContent: boolean = include.includes('content');
+    const includeUser: boolean = include.includes('user');
 
     return this.postsService
       .paginate({
         page,
         limit,
         includeContent,
+        includeUser,
         includeVoteOf: includeVote ? user!.id : null,
       })
       .pipe(map((pagination) => new PostPaginationDto(pagination)));

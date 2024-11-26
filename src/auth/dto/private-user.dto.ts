@@ -6,7 +6,14 @@ export class PrivateUserDto {
   public id: number;
 
   @ApiProperty({ nullable: false, type: 'string', example: 'chrscmpl' })
-  public username: string;
+  public handle: string;
+
+  @ApiProperty({
+    nullable: false,
+    type: 'string',
+    example: 'Christian Campolongo',
+  })
+  public displayName: string;
 
   @ApiProperty({
     nullable: false,
@@ -31,7 +38,8 @@ export class PrivateUserDto {
 
   public constructor(user: UserEntity) {
     this.id = user.id;
-    this.username = user.username;
+    this.handle = user.handle;
+    this.displayName = user.displayName;
     this.email = user.email;
     this.createdAt = `${user.createdAt.toISOString().split('.')[0]}Z`;
     this.updatedAt = `${user.updatedAt.toISOString().split('.')[0]}Z`;

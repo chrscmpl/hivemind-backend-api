@@ -1,5 +1,6 @@
 sqlite
 database.db
+database.db-journal
 
 # compiled output
 /dist

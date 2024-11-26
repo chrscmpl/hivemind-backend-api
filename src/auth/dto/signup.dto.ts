@@ -20,16 +20,28 @@ export class SignupDto {
     nullable: false,
     type: 'string',
     example: 'chrscmpl',
-    minLength: 6,
-    maxLength: 20,
+    minLength: 4,
+    maxLength: 30,
   })
   @IsNotEmpty()
   @IsString()
-  @Length(6, 20)
+  @Length(4, 30)
   @Matches(/^[a-zA-Z0-9_]*$/, {
-    message: 'username must contain only letters, numbers, and underscores',
+    message: 'handle must contain only letters, numbers, and underscores',
   })
-  username!: string;
+  handle!: string;
+
+  @ApiProperty({
+    nullable: false,
+    type: 'string',
+    example: 'Christian Campolongo',
+    minLength: 2,
+    maxLength: 50,
+  })
+  @IsNotEmpty()
+  @IsString()
+  @Length(2, 50)
+  displayName!: string;
 
   @ApiProperty({
     nullable: false,

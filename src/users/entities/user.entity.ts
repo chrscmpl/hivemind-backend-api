@@ -1,4 +1,4 @@
-import { compare, hash } from 'bcrypt';
+import { compare, hash } from 'src/common/helpers/hashing-utils.helper';
 import { PostEntity } from 'src/posts/entities/post.entity';
 import {
   AfterLoad,
@@ -18,7 +18,10 @@ export class UserEntity {
   public id!: number;
 
   @Column({ unique: true })
-  public username!: string;
+  public handle!: string;
+
+  @Column()
+  public displayName!: string;
 
   @Column({ unique: true })
   public email!: string;
@@ -38,19 +41,22 @@ export class UserEntity {
   private loadedPassword?: string;
 
   @AfterLoad()
-  // @ts-expect-error disable ts(6133) from flag noUnusedLocals as the private method is used by the decorator
+  // @ts-expect-error disable ts(6133) from the option noUnusedLocals
+  // the private method is actually used by the lifecycle decorator
   private afterLoad(): void {
     this.loadedPassword = this.password;
   }
 
   @BeforeInsert()
-  // @ts-expect-error disable ts(6133) from flag noUnusedLocals as the private method is used by the decorator
+  // @ts-expect-error disable ts(6133) from the option noUnusedLocals
+  // the private method is actually used by the lifecycle decorator
   private async beforeInsert(): Promise<void> {
     await this.hashPassword();
   }
 
   @BeforeUpdate()
-  // @ts-expect-error disable ts(6133) from flag noUnusedLocals as the private method is used by the decorator
+  // @ts-expect-error disable ts(6133) from the option noUnusedLocals
+  // the private method is actually used by the lifecycle decorator
   private async beforeUpdate(): Promise<void> {
     if (!this.password || this.password === this.loadedPassword) {
       return;
@@ -58,14 +64,14 @@ export class UserEntity {
     await this.hashPassword();
   }
 
-  public async validatePassword(plainPassword: string): Promise<boolean> {
+  public async validatePassword(password: string): Promise<boolean> {
     if (!this.password) {
-      throw new Error('User.validatePassword: Password is not set');
+      throw new Error('UserEntity.validatePassword: Password is not set');
     }
-    return compare(plainPassword, this.password);
+    return compare(password, this.password);
   }
 
   private async hashPassword(): Promise<void> {
-    this.password = await hash(this.password, +process.env.SALT_ROUNDS!);
+    this.password = await hash(this.password);
   }
 }

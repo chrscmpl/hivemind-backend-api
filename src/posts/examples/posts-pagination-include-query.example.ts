@@ -14,10 +14,15 @@ export function getPostsPaginationIncludeQueryExamples() {
       description: 'Includes the content of the posts',
       value: 'content',
     },
+    user: {
+      summary: 'Include user',
+      description: 'Includes data about the creators of the posts',
+      value: 'user',
+    },
     all: {
       summary: 'Include all',
       description: 'Includes all additional fields',
-      value: 'content,ownVote',
+      value: 'ownVote,content,user',
     },
   };
 }

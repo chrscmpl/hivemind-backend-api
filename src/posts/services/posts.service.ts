@@ -33,6 +33,7 @@ export class PostsService {
     options: IPaginationOptions & {
       includeVoteOf?: number | null;
       includeContent?: boolean;
+      includeUser?: boolean;
     },
   ): Observable<Pagination<PostEntity>> {
     const columns: (keyof PostEntity)[] = [
@@ -49,6 +50,7 @@ export class PostsService {
     return from(
       paginate<PostEntity>(this.postsRepository, options, {
         select: columns,
+        relations: options.includeUser ? ['user'] : [],
       }),
     );
   }

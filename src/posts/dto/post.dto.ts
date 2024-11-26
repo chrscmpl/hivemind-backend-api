@@ -2,17 +2,28 @@ import { defaults } from 'lodash';
 import { PostEntity } from '../entities/post.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
+// different from UserDto mainly because of the nullable properties
 class UserPreviewDto {
   @ApiProperty({ nullable: false, type: 'number', example: 1 })
   public id: number;
 
   @ApiProperty({ nullable: true, type: 'string', example: 'chrscmpl' })
-  public username?: string;
+  public handle?: string;
+
+  @ApiProperty({
+    nullable: true,
+    type: 'string',
+    example: 'Christian Campolongo',
+  })
+  public displayName?: string;
 
   public constructor(user: PostEntity['user']) {
     this.id = user.id;
-    if (user.username) {
-      this.username = user.username;
+    if (user.handle) {
+      this.handle = user.handle;
+    }
+    if (user.displayName) {
+      this.displayName = user.displayName;
     }
   }
 }

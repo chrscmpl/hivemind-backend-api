@@ -37,6 +37,6 @@ export class AuthService {
   }
 
   public signToken(user: UserEntity): Observable<string> {
-    return from(this.jwt.signAsync({ sub: user.id, username: user.username }));
+    return from(this.jwt.signAsync({ sub: user.id, username: user.handle }));
   }
 }

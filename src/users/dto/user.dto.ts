@@ -6,10 +6,18 @@ export class UserDto {
   id: number;
 
   @ApiProperty({ nullable: false, type: 'string', example: 'chrscmpl' })
-  username: string;
+  handle: string;
+
+  @ApiProperty({
+    nullable: false,
+    type: 'string',
+    example: 'Christian Campolongo',
+  })
+  displayName: string;
 
   public constructor(user: UserEntity) {
     this.id = user.id;
-    this.username = user.username;
+    this.handle = user.handle;
+    this.displayName = user.displayName;
   }
 }

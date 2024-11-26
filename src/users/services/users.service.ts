@@ -22,12 +22,7 @@ export class UsersService {
   public create(
     user: Omit<
       UserEntity,
-      | 'id'
-      | 'posts'
-      | 'createdAt'
-      | 'updatedAt'
-      | 'hashPassword'
-      | 'validatePassword'
+      'id' | 'posts' | 'createdAt' | 'updatedAt' | 'validatePassword'
     >,
   ): Observable<UserEntity> {
     const userEntity = this.usersRepository.create(user);
