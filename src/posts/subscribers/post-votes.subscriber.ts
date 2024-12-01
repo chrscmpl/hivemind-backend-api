@@ -7,13 +7,14 @@ import {
   Repository,
   UpdateEvent,
 } from 'typeorm';
-import { VoteEntity } from '../../votes/entities/vote.entity';
+import { PostVoteEntity } from '../modules/post-votes/entities/post-vote.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostEntity } from 'src/posts/entities/post.entity';
-// import { PostsService } from 'src/posts/services/posts.service';
 
 @EventSubscriber()
-export class VotesSubscriber implements EntitySubscriberInterface<VoteEntity> {
+export class PostVotesSubscriber
+  implements EntitySubscriberInterface<PostVoteEntity>
+{
   constructor(
     @InjectRepository(PostEntity)
     private readonly postsRepository: Repository<PostEntity>,
@@ -23,10 +24,10 @@ export class VotesSubscriber implements EntitySubscriberInterface<VoteEntity> {
   }
 
   public listenTo() {
-    return VoteEntity;
+    return PostVoteEntity;
   }
 
-  public async afterInsert(event: InsertEvent<VoteEntity>) {
+  public async afterInsert(event: InsertEvent<PostVoteEntity>) {
     const post = await this.getPost(event.entity);
     if (!post) {
       return;
@@ -39,11 +40,11 @@ export class VotesSubscriber implements EntitySubscriberInterface<VoteEntity> {
     this.postsRepository.save(post);
   }
 
-  public async afterUpdate(event: UpdateEvent<VoteEntity>) {
+  public async afterUpdate(event: UpdateEvent<PostVoteEntity>) {
     if (!event.entity || !event.databaseEntity) {
       throw new Error('Votes need to be loaded before being updated');
     }
-    const post = await this.getPost(event.entity as VoteEntity);
+    const post = await this.getPost(event.entity as PostVoteEntity);
     if (!post) {
       return;
     }
@@ -57,7 +58,7 @@ export class VotesSubscriber implements EntitySubscriberInterface<VoteEntity> {
     this.postsRepository.save(post);
   }
 
-  public async afterRemove(event: RemoveEvent<VoteEntity>) {
+  public async afterRemove(event: RemoveEvent<PostVoteEntity>) {
     if (!event.entity) {
       throw new Error('Votes need to be loaded before being removed');
     }
@@ -73,7 +74,7 @@ export class VotesSubscriber implements EntitySubscriberInterface<VoteEntity> {
     this.postsRepository.save(post);
   }
 
-  private async getPost(entity: VoteEntity) {
+  private async getPost(entity: PostVoteEntity) {
     return this.postsRepository.findOne({
       where: { id: entity.postId },
       select: ['id', 'upvoteCount', 'downvoteCount'],

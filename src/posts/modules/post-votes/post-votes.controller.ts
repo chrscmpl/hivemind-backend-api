@@ -9,8 +9,8 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { VotesService } from './services/votes.service';
-import { SetVoteDto } from './dto/set-vote.dto';
+import { PostVotesService } from './services/post-votes.service';
+import { SetPostVoteDto } from './dto/set-post-vote.dto';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -24,27 +24,27 @@ import {
   AuthenticatedUser,
   AuthUser,
 } from 'src/common/decorators/auth-user.decorator';
-import { VoteEnum } from './enum/vote.enum';
+import { PostVoteEnum } from './enum/post-vote.enum';
 import { catchError, map, Observable, throwError } from 'rxjs';
-import { VoteDto } from './dto/vote.dto';
+import { PostVoteDto } from './dto/post-vote.dto';
 import { NotFoundExceptionDto } from 'src/common/dto/exceptions/not-found-exception.dto';
 
 @ApiTags('Votes')
 @ApiParam({ name: 'id', description: "The post's ID",  required: true, type: 'number', example: 1 }) // prettier-ignore
 @Controller('posts/:id')
-export class VotesController {
-  constructor(private readonly votesService: VotesService) {}
+export class PostVotesController {
+  constructor(private readonly votesService: PostVotesService) {}
 
   @ApiOperation({
     summary: 'Set a vote for a post',
     description: 'Requires authentication',
   })
   @ApiBearerAuth()
-  @ApiBody({ type: SetVoteDto, required: true })
+  @ApiBody({ type: SetPostVoteDto, required: true })
   @ApiResponse({
     status: 200,
     description: 'The vote has been successfully set.',
-    type: VoteDto,
+    type: PostVoteDto,
   })
   @ApiResponse({
     status: 404,
@@ -57,15 +57,15 @@ export class VotesController {
   public setVote(
     @AuthUser() user: AuthenticatedUser,
     @Param('id', ParseIntPipe) postId: number,
-    @Body() setVoteDto: SetVoteDto,
-  ): Observable<VoteDto> {
+    @Body() setVoteDto: SetPostVoteDto,
+  ): Observable<PostVoteDto> {
     return (
-      setVoteDto.vote === VoteEnum.NONE
+      setVoteDto.vote === PostVoteEnum.NONE
         ? this.votesService.delete(user.id, postId)
         : this.votesService.set(user.id, postId, setVoteDto.vote)
     ).pipe(
       catchError(() => throwError(() => new NotFoundException())),
-      map(() => new VoteDto(user.id, postId, setVoteDto.vote)),
+      map(() => new PostVoteDto(user.id, postId, setVoteDto.vote)),
     );
   }
 }

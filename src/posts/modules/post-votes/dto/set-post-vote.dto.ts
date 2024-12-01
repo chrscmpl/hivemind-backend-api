@@ -1,14 +1,14 @@
 import { IsEnum } from 'class-validator';
-import { VoteEnum } from '../enum/vote.enum';
+import { PostVoteEnum } from '../enum/post-vote.enum';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class SetVoteDto {
+export class SetPostVoteDto {
   @ApiProperty({
     nullable: false,
     type: 'string',
     example: 'up',
-    enum: VoteEnum,
+    enum: PostVoteEnum,
   })
-  @IsEnum(VoteEnum)
-  public vote!: VoteEnum;
+  @IsEnum(PostVoteEnum)
+  public vote!: PostVoteEnum;
 }

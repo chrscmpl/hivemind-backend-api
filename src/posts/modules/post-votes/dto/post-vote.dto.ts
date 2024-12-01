@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { VoteEnum } from '../enum/vote.enum';
+import { PostVoteEnum } from '../enum/post-vote.enum';
 
-export class VoteDto {
+export class PostVoteDto {
   @ApiProperty({
     nullable: false,
     type: 'number',
@@ -20,11 +20,11 @@ export class VoteDto {
     nullable: false,
     type: 'string',
     example: 'up',
-    enum: VoteEnum,
+    enum: PostVoteEnum,
   })
-  public vote!: VoteEnum;
+  public vote!: PostVoteEnum;
 
-  public constructor(userId: number, postId: number, vote: VoteEnum) {
+  public constructor(userId: number, postId: number, vote: PostVoteEnum) {
     this.userId = userId;
     this.postId = postId;
     this.vote = vote;

@@ -6,7 +6,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { PostsModule } from './posts/posts.module';
 import { CommonModule } from './common/common.module';
-import { VotesModule } from './votes/votes.module';
 
 @Module({
   imports: [
@@ -20,7 +19,6 @@ import { VotesModule } from './votes/votes.module';
     AuthModule,
     UsersModule,
     PostsModule,
-    VotesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

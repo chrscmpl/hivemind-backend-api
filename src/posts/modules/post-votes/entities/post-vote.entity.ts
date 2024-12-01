@@ -9,9 +9,9 @@ import {
   Unique,
 } from 'typeorm';
 
-@Entity({ name: 'votes' })
+@Entity({ name: 'post_votes' })
 @Unique(['user', 'post'])
-export class VoteEntity {
+export class PostVoteEntity {
   @PrimaryGeneratedColumn()
   public id!: number;
 
