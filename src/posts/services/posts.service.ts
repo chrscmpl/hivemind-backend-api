@@ -39,6 +39,8 @@ export class PostsService {
     const columns: (keyof PostEntity)[] = [
       'id',
       'title',
+      'upvoteCount',
+      'downvoteCount',
       'createdAt',
       'updatedAt',
       'userId',
@@ -77,7 +79,7 @@ export class PostsService {
     return from(this.postsRepository.save({ id, ...updatePostDto }));
   }
 
-  public remove(id: number): Observable<unknown> {
+  public delete(id: number): Observable<unknown> {
     return from(this.postsRepository.delete(id));
   }
 }

@@ -280,7 +280,7 @@ export class PostsController {
   ): Observable<PostDto> {
     return this.checkAuthorization(id, user).pipe(
       switchMap((post) =>
-        this.postsService.remove(id).pipe(map(() => new PostDto(post))),
+        this.postsService.delete(id).pipe(map(() => new PostDto(post))),
       ),
     );
   }

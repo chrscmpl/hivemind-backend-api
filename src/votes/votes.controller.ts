@@ -1,18 +1,47 @@
-import { Controller, Get, Body, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Body,
+  Put,
+  UseGuards,
+  Param,
+  ParseIntPipe,
+  NotFoundException,
+} from '@nestjs/common';
 import { VotesService } from './services/votes.service';
-import { CreateVoteDto } from './dto/create-vote.dto';
+import { SetVoteDto } from './dto/set-vote.dto';
 import { ApiParam, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import {
+  AuthenticatedUser,
+  AuthUser,
+} from 'src/common/decorators/auth-user.decorator';
+import { VoteEnum } from './enum/vote.enum';
+import { catchError, map, throwError } from 'rxjs';
 
 @ApiTags('Votes')
 @ApiParam({ name: 'id', description: 'The post ID',  required: true, type: 'number', example: 1 }) // prettier-ignore
 @Controller('posts/:id')
 export class VotesController {
-  // @ts-expect-error temporarily disable ts(6133) from flag noUnusedLocals
   constructor(private readonly votesService: VotesService) {}
 
   @Put('votes')
-  create(@Body() createVoteDto: CreateVoteDto) {}
+  @UseGuards(AuthGuard())
+  public setVote(
+    @AuthUser() user: AuthenticatedUser,
+    @Param('id', ParseIntPipe) postId: number,
+    @Body() setVoteDto: SetVoteDto,
+  ) {
+    return (
+      setVoteDto.vote === VoteEnum.NONE
+        ? this.votesService.delete(user.id, postId)
+        : this.votesService.set(user.id, postId, setVoteDto.vote)
+    ).pipe(
+      catchError(() => throwError(() => new NotFoundException())),
+      map(() => ({ userId: user.id, postId, vote: setVoteDto.vote })),
+    );
+  }
 
   @Get('votes')
-  findAll() {}
+  public findAll() {}
 }

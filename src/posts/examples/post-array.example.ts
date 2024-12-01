@@ -3,6 +3,8 @@ export function getPostArrayDtoExample() {
     {
       id: 121,
       title: 'LPT: Start taking care your health early',
+      upvoteCount: 10,
+      downvoteCount: 1,
       createdAt: '2024-11-23T10:15:00Z',
       updatedAt: '2024-11-23T10:15:00Z',
       user: { id: 12 },
@@ -10,6 +12,8 @@ export function getPostArrayDtoExample() {
     {
       id: 994,
       title: '[IDEA] Make your cooking cheap and tasty',
+      upvoteCount: 5,
+      downvoteCount: 0,
       createdAt: '2024-12-05T22:30:00Z',
       updatedAt: '2024-12-05T22:32:25Z',
       user: { id: 140 },
@@ -17,6 +21,8 @@ export function getPostArrayDtoExample() {
     {
       id: 378,
       title: "What if aliens weren't real?",
+      upvoteCount: 30,
+      downvoteCount: 23,
       createdAt: '2024-11-10T14:00:00Z',
       updatedAt: '2024-11-10T14:00:00Z',
       user: { id: 610 },
@@ -24,6 +30,8 @@ export function getPostArrayDtoExample() {
     {
       id: 628,
       title: 'Hello! This is my first post',
+      upvoteCount: 2,
+      downvoteCount: 0,
       createdAt: '2024-11-20T16:00:00Z',
       updatedAt: '2024-11-22T12:30:00Z',
       user: { id: 22 },
@@ -31,6 +39,8 @@ export function getPostArrayDtoExample() {
     {
       id: 388,
       title: 'What I think will happen in the next chapter of One Piece',
+      upvoteCount: 9,
+      downvoteCount: 16,
       createdAt: '2024-11-27T14:30:00Z',
       updatedAt: '2024-11-27T14:30:00Z',
       user: { id: 66 },
@@ -39,6 +49,8 @@ export function getPostArrayDtoExample() {
       id: 18,
       title:
         "As a child, you don't realize you are also watching your parents grow up",
+      upvoteCount: 100,
+      downvoteCount: 54,
       createdAt: '2024-12-06T10:00:00Z',
       updatedAt: '2024-12-08T21:30:00Z',
       user: { id: 90 },
@@ -46,6 +58,8 @@ export function getPostArrayDtoExample() {
     {
       id: 785,
       title: 'What if vacations were mandatory for everyone?',
+      upvoteCount: 3,
+      downvoteCount: 2,
       createdAt: '2024-11-23T15:45:00Z',
       updatedAt: '2024-11-23T15:45:00Z',
       user: { id: 450 },
@@ -53,6 +67,8 @@ export function getPostArrayDtoExample() {
     {
       id: 392,
       title: 'LPT: Turn your daily commute into a personal growth session',
+      upvoteCount: 7,
+      downvoteCount: 1,
       createdAt: '2024-12-01T08:30:00Z',
       updatedAt: '2024-12-01T10:45:00Z',
       user: { id: 888 },
@@ -61,6 +77,8 @@ export function getPostArrayDtoExample() {
       id: 847,
       title:
         'If Hogwarts had a modern IT department, would wizards still use owls?',
+      upvoteCount: 15,
+      downvoteCount: 5,
       createdAt: '2024-12-08T09:10:00Z',
       updatedAt: '2024-12-08T09:10:00Z',
       user: { id: 57 },
@@ -68,6 +86,8 @@ export function getPostArrayDtoExample() {
     {
       id: 442,
       title: "Here's a thought: Can we schedule time for 'nothing'?",
+      upvoteCount: 12,
+      downvoteCount: 56,
       createdAt: '2024-11-29T20:15:00Z',
       updatedAt: '2024-11-29T20:15:00Z',
       user: { id: 56 },

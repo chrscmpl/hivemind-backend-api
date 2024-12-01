@@ -9,5 +9,6 @@ import { CommonModule } from 'src/common/common.module';
   imports: [CommonModule, TypeOrmModule.forFeature([PostEntity])],
   controllers: [PostsController],
   providers: [PostsService],
+  exports: [TypeOrmModule],
 })
 export class PostsModule {}

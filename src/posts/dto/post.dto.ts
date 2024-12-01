@@ -44,6 +44,20 @@ export class PostDto {
 
   @ApiProperty({
     nullable: false,
+    type: 'number',
+    example: 10,
+  })
+  public upvoteCount: number;
+
+  @ApiProperty({
+    nullable: false,
+    type: 'number',
+    example: 2,
+  })
+  public downvoteCount: number;
+
+  @ApiProperty({
+    nullable: false,
     type: 'string',
     example: '2024-12-12T12:00:00Z',
   })
@@ -65,6 +79,8 @@ export class PostDto {
     if (post.content) {
       this.content = post.content;
     }
+    this.upvoteCount = post.upvoteCount;
+    this.downvoteCount = post.downvoteCount;
     this.createdAt = `${post.createdAt.toISOString().split('.')[0]}Z`;
     this.updatedAt = `${post.updatedAt.toISOString().split('.')[0]}Z`;
     this.user = new UserPreviewDto(defaults({ id: post.userId }, post.user));
