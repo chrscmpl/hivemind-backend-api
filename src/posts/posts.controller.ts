@@ -83,10 +83,9 @@ export class PostsController {
     @Body() createPostDto: CreatePostDto,
     @AuthUser() user: AuthenticatedUser,
   ): Observable<PostDto> {
-    return this.postsService.create(createPostDto, user.id).pipe(
-      tap((post) => post.upvoteCount++),
-      map((post) => new PostDto(post)),
-    );
+    return this.postsService
+      .create(createPostDto, user.id)
+      .pipe(map((post) => new PostDto(post)));
   }
 
   @ApiOperation({

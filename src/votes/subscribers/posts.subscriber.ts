@@ -25,11 +25,13 @@ export class PostsSubscriber implements EntitySubscriberInterface<PostEntity> {
   }
 
   public async afterInsert(event: InsertEvent<PostEntity>) {
-    console.log(event.entity);
-    this.votesRepository.save({
-      userId: event.entity.userId,
-      postId: event.entity.id,
-      value: true,
-    });
+    this.votesRepository.save(
+      {
+        userId: event.entity.userId,
+        postId: event.entity.id,
+        value: true,
+      },
+      { listeners: false },
+    );
   }
 }

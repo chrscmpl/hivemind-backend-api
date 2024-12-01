@@ -27,7 +27,7 @@ export class PostEntity {
   @JoinColumn({ name: 'user_id' })
   public user!: UserEntity;
 
-  @Column({ name: 'upvote_count', default: 0, nullable: false })
+  @Column({ name: 'upvote_count', default: 1, nullable: false })
   public upvoteCount!: number;
 
   @Column({ name: 'downvote_count', default: 0, nullable: false })
