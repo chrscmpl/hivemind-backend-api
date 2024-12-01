@@ -4,11 +4,13 @@ import { PostsController } from './posts.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PostEntity } from './entities/post.entity';
 import { CommonModule } from 'src/common/common.module';
+import { VotesSubscriber } from './subscribers/votes.subscriber';
+import { PostsSubscriber } from './subscribers/posts.subscriber';
+import { VotesModule } from 'src/votes/votes.module';
 
 @Module({
-  imports: [CommonModule, TypeOrmModule.forFeature([PostEntity])],
+  imports: [CommonModule, TypeOrmModule.forFeature([PostEntity]), VotesModule],
   controllers: [PostsController],
-  providers: [PostsService],
-  exports: [TypeOrmModule],
+  providers: [PostsService, VotesSubscriber, PostsSubscriber],
 })
 export class PostsModule {}

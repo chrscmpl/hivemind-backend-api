@@ -5,7 +5,7 @@ import {
   InsertEvent,
   Repository,
 } from 'typeorm';
-import { VoteEntity } from '../entities/vote.entity';
+import { VoteEntity } from '../../votes/entities/vote.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostEntity } from 'src/posts/entities/post.entity';
 // import { PostsService } from 'src/posts/services/posts.service';

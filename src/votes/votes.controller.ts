@@ -1,6 +1,5 @@
 import {
   Controller,
-  Get,
   Body,
   Put,
   UseGuards,
@@ -27,7 +26,6 @@ import {
 } from 'src/common/decorators/auth-user.decorator';
 import { VoteEnum } from './enum/vote.enum';
 import { catchError, map, Observable, throwError } from 'rxjs';
-import { PostVotesDto } from './dto/post-votes.dto';
 import { VoteDto } from './dto/vote.dto';
 import { NotFoundExceptionDto } from 'src/common/dto/exceptions/not-found-exception.dto';
 
@@ -68,29 +66,6 @@ export class VotesController {
     ).pipe(
       catchError(() => throwError(() => new NotFoundException())),
       map(() => new VoteDto(user.id, postId, setVoteDto.vote)),
-    );
-  }
-
-  @ApiOperation({
-    summary: 'Get the votes of a post',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'The votes have been successfully retrieved.',
-    type: PostVotesDto,
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Post not found.',
-    type: NotFoundExceptionDto,
-  })
-  @Get('votes')
-  public getVotes(
-    @Param('id', ParseIntPipe) postId: number,
-  ): Observable<PostVotesDto> {
-    return this.votesService.get(postId).pipe(
-      catchError(() => throwError(() => new NotFoundException())),
-      map((post) => new PostVotesDto(post)),
     );
   }
 }

@@ -4,16 +4,12 @@ import { VoteEntity } from '../entities/vote.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { from, Observable } from 'rxjs';
 import { VoteEnum } from '../enum/vote.enum';
-import { PostEntity } from 'src/posts/entities/post.entity';
 
 @Injectable()
 export class VotesService {
   public constructor(
     @InjectRepository(VoteEntity)
     private readonly votesRepository: Repository<VoteEntity>,
-
-    @InjectRepository(PostEntity)
-    private readonly postsRepository: Repository<PostEntity>,
   ) {}
 
   public set(
@@ -63,15 +59,6 @@ export class VotesService {
         .then((vote) => {
           this.votesRepository.remove(vote);
         }),
-    );
-  }
-
-  public get(postId: number) {
-    return from(
-      this.postsRepository.findOneOrFail({
-        where: { id: postId },
-        select: ['id', 'upvoteCount', 'downvoteCount'],
-      }),
     );
   }
 }
