@@ -45,6 +45,7 @@ import { getPostsPaginationIncludeQueryExamples } from './examples/posts-paginat
 import { getPostIncludeQueryExamples } from './examples/post-include-query.example';
 import { MaxValuePipe } from 'src/common/pipes/max-value.pipe';
 import { MinValuePipe } from 'src/common/pipes/min-value.pipe';
+import { getCreatedPostExample } from './examples/created-post.example';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -64,6 +65,7 @@ export class PostsController {
     status: 201,
     description: 'The post has been successfully created.',
     type: PostDto,
+    example: getCreatedPostExample(),
   })
   @ApiResponse({
     status: 400,

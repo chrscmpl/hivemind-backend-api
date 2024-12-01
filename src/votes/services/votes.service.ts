@@ -4,12 +4,16 @@ import { VoteEntity } from '../entities/vote.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { from, Observable } from 'rxjs';
 import { VoteEnum } from '../enum/vote.enum';
+import { PostEntity } from 'src/posts/entities/post.entity';
 
 @Injectable()
 export class VotesService {
   public constructor(
     @InjectRepository(VoteEntity)
     private readonly votesRepository: Repository<VoteEntity>,
+
+    @InjectRepository(PostEntity)
+    private readonly postsRepository: Repository<PostEntity>,
   ) {}
 
   public set(
@@ -22,20 +26,24 @@ export class VotesService {
         const voteBool: boolean = value === VoteEnum.UP;
 
         let vote: VoteEntity | null = await this.votesRepository.findOne({
-          where: { user: { id: userId }, post: { id: postId } },
+          where: { userId, postId },
         });
 
+        // The vote is already set to the input value
         if (vote && vote.value === voteBool) {
           return vote;
         }
 
+        // The vote is set to the opposite of the input value
         if (vote) {
           vote.value = voteBool;
-        } else {
+        }
+        // The user had not voted before
+        else {
           vote = this.votesRepository.create({
             value: voteBool,
-            user: { id: userId },
-            post: { id: postId },
+            userId,
+            postId,
           });
         }
 
@@ -46,6 +54,8 @@ export class VotesService {
 
   public delete(userId: number, postId: number): Observable<unknown> {
     return from(
+      // Votes need to be loaded before being updated or removed
+      // so that the subscriber can be triggered
       this.votesRepository
         .findOneOrFail({
           where: { userId, postId },
@@ -53,6 +63,15 @@ export class VotesService {
         .then((vote) => {
           this.votesRepository.remove(vote);
         }),
+    );
+  }
+
+  public get(postId: number) {
+    return from(
+      this.postsRepository.findOneOrFail({
+        where: { id: postId },
+        select: ['id', 'upvoteCount', 'downvoteCount'],
+      }),
     );
   }
 }

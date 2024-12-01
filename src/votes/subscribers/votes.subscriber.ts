@@ -41,7 +41,7 @@ export class VotesSubscriber implements EntitySubscriberInterface<VoteEntity> {
 
   public async afterUpdate(event: UpdateEvent<VoteEntity>) {
     if (!event.entity || !event.databaseEntity) {
-      return;
+      throw new Error('Votes need to be loaded before being updated');
     }
     const post = await this.getPost(event.entity as VoteEntity);
     if (!post) {
@@ -59,7 +59,7 @@ export class VotesSubscriber implements EntitySubscriberInterface<VoteEntity> {
 
   public async afterRemove(event: RemoveEvent<VoteEntity>) {
     if (!event.entity) {
-      return;
+      throw new Error('Votes need to be loaded before being removed');
     }
     const post = await this.getPost(event.entity);
     if (!post) {

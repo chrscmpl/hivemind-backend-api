@@ -7,7 +7,7 @@ export class SetVoteDto {
     nullable: false,
     type: 'string',
     example: 'up',
-    examples: Object.values(VoteEnum),
+    enum: VoteEnum,
   })
   @IsEnum(VoteEnum)
   public vote!: VoteEnum;
