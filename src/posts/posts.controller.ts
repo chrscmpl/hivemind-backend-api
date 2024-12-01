@@ -13,8 +13,10 @@ import {
   NotFoundException,
   ForbiddenException,
   ParseArrayPipe,
+  ParseEnumPipe,
+  BadRequestException,
 } from '@nestjs/common';
-import { PostsService } from './services/posts.service';
+import { PostsMutationService } from './services/posts-mutation.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import {
@@ -46,6 +48,8 @@ import { getPostIncludeQueryExamples } from './examples/post-include-query.examp
 import { MaxValuePipe } from 'src/common/pipes/max-value.pipe';
 import { MinValuePipe } from 'src/common/pipes/min-value.pipe';
 import { getCreatedPostExample } from './examples/created-post.example';
+import { PostsFetchService } from './services/posts-fetch.service';
+import { PostSortEnum } from './enum/post-sort.enum';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -53,7 +57,10 @@ export class PostsController {
   private static readonly DEFAULT_LIMIT = 10;
   private static readonly MAX_LIMIT = 100;
 
-  public constructor(private readonly postsService: PostsService) {}
+  public constructor(
+    private readonly postsMutationService: PostsMutationService,
+    private readonly postsFetchService: PostsFetchService,
+  ) {}
 
   @ApiOperation({
     summary: 'Create a post',
@@ -83,7 +90,7 @@ export class PostsController {
     @Body() createPostDto: CreatePostDto,
     @AuthUser() user: AuthenticatedUser,
   ): Observable<PostDto> {
-    return this.postsService
+    return this.postsMutationService
       .create(createPostDto, user.id)
       .pipe(map((post) => new PostDto(post)));
   }
@@ -98,6 +105,7 @@ export class PostsController {
   @ApiBearerAuth()
   @ApiQuery({ name: 'page', required: false, type: 'number', example: 1, default: 1, minimum: 1 }) // prettier-ignore
   @ApiQuery({ name: 'limit', required: false, type: 'number', example: PostsController.DEFAULT_LIMIT, default: PostsController.DEFAULT_LIMIT, maximum: PostsController.MAX_LIMIT }) // prettier-ignore
+  @ApiQuery({ name: 'sort', required: false, enum: PostSortEnum, example: PostSortEnum.CONTROVERSIAL }) // prettier-ignore
   @ApiQuery({ name: 'include', description: 'Comma-separated list of additional parameters', required: false, type: 'string', examples: getPostsPaginationIncludeQueryExamples() }) // prettier-ignore
   @ApiResponse({
     status: 200,
@@ -125,6 +133,17 @@ export class PostsController {
     )
     limit: number = PostsController.DEFAULT_LIMIT,
     @Query(
+      'sort',
+      new ParseEnumPipe(PostSortEnum, {
+        optional: true,
+        exceptionFactory: () =>
+          new BadRequestException(
+            `sort can only take the values ${Object.values(PostSortEnum).join(', ')}`,
+          ),
+      }),
+    )
+    sort: PostSortEnum,
+    @Query(
       'include',
       new ParseArrayPipe({ items: String, separator: ',', optional: true }),
     )
@@ -134,10 +153,11 @@ export class PostsController {
     const includeContent: boolean = include.includes('content');
     const includeUser: boolean = include.includes('user');
 
-    return this.postsService
+    return this.postsFetchService
       .paginate({
         page,
         limit,
+        sort,
         includeContent,
         includeUser,
         includeVoteOf: includeVote ? user!.id : null,
@@ -180,7 +200,7 @@ export class PostsController {
   ): Observable<PostDto> {
     const includeVote: boolean = include.includes('ownVote') && !!user;
 
-    return this.postsService
+    return this.postsFetchService
       .findOne(id, {
         relations: ['user'],
         includeVoteOf: includeVote ? user!.id : null,
@@ -232,7 +252,7 @@ export class PostsController {
   ): Observable<PostDto> {
     return this.checkAuthorization(id, user).pipe(
       switchMap((oldPost) =>
-        this.postsService.update(id, updatePostDto).pipe(
+        this.postsMutationService.update(id, updatePostDto).pipe(
           map(
             (newPost) =>
               // returns the updated post, adding the old values that were not updated
@@ -282,7 +302,7 @@ export class PostsController {
   ): Observable<PostDto> {
     return this.checkAuthorization(id, user).pipe(
       switchMap((post) =>
-        this.postsService.delete(id).pipe(map(() => new PostDto(post))),
+        this.postsMutationService.delete(id).pipe(map(() => new PostDto(post))),
       ),
     );
   }
@@ -291,7 +311,7 @@ export class PostsController {
     postId: number,
     user: AuthenticatedUser,
   ): Observable<PostEntity> {
-    return this.postsService.findOne(postId).pipe(
+    return this.postsFetchService.findOne(postId).pipe(
       catchError(() => throwError(() => new NotFoundException())),
       tap((post) => {
         if (post.userId !== user.id) {
