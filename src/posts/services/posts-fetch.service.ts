@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { PostEntity } from '../entities/post.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { from, Observable } from 'rxjs';
@@ -19,7 +19,7 @@ export class PostsFetchService {
     'p.downvoteCount',
     'p.createdAt',
     'p.updatedAt',
-    'p.user_id',
+    'p.userId',
   ];
 
   public constructor(
@@ -56,15 +56,46 @@ export class PostsFetchService {
     includeUser?: boolean;
     sort?: PostSortEnum;
   }) {
-    let queryBuilder = this.postsRepository
-      .createQueryBuilder('p')
-      .select(this.getColumns(options));
+    let queryBuilder = this.createBasicQueryBuilder();
 
+    queryBuilder = this.addSelect(queryBuilder, options);
+
+    queryBuilder = this.addRelations(queryBuilder, options);
+
+    queryBuilder = this.addSort(queryBuilder, options);
+
+    return queryBuilder;
+  }
+
+  private createBasicQueryBuilder(): SelectQueryBuilder<PostEntity> {
+    return this.postsRepository.createQueryBuilder('p');
+  }
+
+  private addSelect(
+    queryBuilder: SelectQueryBuilder<PostEntity>,
+    options?: { includeContent?: boolean },
+  ): SelectQueryBuilder<PostEntity> {
+    return queryBuilder.select(this.getColumns(options));
+  }
+
+  private addRelations(
+    queryBuilder: SelectQueryBuilder<PostEntity>,
+    options?: { includeUser?: boolean },
+  ): SelectQueryBuilder<PostEntity> {
     for (const relation of this.getRelations(options)) {
       queryBuilder = queryBuilder.leftJoinAndSelect(`p.${relation}`, relation);
     }
 
-    if (!options.sort) {
+    return queryBuilder;
+  }
+
+  private addSort(
+    queryBuilder: SelectQueryBuilder<PostEntity>,
+    options?: {
+      sort?: PostSortEnum;
+    },
+  ): SelectQueryBuilder<PostEntity> {
+    if (!options?.sort) {
       return queryBuilder;
     }
 

@@ -18,17 +18,17 @@ export class PostVoteEntity {
   @Column({ type: 'boolean', nullable: false })
   public value!: boolean;
 
-  @Column({ name: 'user_id', nullable: false })
+  @Column({ name: 'userId', nullable: false })
   public userId!: number;
 
   @ManyToOne(() => UserEntity, (user) => user.id, { nullable: false })
-  @JoinColumn({ name: 'user_id' })
+  @JoinColumn({ name: 'userId' })
   public user!: UserEntity;
 
-  @Column({ name: 'post_id', nullable: false })
+  @Column({ name: 'postId', nullable: false })
   public postId!: number;
 
   @ManyToOne(() => PostEntity, (post) => post.id, { nullable: false })
-  @JoinColumn({ name: 'post_id' })
+  @JoinColumn({ name: 'postId' })
   public post!: PostEntity;
 }
