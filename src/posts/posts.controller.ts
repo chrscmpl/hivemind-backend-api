@@ -11,7 +11,6 @@ import {
   ParseIntPipe,
   NotFoundException,
   ForbiddenException,
-  ParseArrayPipe,
 } from '@nestjs/common';
 import { PostsMutationService } from './services/posts-mutation.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -46,6 +45,8 @@ import { PostsFetchService } from './services/posts-fetch.service';
 import { noMsIso } from 'src/common/helpers/no-ms-iso.helper';
 import { PaginationIncludeValueEnum } from './enum/pagination-include-value.enum';
 import { PostPaginationQueryDto } from './dto/post-pagination-query.dto';
+import { GetPostQueryDto } from './dto/get-post-query.dto';
+import { GetPostIncludeValueEnum } from './enum/get-post-include-value.enum';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -172,13 +173,11 @@ export class PostsController {
   public findOne(
     @AuthUser({ nullable: true }) user: AuthenticatedUser | null,
     @Param('id', ParseIntPipe) id: number,
-    @Query(
-      'include',
-      new ParseArrayPipe({ items: String, separator: ',', optional: true }),
-    )
-    include: string[] = [],
+    @Query()
+    query: GetPostQueryDto,
   ): Observable<PostDto> {
-    const includeVote: boolean = include.includes('ownVote') && !!user;
+    const includeVote: boolean =
+      query.include.includes(GetPostIncludeValueEnum.OWN_VOTE) && !!user;
 
     return this.postsFetchService
       .findOne(id, {
