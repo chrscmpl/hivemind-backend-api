@@ -176,7 +176,16 @@ export class PostsController {
         after,
         includeVoteOf: includeVote ? user!.id : null,
       })
-      .pipe(map((pagination) => new PostPaginationDto(pagination)));
+      .pipe(
+        map((pagination) => {
+          pagination.meta.sort = sort;
+          pagination.meta.after = after
+            ? `${after.toISOString().split('.')[0]}Z`
+            : null;
+          pagination.meta.includes = include;
+          return new PostPaginationDto(pagination);
+        }),
+      );
   }
 
   @ApiOperation({
