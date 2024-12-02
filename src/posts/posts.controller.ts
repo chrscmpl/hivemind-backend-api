@@ -50,12 +50,17 @@ import { MinValuePipe } from 'src/common/pipes/min-value.pipe';
 import { getCreatedPostExample } from './examples/created-post.example';
 import { PostsFetchService } from './services/posts-fetch.service';
 import { PostSortEnum } from './enum/post-sort.enum';
+import { ParseDurationPipe } from 'src/common/pipes/parse-duration.pipe';
+import { AgeDatePipe } from 'src/common/pipes/age-date.pipe';
+import { MinAgeDatePipe } from 'src/common/pipes/min-age-date.pipe';
 
 @ApiTags('Posts')
 @Controller('posts')
 export class PostsController {
   private static readonly DEFAULT_LIMIT = 10;
   private static readonly MAX_LIMIT = 100;
+  private static readonly DEFAULT_SORT = PostSortEnum.CONTROVERSIAL;
+  private static readonly MIN_AGE = '1h';
 
   public constructor(
     private readonly postsMutationService: PostsMutationService,
@@ -105,7 +110,8 @@ export class PostsController {
   @ApiBearerAuth()
   @ApiQuery({ name: 'page', required: false, type: 'number', example: 1, default: 1, minimum: 1 }) // prettier-ignore
   @ApiQuery({ name: 'limit', required: false, type: 'number', example: PostsController.DEFAULT_LIMIT, default: PostsController.DEFAULT_LIMIT, maximum: PostsController.MAX_LIMIT }) // prettier-ignore
-  @ApiQuery({ name: 'sort', required: false, enum: PostSortEnum, example: PostSortEnum.CONTROVERSIAL }) // prettier-ignore
+  @ApiQuery({ name: 'sort', required: false, enum: PostSortEnum, example: PostSortEnum.CONTROVERSIAL, default: PostsController.DEFAULT_SORT }) // prettier-ignore
+  @ApiQuery({ name: 'age', required: false, type: 'string', example: '7d' })
   @ApiQuery({ name: 'include', description: 'Comma-separated list of additional parameters', required: false, type: 'string', examples: getPostsPaginationIncludeQueryExamples() }) // prettier-ignore
   @ApiResponse({
     status: 200,
@@ -134,8 +140,8 @@ export class PostsController {
     limit: number = PostsController.DEFAULT_LIMIT,
     @Query(
       'sort',
+      new DefaultValuePipe(PostsController.DEFAULT_SORT),
       new ParseEnumPipe(PostSortEnum, {
-        optional: true,
         exceptionFactory: () =>
           new BadRequestException(
             `sort can only take the values ${Object.values(PostSortEnum).join(', ')}`,
@@ -143,6 +149,13 @@ export class PostsController {
       }),
     )
     sort: PostSortEnum,
+    @Query(
+      'age',
+      new ParseDurationPipe({ optional: true }),
+      new AgeDatePipe({ optional: true }),
+      new MinAgeDatePipe(PostsController.MIN_AGE, { optional: true }),
+    )
+    after?: Date,
     @Query(
       'include',
       new ParseArrayPipe({ items: String, separator: ',', optional: true }),
@@ -160,6 +173,7 @@ export class PostsController {
         sort,
         includeContent,
         includeUser,
+        after,
         includeVoteOf: includeVote ? user!.id : null,
       })
       .pipe(map((pagination) => new PostPaginationDto(pagination)));

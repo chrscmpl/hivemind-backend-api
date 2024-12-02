@@ -10,9 +10,17 @@ import {
 } from 'nestjs-typeorm-paginate';
 import { PostSortEnum } from '../enum/post-sort.enum';
 
+interface PostsQueryOptions {
+  includeVoteOf?: number | null;
+  includeContent?: boolean;
+  includeUser?: boolean;
+  sort?: PostSortEnum;
+  after?: Date;
+}
+
 @Injectable()
 export class PostsFetchService {
-  private static readonly standardColumns: string[] = [
+  private static readonly standardColumns: `p.${keyof PostEntity}`[] = [
     'p.id',
     'p.title',
     'p.upvoteCount',
@@ -40,25 +48,19 @@ export class PostsFetchService {
   }
 
   public paginate(
-    options: IPaginationOptions & {
-      includeVoteOf?: number | null;
-      includeContent?: boolean;
-      includeUser?: boolean;
-      sort?: PostSortEnum;
-    },
+    options: IPaginationOptions & PostsQueryOptions,
   ): Observable<Pagination<PostEntity>> {
     return from(paginate<PostEntity>(this.getQueryBuilder(options), options));
   }
 
-  private getQueryBuilder(options: {
-    includeVoteOf?: number | null;
-    includeContent?: boolean;
-    includeUser?: boolean;
-    sort?: PostSortEnum;
-  }) {
+  private getQueryBuilder(
+    options: PostsQueryOptions,
+  ): SelectQueryBuilder<PostEntity> {
     let queryBuilder = this.createBasicQueryBuilder();
 
     queryBuilder = this.addSelect(queryBuilder, options);
+
+    queryBuilder = this.addWhere(queryBuilder, options);
 
     queryBuilder = this.addRelations(queryBuilder, options);
 
@@ -73,14 +75,27 @@ export class PostsFetchService {
 
   private addSelect(
     queryBuilder: SelectQueryBuilder<PostEntity>,
-    options?: { includeContent?: boolean },
+    options?: Pick<PostsQueryOptions, 'includeContent'>,
   ): SelectQueryBuilder<PostEntity> {
     return queryBuilder.select(this.getColumns(options));
   }
 
+  private addWhere(
+    queryBuilder: SelectQueryBuilder<PostEntity>,
+    options?: Pick<PostsQueryOptions, 'after'>,
+  ): SelectQueryBuilder<PostEntity> {
+    if (!options?.after) {
+      return queryBuilder;
+    }
+
+    return queryBuilder.where('p.createdAt > :after', {
+      after: options.after,
+    });
+  }
+
   private addRelations(
     queryBuilder: SelectQueryBuilder<PostEntity>,
-    options?: { includeUser?: boolean },
+    options?: Pick<PostsQueryOptions, 'includeUser'>,
   ): SelectQueryBuilder<PostEntity> {
     for (const relation of this.getRelations(options)) {
       queryBuilder = queryBuilder.leftJoinAndSelect(`p.${relation}`, relation);
@@ -91,9 +106,7 @@ export class PostsFetchService {
 
   private addSort(
     queryBuilder: SelectQueryBuilder<PostEntity>,
-    options?: {
-      sort?: PostSortEnum;
-    },
+    options?: Pick<PostsQueryOptions, 'sort'>,
   ): SelectQueryBuilder<PostEntity> {
     if (!options?.sort) {
       return queryBuilder;
@@ -111,18 +124,24 @@ export class PostsFetchService {
             'controversialScore',
           )
           .orderBy('controversialScore', 'DESC');
+      case PostSortEnum.NEW:
+        return queryBuilder.orderBy('createdAt', 'DESC');
       default:
         return queryBuilder;
     }
   }
 
-  private getColumns(options?: { includeContent?: boolean }): string[] {
+  private getColumns(
+    options?: Pick<PostsQueryOptions, 'includeContent'>,
+  ): `p.${keyof PostEntity}`[] {
     return options?.includeContent
       ? [...PostsFetchService.standardColumns, 'p.content']
       : PostsFetchService.standardColumns;
   }
 
-  private getRelations(options?: { includeUser?: boolean }): string[] {
+  private getRelations(
+    options?: Pick<PostsQueryOptions, 'includeUser'>,
+  ): string[] {
     return options?.includeUser ? ['user'] : [];
   }
 }
