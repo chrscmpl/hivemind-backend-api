@@ -114,18 +114,18 @@ export class PostsFetchService {
 
     switch (options.sort) {
       case PostSortEnum.POPULAR:
-        return queryBuilder.orderBy('upvoteCount', 'DESC');
+        return queryBuilder.orderBy('p.upvoteCount', 'DESC');
       case PostSortEnum.UNPOPULAR:
-        return queryBuilder.orderBy('downvoteCount', 'DESC');
+        return queryBuilder.orderBy('p.downvoteCount', 'DESC');
       case PostSortEnum.CONTROVERSIAL:
         return queryBuilder
           .addSelect(
-            '(upvoteCount + downvoteCount) - ABS(upvoteCount - downvoteCount)',
+            '(p.upvoteCount + p.downvoteCount) - (ABS(p.upvoteCount - p.downvoteCount) * 0.8)',
             'controversialScore',
           )
           .orderBy('controversialScore', 'DESC');
       case PostSortEnum.NEW:
-        return queryBuilder.orderBy('createdAt', 'DESC');
+        return queryBuilder.orderBy('p.createdAt', 'DESC');
       default:
         return queryBuilder;
     }
