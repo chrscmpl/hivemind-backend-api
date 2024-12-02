@@ -26,12 +26,12 @@ class PostPaginationMetaDto {
     enum: PostSortEnum,
     example: PostSortEnum.CONTROVERSIAL,
   })
-  public sort?: string;
+  public sorting?: string;
 
   @ApiProperty({
     nullable: true,
     type: 'string',
-    example: '2024-12-12T12:00:00Z',
+    example: '2024-11-06T22:00:00Z',
   })
   public after?: string;
 
@@ -47,8 +47,8 @@ class PostPaginationMetaDto {
     this.itemsPerPage = meta.itemsPerPage;
     this.totalPages = meta.totalPages;
     this.currentPage = meta.currentPage;
-    if (meta.sort) {
-      this.sort = meta.sort;
+    if (meta.sorting) {
+      this.sorting = meta.sorting;
     }
     if (meta.after) {
       this.after = meta.after;

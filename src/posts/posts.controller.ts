@@ -54,6 +54,7 @@ import { ParseDurationPipe } from 'src/common/pipes/parse-duration.pipe';
 import { AgeDatePipe } from 'src/common/pipes/age-date.pipe';
 import { MinAgeDatePipe } from 'src/common/pipes/min-age-date.pipe';
 import { noMsIso } from 'src/common/helpers/no-ms-iso.helper';
+import { PaginationIncludeValueEnum } from './enum/pagination-include-value.enum';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -111,7 +112,7 @@ export class PostsController {
   @ApiBearerAuth()
   @ApiQuery({ name: 'page', required: false, type: 'number', example: 1, default: 1, minimum: 1 }) // prettier-ignore
   @ApiQuery({ name: 'limit', required: false, type: 'number', example: PostsController.DEFAULT_LIMIT, default: PostsController.DEFAULT_LIMIT, maximum: PostsController.MAX_LIMIT }) // prettier-ignore
-  @ApiQuery({ name: 'sort', required: false, enum: PostSortEnum, example: PostSortEnum.CONTROVERSIAL, default: PostsController.DEFAULT_SORT }) // prettier-ignore
+  @ApiQuery({ name: 'sort', required: false, enum: PostSortEnum, example: PostsController.DEFAULT_SORT, default: PostsController.DEFAULT_SORT }) // prettier-ignore
   @ApiQuery({ name: 'age', required: false, type: 'string', example: '7d' })
   @ApiQuery({ name: 'include', description: 'Comma-separated list of additional parameters', required: false, type: 'string', examples: getPostsPaginationIncludeQueryExamples() }) // prettier-ignore
   @ApiResponse({
@@ -161,11 +162,22 @@ export class PostsController {
       'include',
       new ParseArrayPipe({ items: String, separator: ',', optional: true }),
     )
-    include: string[] = [],
+    include: PaginationIncludeValueEnum[] = [],
   ): Observable<PostPaginationDto> {
-    const includeVote: boolean = include.includes('ownVote') && !!user;
-    const includeContent: boolean = include.includes('content');
-    const includeUser: boolean = include.includes('user');
+    const includeValues = Object.values(PaginationIncludeValueEnum);
+
+    if (include.some((value) => !includeValues.includes(value))) {
+      throw new BadRequestException('Invalid include values');
+    }
+
+    const includeVote: boolean =
+      include.includes(PaginationIncludeValueEnum.OWN_VOTE) && !!user;
+    const includeContent: boolean = include.includes(
+      PaginationIncludeValueEnum.CONTENT,
+    );
+    const includeUser: boolean = include.includes(
+      PaginationIncludeValueEnum.USER,
+    );
 
     return this.postsFetchService
       .paginate({
@@ -179,7 +191,7 @@ export class PostsController {
       })
       .pipe(
         map((pagination) => {
-          pagination.meta.sort = sort;
+          pagination.meta.sorting = sort;
           pagination.meta.after = after ? noMsIso(after) : null;
           pagination.meta.includes = include;
           return new PostPaginationDto(pagination);
