@@ -29,7 +29,6 @@ import {
   ApiBody,
   ApiOperation,
   ApiParam,
-  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -39,7 +38,6 @@ import { PostPaginationDto } from './dto/post-pagination.dto';
 import { NotFoundExceptionDto } from 'src/common/dto/exceptions/not-found-exception.dto';
 import { ForbiddenExceptionDto } from 'src/common/dto/exceptions/forbidden-exception.dto';
 import { BadRequestExceptionDto } from 'src/common/dto/exceptions/bad-request-exception.dto';
-import { getPostIncludeQueryExamples } from './examples/post-include-query.example';
 import { getCreatedPostExample } from './examples/created-post.example';
 import { PostsFetchService } from './services/posts-fetch.service';
 import { noMsIso } from 'src/common/helpers/no-ms-iso.helper';
@@ -152,7 +150,6 @@ export class PostsController {
   })
   @ApiBearerAuth()
   @ApiParam({ name: 'id', required: true, type: 'number', example: 1 })
-  @ApiQuery({ name: 'include', description: 'comma-separated list of additional parameters', required: false, type: 'string', examples: getPostIncludeQueryExamples() }) // prettier-ignore
   @ApiResponse({
     status: 200,
     description: 'The post has been successfully found.',
