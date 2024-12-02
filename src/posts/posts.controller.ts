@@ -53,6 +53,7 @@ import { PostSortEnum } from './enum/post-sort.enum';
 import { ParseDurationPipe } from 'src/common/pipes/parse-duration.pipe';
 import { AgeDatePipe } from 'src/common/pipes/age-date.pipe';
 import { MinAgeDatePipe } from 'src/common/pipes/min-age-date.pipe';
+import { noMsIso } from 'src/common/helpers/no-ms-iso.helper';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -179,9 +180,7 @@ export class PostsController {
       .pipe(
         map((pagination) => {
           pagination.meta.sort = sort;
-          pagination.meta.after = after
-            ? `${after.toISOString().split('.')[0]}Z`
-            : null;
+          pagination.meta.after = after ? noMsIso(after) : null;
           pagination.meta.includes = include;
           return new PostPaginationDto(pagination);
         }),

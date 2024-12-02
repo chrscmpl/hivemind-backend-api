@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { noMsIso } from 'src/common/helpers/no-ms-iso.helper';
 import { UserEntity } from 'src/users/entities/user.entity';
 
 export class PrivateUserDto {
@@ -41,7 +42,7 @@ export class PrivateUserDto {
     this.handle = user.handle;
     this.displayName = user.displayName;
     this.email = user.email;
-    this.createdAt = `${user.createdAt.toISOString().split('.')[0]}Z`;
-    this.updatedAt = `${user.updatedAt.toISOString().split('.')[0]}Z`;
+    this.createdAt = noMsIso(user.createdAt);
+    this.updatedAt = noMsIso(user.updatedAt);
   }
 }

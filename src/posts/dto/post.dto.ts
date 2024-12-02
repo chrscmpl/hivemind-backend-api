@@ -1,6 +1,7 @@
 import { defaults } from 'lodash';
 import { PostEntity } from '../entities/post.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { noMsIso } from 'src/common/helpers/no-ms-iso.helper';
 
 // different from UserDto mainly because of the nullable properties
 class UserPreviewDto {
@@ -81,8 +82,8 @@ export class PostDto {
     }
     this.upvoteCount = post.upvoteCount;
     this.downvoteCount = post.downvoteCount;
-    this.createdAt = `${post.createdAt.toISOString().split('.')[0]}Z`;
-    this.updatedAt = `${post.updatedAt.toISOString().split('.')[0]}Z`;
+    this.createdAt = noMsIso(post.createdAt);
+    this.updatedAt = noMsIso(post.updatedAt);
     this.user = new UserPreviewDto(defaults({ id: post.userId }, post.user));
   }
 }
