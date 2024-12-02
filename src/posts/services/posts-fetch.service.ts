@@ -37,12 +37,12 @@ export class PostsFetchService {
 
   public findOne(
     id: number,
-    options?: { relations?: string[]; includeVoteOf?: number | null },
+    options?: { includeUser?: boolean; includeVoteOf?: number | null },
   ): Observable<PostEntity> {
     return from(
       this.postsRepository.findOneOrFail({
         where: { id },
-        relations: options?.relations ?? [],
+        relations: options?.includeUser ? ['user'] : [],
       }),
     );
   }

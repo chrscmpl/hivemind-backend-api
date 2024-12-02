@@ -38,7 +38,6 @@ import { PostPaginationDto } from './dto/post-pagination.dto';
 import { NotFoundExceptionDto } from 'src/common/dto/exceptions/not-found-exception.dto';
 import { ForbiddenExceptionDto } from 'src/common/dto/exceptions/forbidden-exception.dto';
 import { BadRequestExceptionDto } from 'src/common/dto/exceptions/bad-request-exception.dto';
-import { getCreatedPostExample } from './examples/created-post.example';
 import { PostsFetchService } from './services/posts-fetch.service';
 import { noMsIso } from 'src/common/helpers/no-ms-iso.helper';
 import { PaginationIncludeValueEnum } from './enum/pagination-include-value.enum';
@@ -64,7 +63,6 @@ export class PostsController {
     status: 201,
     description: 'The post has been successfully created.',
     type: PostDto,
-    example: getCreatedPostExample(),
   })
   @ApiResponse({
     status: 400,
@@ -176,9 +174,13 @@ export class PostsController {
     const includeVote: boolean =
       query.include.includes(GetPostIncludeValueEnum.OWN_VOTE) && !!user;
 
+    const includeUser: boolean = query.include.includes(
+      GetPostIncludeValueEnum.USER,
+    );
+
     return this.postsFetchService
       .findOne(id, {
-        relations: ['user'],
+        includeUser,
         includeVoteOf: includeVote ? user!.id : null,
       })
       .pipe(

@@ -71,7 +71,7 @@ export class PostDto {
   })
   public updatedAt: string;
 
-  @ApiProperty({ nullable: false, type: UserPreviewDto })
+  @ApiProperty({ nullable: false, type: UserPreviewDto, example: { id: 1 } })
   public user: UserPreviewDto;
 
   public constructor(post: PostEntity) {
