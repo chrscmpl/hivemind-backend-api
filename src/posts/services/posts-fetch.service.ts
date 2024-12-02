@@ -12,10 +12,10 @@ import { PostSortEnum } from '../enum/post-sort.enum';
 
 interface PostsQueryOptions {
   includeVoteOf?: number | null;
-  includeContent?: boolean;
-  includeUser?: boolean;
-  sort?: PostSortEnum;
-  after?: Date;
+  includeContent?: boolean | null;
+  includeUser?: boolean | null;
+  sort?: PostSortEnum | null;
+  after?: Date | null;
 }
 
 @Injectable()

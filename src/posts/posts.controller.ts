@@ -8,13 +8,10 @@ import {
   Delete,
   UseGuards,
   Query,
-  DefaultValuePipe,
   ParseIntPipe,
   NotFoundException,
   ForbiddenException,
   ParseArrayPipe,
-  ParseEnumPipe,
-  BadRequestException,
 } from '@nestjs/common';
 import { PostsMutationService } from './services/posts-mutation.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -43,27 +40,16 @@ import { PostPaginationDto } from './dto/post-pagination.dto';
 import { NotFoundExceptionDto } from 'src/common/dto/exceptions/not-found-exception.dto';
 import { ForbiddenExceptionDto } from 'src/common/dto/exceptions/forbidden-exception.dto';
 import { BadRequestExceptionDto } from 'src/common/dto/exceptions/bad-request-exception.dto';
-import { getPostsPaginationIncludeQueryExamples } from './examples/posts-pagination-include-query.example';
 import { getPostIncludeQueryExamples } from './examples/post-include-query.example';
-import { MaxValuePipe } from 'src/common/pipes/max-value.pipe';
-import { MinValuePipe } from 'src/common/pipes/min-value.pipe';
 import { getCreatedPostExample } from './examples/created-post.example';
 import { PostsFetchService } from './services/posts-fetch.service';
-import { PostSortEnum } from './enum/post-sort.enum';
-import { ParseDurationPipe } from 'src/common/pipes/parse-duration.pipe';
-import { AgeDatePipe } from 'src/common/pipes/age-date.pipe';
-import { MinAgeDatePipe } from 'src/common/pipes/min-age-date.pipe';
 import { noMsIso } from 'src/common/helpers/no-ms-iso.helper';
 import { PaginationIncludeValueEnum } from './enum/pagination-include-value.enum';
+import { PostPaginationQueryDto } from './dto/post-pagination-query.dto';
 
 @ApiTags('Posts')
 @Controller('posts')
 export class PostsController {
-  private static readonly DEFAULT_LIMIT = 10;
-  private static readonly MAX_LIMIT = 100;
-  private static readonly DEFAULT_SORT = PostSortEnum.CONTROVERSIAL;
-  private static readonly MIN_AGE = '1h';
-
   public constructor(
     private readonly postsMutationService: PostsMutationService,
     private readonly postsFetchService: PostsFetchService,
@@ -110,11 +96,6 @@ export class PostsController {
       'Authentication is required for the value "ownVote" of the "include" query parameter to take effect.',
   })
   @ApiBearerAuth()
-  @ApiQuery({ name: 'page', required: false, type: 'number', example: 1, default: 1, minimum: 1 }) // prettier-ignore
-  @ApiQuery({ name: 'limit', required: false, type: 'number', example: PostsController.DEFAULT_LIMIT, default: PostsController.DEFAULT_LIMIT, maximum: PostsController.MAX_LIMIT }) // prettier-ignore
-  @ApiQuery({ name: 'sort', required: false, enum: PostSortEnum, example: PostsController.DEFAULT_SORT, default: PostsController.DEFAULT_SORT }) // prettier-ignore
-  @ApiQuery({ name: 'age', required: false, type: 'string', example: '7d' })
-  @ApiQuery({ name: 'include', description: 'Comma-separated list of additional parameters', required: false, type: 'string', examples: getPostsPaginationIncludeQueryExamples() }) // prettier-ignore
   @ApiResponse({
     status: 200,
     description: 'The posts have been successfully found.',
@@ -130,60 +111,24 @@ export class PostsController {
   public findAll(
     @AuthUser({ nullable: true })
     user: AuthenticatedUser | null,
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe, new MinValuePipe(1))
-    page: number = 1,
-    @Query(
-      'limit',
-      new DefaultValuePipe(PostsController.DEFAULT_LIMIT),
-      ParseIntPipe,
-      new MinValuePipe(1),
-      new MaxValuePipe(PostsController.MAX_LIMIT, { replace: true }),
-    )
-    limit: number = PostsController.DEFAULT_LIMIT,
-    @Query(
-      'sort',
-      new DefaultValuePipe(PostsController.DEFAULT_SORT),
-      new ParseEnumPipe(PostSortEnum, {
-        exceptionFactory: () =>
-          new BadRequestException(
-            `sort can only take the values ${Object.values(PostSortEnum).join(', ')}`,
-          ),
-      }),
-    )
-    sort: PostSortEnum,
-    @Query(
-      'age',
-      new ParseDurationPipe({ optional: true }),
-      new AgeDatePipe({ optional: true }),
-      new MinAgeDatePipe(PostsController.MIN_AGE, { optional: true }),
-    )
-    after?: Date,
-    @Query(
-      'include',
-      new ParseArrayPipe({ items: String, separator: ',', optional: true }),
-    )
-    include: PaginationIncludeValueEnum[] = [],
+    @Query() query: PostPaginationQueryDto,
   ): Observable<PostPaginationDto> {
-    const includeValues = Object.values(PaginationIncludeValueEnum);
-
-    if (include.some((value) => !includeValues.includes(value))) {
-      throw new BadRequestException('Invalid include values');
-    }
-
     const includeVote: boolean =
-      include.includes(PaginationIncludeValueEnum.OWN_VOTE) && !!user;
-    const includeContent: boolean = include.includes(
+      query.include.includes(PaginationIncludeValueEnum.OWN_VOTE) && !!user;
+    const includeContent: boolean = query.include.includes(
       PaginationIncludeValueEnum.CONTENT,
     );
-    const includeUser: boolean = include.includes(
+    const includeUser: boolean = query.include.includes(
       PaginationIncludeValueEnum.USER,
     );
 
+    const after = query.age ? new Date(Date.now() - query.age) : null;
+
     return this.postsFetchService
       .paginate({
-        page,
-        limit,
-        sort,
+        page: query.page,
+        limit: query.limit,
+        sort: query.sort,
         includeContent,
         includeUser,
         after,
@@ -191,9 +136,9 @@ export class PostsController {
       })
       .pipe(
         map((pagination) => {
-          pagination.meta.sorting = sort;
+          pagination.meta.sorting = query.sort;
           pagination.meta.after = after ? noMsIso(after) : null;
-          pagination.meta.includes = include;
+          pagination.meta.includes = query.include;
           return new PostPaginationDto(pagination);
         }),
       );
@@ -223,14 +168,15 @@ export class PostsController {
     type: NotFoundExceptionDto,
   })
   @Get(':id')
+  @UseGuards(OptionalAuthGuard)
   public findOne(
+    @AuthUser({ nullable: true }) user: AuthenticatedUser | null,
     @Param('id', ParseIntPipe) id: number,
     @Query(
       'include',
       new ParseArrayPipe({ items: String, separator: ',', optional: true }),
     )
     include: string[] = [],
-    @AuthUser({ nullable: true }) user: AuthenticatedUser | null,
   ): Observable<PostDto> {
     const includeVote: boolean = include.includes('ownVote') && !!user;
 
