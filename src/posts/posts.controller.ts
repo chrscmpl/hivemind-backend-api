@@ -44,6 +44,8 @@ import { PaginationIncludeValueEnum } from './enum/pagination-include-value.enum
 import { PostPaginationQueryDto } from './dto/post-pagination-query.dto';
 import { GetPostQueryDto } from './dto/get-post-query.dto';
 import { GetPostIncludeValueEnum } from './enum/get-post-include-value.enum';
+import { getPostExample } from './examples/post.example';
+import { getCreatedPostExample } from './examples/created-post.example';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -63,6 +65,7 @@ export class PostsController {
     status: 201,
     description: 'The post has been successfully created.',
     type: PostDto,
+    example: getCreatedPostExample(),
   })
   @ApiResponse({
     status: 400,
@@ -152,6 +155,7 @@ export class PostsController {
     status: 200,
     description: 'The post has been successfully found.',
     type: PostDto,
+    example: getPostExample(),
   })
   @ApiResponse({
     status: 400,
