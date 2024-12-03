@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { PostVoteEntity } from '../entities/post-vote.entity';
+import { PostVoteEntity } from '../entities/vote.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { from, Observable } from 'rxjs';
-import { PostVoteEnum } from '../enum/post-vote.enum';
+import { PostVoteEnum } from '../enum/vote.enum';
 
 @Injectable()
-export class PostVotesService {
+export class VotesService {
   public constructor(
     @InjectRepository(PostVoteEntity)
     private readonly votesRepository: Repository<PostVoteEntity>,

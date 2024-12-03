@@ -7,12 +7,12 @@ import {
   Repository,
   UpdateEvent,
 } from 'typeorm';
-import { PostVoteEntity } from '../modules/post-votes/entities/post-vote.entity';
+import { PostVoteEntity } from '../entities/vote.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostEntity } from 'src/posts/entities/post.entity';
 
 @EventSubscriber()
-export class PostVotesSubscriber
+export class VotesSubscriber
   implements EntitySubscriberInterface<PostVoteEntity>
 {
   constructor(

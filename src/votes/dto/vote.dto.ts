@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PostVoteEnum } from '../enum/post-vote.enum';
+import { PostVoteEnum } from '../enum/vote.enum';
 
 export class PostVoteDto {
   @ApiProperty({

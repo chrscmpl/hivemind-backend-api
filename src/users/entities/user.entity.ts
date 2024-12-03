@@ -1,6 +1,6 @@
 import { compare, hash } from 'src/common/helpers/hashing-utils.helper';
 import { PostEntity } from 'src/posts/entities/post.entity';
-import { PostVoteEntity } from 'src/posts/modules/post-votes/entities/post-vote.entity';
+import { PostVoteEntity } from 'src/votes/entities/vote.entity';
 import {
   AfterLoad,
   BeforeInsert,

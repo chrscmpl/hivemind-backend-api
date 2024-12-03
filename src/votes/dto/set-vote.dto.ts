@@ -1,5 +1,5 @@
 import { IsEnum } from 'class-validator';
-import { PostVoteEnum } from '../enum/post-vote.enum';
+import { PostVoteEnum } from '../enum/vote.enum';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class SetPostVoteDto {

@@ -9,8 +9,8 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { PostVotesService } from './services/post-votes.service';
-import { SetPostVoteDto } from './dto/set-post-vote.dto';
+import { VotesService } from './services/votes.service';
+import { SetPostVoteDto } from './dto/set-vote.dto';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -24,16 +24,16 @@ import {
   AuthenticatedUser,
   AuthUser,
 } from 'src/common/decorators/auth-user.decorator';
-import { PostVoteEnum } from './enum/post-vote.enum';
+import { PostVoteEnum } from './enum/vote.enum';
 import { catchError, map, Observable, throwError } from 'rxjs';
-import { PostVoteDto } from './dto/post-vote.dto';
+import { PostVoteDto } from './dto/vote.dto';
 import { NotFoundExceptionDto } from 'src/common/dto/exceptions/not-found-exception.dto';
 
 @ApiTags('Votes')
 @ApiParam({ name: 'id', description: "The post's ID",  required: true, type: 'number', example: 1 }) // prettier-ignore
 @Controller('posts/:id')
-export class PostVotesController {
-  constructor(private readonly votesService: PostVotesService) {}
+export class VotesController {
+  constructor(private readonly votesService: VotesService) {}
 
   @ApiOperation({
     summary: 'Set a vote for a post',

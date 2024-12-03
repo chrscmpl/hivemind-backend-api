@@ -9,7 +9,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { PostVoteEntity } from '../modules/post-votes/entities/post-vote.entity';
+import { PostVoteEntity } from 'src/votes/entities/vote.entity';
 
 @Entity({ name: 'posts' })
 export class PostEntity {
