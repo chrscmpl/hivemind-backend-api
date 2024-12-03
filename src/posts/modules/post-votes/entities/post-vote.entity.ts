@@ -28,7 +28,7 @@ export class PostVoteEntity {
   @Column({ name: 'postId', nullable: false })
   public postId!: number;
 
-  @ManyToOne(() => PostEntity, (post) => post.id, { nullable: false })
+  @ManyToOne(() => PostEntity, (post) => post.votes, { nullable: false })
   @JoinColumn({ name: 'postId' })
   public post!: PostEntity;
 }

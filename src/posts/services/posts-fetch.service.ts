@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { PostEntity } from '../entities/post.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { from, Observable } from 'rxjs';
+import { from, map, Observable } from 'rxjs';
 import {
   IPaginationOptions,
   paginate,
@@ -50,7 +50,24 @@ export class PostsFetchService {
   public paginate(
     options: IPaginationOptions & PostsQueryOptions,
   ): Observable<Pagination<PostEntity>> {
-    return from(paginate<PostEntity>(this.getQueryBuilder(options), options));
+    return from(
+      paginate<PostEntity>(this.getQueryBuilder(options), options),
+    ).pipe(
+      map((pagination) =>
+        options.includeVoteOf ? this.fillOwnVote(pagination) : pagination,
+      ),
+    );
+  }
+
+  private fillOwnVote(
+    pagination: Pagination<PostEntity>,
+  ): Pagination<PostEntity> {
+    pagination.items.forEach((post) => {
+      if (post.votes.length === 1) {
+        post.ownVote = post.votes[0].value;
+      }
+    });
+    return pagination;
   }
 
   private getQueryBuilder(
@@ -95,10 +112,19 @@ export class PostsFetchService {
 
   private addRelations(
     queryBuilder: SelectQueryBuilder<PostEntity>,
-    options?: Pick<PostsQueryOptions, 'includeUser'>,
+    options?: Pick<PostsQueryOptions, 'includeUser' | 'includeVoteOf'>,
   ): SelectQueryBuilder<PostEntity> {
-    for (const relation of this.getRelations(options)) {
-      queryBuilder = queryBuilder.leftJoinAndSelect(`p.${relation}`, relation);
+    if (options?.includeUser) {
+      queryBuilder = queryBuilder.leftJoinAndSelect('p.user', 'user');
+    }
+
+    if (options?.includeVoteOf) {
+      queryBuilder = queryBuilder.leftJoinAndSelect(
+        'p.votes',
+        'votes',
+        'votes.userId = :userId',
+        { userId: options.includeVoteOf },
+      );
     }
 
     return queryBuilder;
@@ -137,11 +163,5 @@ export class PostsFetchService {
     return options?.includeContent
       ? [...PostsFetchService.standardColumns, 'p.content']
       : PostsFetchService.standardColumns;
-  }
-
-  private getRelations(
-    options?: Pick<PostsQueryOptions, 'includeUser'>,
-  ): string[] {
-    return options?.includeUser ? ['user'] : [];
   }
 }

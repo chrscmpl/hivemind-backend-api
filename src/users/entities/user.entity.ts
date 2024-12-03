@@ -1,5 +1,6 @@
 import { compare, hash } from 'src/common/helpers/hashing-utils.helper';
 import { PostEntity } from 'src/posts/entities/post.entity';
+import { PostVoteEntity } from 'src/posts/modules/post-votes/entities/post-vote.entity';
 import {
   AfterLoad,
   BeforeInsert,
@@ -31,6 +32,9 @@ export class UserEntity {
 
   @OneToMany(() => PostEntity, (post) => post.user)
   public posts!: PostEntity[];
+
+  @OneToMany(() => PostVoteEntity, (vote) => vote.user)
+  public postVotes!: PostVoteEntity[];
 
   @CreateDateColumn()
   public createdAt!: Date;

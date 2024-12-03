@@ -74,6 +74,9 @@ export class PostDto {
   @ApiProperty({ nullable: false, type: UserPreviewDto, example: { id: 1 } })
   public user: UserPreviewDto;
 
+  @ApiProperty({ nullable: true, type: 'string', example: 'up' })
+  public ownVote?: 'up' | 'down';
+
   public constructor(post: PostEntity) {
     this.id = post.id;
     this.title = post.title;
@@ -85,5 +88,8 @@ export class PostDto {
     this.createdAt = noMsIso(post.createdAt);
     this.updatedAt = noMsIso(post.updatedAt);
     this.user = new UserPreviewDto(defaults({ id: post.userId }, post.user));
+    if (post.ownVote != null) {
+      this.ownVote = post.ownVote ? 'up' : 'down';
+    }
   }
 }

@@ -19,7 +19,7 @@ export class PostsMutationService {
   ): Observable<PostEntity> {
     const post = this.postsRepository.create({
       ...createPostDto,
-      user: { id: userId },
+      userId,
     });
     return from(this.postsRepository.save(post));
   }

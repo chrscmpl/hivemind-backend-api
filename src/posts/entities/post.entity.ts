@@ -5,9 +5,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { PostVoteEntity } from '../modules/post-votes/entities/post-vote.entity';
 
 @Entity({ name: 'posts' })
 export class PostEntity {
@@ -32,6 +34,11 @@ export class PostEntity {
 
   @Column({ default: 0, nullable: false })
   public downvoteCount!: number;
+
+  @OneToMany(() => PostVoteEntity, (vote) => vote.post)
+  public votes!: PostVoteEntity[];
+
+  public ownVote?: boolean;
 
   @CreateDateColumn()
   public createdAt!: Date;
