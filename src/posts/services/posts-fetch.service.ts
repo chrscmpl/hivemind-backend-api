@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { PostEntity } from '../entities/post.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { from, map, Observable } from 'rxjs';
+import { from, Observable, tap } from 'rxjs';
 import {
   IPaginationOptions,
   paginate,
@@ -39,10 +39,28 @@ export class PostsFetchService {
     id: number,
     options?: { includeUser?: boolean; includeVoteOf?: number | null },
   ): Observable<PostEntity> {
-    return from(
-      this.postsRepository.findOneOrFail({
-        where: { id },
-        relations: options?.includeUser ? ['user'] : [],
+    const queryBuilder = this.createBasicQueryBuilder();
+
+    queryBuilder.where('p.id = :id', { id });
+
+    if (options?.includeUser) {
+      queryBuilder.leftJoinAndSelect('p.user', 'u');
+    }
+
+    if (
+      options?.includeVoteOf !== undefined &&
+      options.includeVoteOf !== null
+    ) {
+      queryBuilder.leftJoinAndSelect('p.votes', 'v', 'v.userId = :userId', {
+        userId: options.includeVoteOf,
+      });
+    }
+
+    return from(queryBuilder.getOneOrFail()).pipe(
+      tap((post) => {
+        if (options?.includeVoteOf) {
+          this.fillOwnVote(post);
+        }
       }),
     );
   }
@@ -53,21 +71,20 @@ export class PostsFetchService {
     return from(
       paginate<PostEntity>(this.getQueryBuilder(options), options),
     ).pipe(
-      map((pagination) =>
-        options.includeVoteOf ? this.fillOwnVote(pagination) : pagination,
-      ),
+      tap((pagination) => {
+        if (options.includeVoteOf) {
+          pagination.items.forEach((post) => {
+            this.fillOwnVote(post);
+          });
+        }
+      }),
     );
   }
 
-  private fillOwnVote(
-    pagination: Pagination<PostEntity>,
-  ): Pagination<PostEntity> {
-    pagination.items.forEach((post) => {
-      if (post.votes.length === 1) {
-        post.ownVote = post.votes[0].value;
-      }
-    });
-    return pagination;
+  private fillOwnVote(post: PostEntity): void {
+    if (post.votes.length === 1) {
+      post.ownVote = post.votes[0].value;
+    }
   }
 
   private getQueryBuilder(
@@ -115,14 +132,14 @@ export class PostsFetchService {
     options?: Pick<PostsQueryOptions, 'includeUser' | 'includeVoteOf'>,
   ): SelectQueryBuilder<PostEntity> {
     if (options?.includeUser) {
-      queryBuilder = queryBuilder.leftJoinAndSelect('p.user', 'user');
+      queryBuilder = queryBuilder.leftJoinAndSelect('p.user', 'u');
     }
 
     if (options?.includeVoteOf) {
       queryBuilder = queryBuilder.leftJoinAndSelect(
         'p.votes',
-        'votes',
-        'votes.userId = :userId',
+        'v',
+        'v.userId = :userId',
         { userId: options.includeVoteOf },
       );
     }

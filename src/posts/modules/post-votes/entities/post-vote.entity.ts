@@ -21,14 +21,20 @@ export class PostVoteEntity {
   @Column({ name: 'userId', nullable: false })
   public userId!: number;
 
-  @ManyToOne(() => UserEntity, (user) => user.id, { nullable: false })
+  @ManyToOne(() => UserEntity, (user) => user.id, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'userId' })
   public user!: UserEntity;
 
   @Column({ name: 'postId', nullable: false })
   public postId!: number;
 
-  @ManyToOne(() => PostEntity, (post) => post.votes, { nullable: false })
+  @ManyToOne(() => PostEntity, (post) => post.votes, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'postId' })
   public post!: PostEntity;
 }
