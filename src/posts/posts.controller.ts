@@ -83,9 +83,12 @@ export class PostsController {
     @Body() createPostDto: CreatePostDto,
     @AuthUser() user: AuthenticatedUser,
   ): Observable<PostDto> {
-    return this.postsMutationService
-      .create(createPostDto, user.id)
-      .pipe(map((post) => new PostDto(post)));
+    return this.postsMutationService.create(createPostDto, user.id).pipe(
+      map((post) => {
+        post.ownVote = true;
+        return new PostDto(post);
+      }),
+    );
   }
 
   @ApiOperation({
