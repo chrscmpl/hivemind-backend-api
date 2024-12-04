@@ -1,11 +1,13 @@
 import { Transform } from 'class-transformer';
-import { IsArray, IsEnum, IsInt, IsOptional, Min } from 'class-validator';
+import { IsArray, IsEnum, IsIn, IsInt, IsOptional, Min } from 'class-validator';
 import { PostSortEnum } from '../enum/post-sort.enum';
 import parse from 'parse-duration';
-import { PaginationIncludeValueEnum } from '../enum/pagination-include-value.enum';
+import { PostIncludeValueEnum } from '../enum/post-include-value.enum';
 import { BadRequestException } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
-import { getPostsPaginationIncludeQueryExamples } from '../examples/posts-pagination-include-query.example';
+import { PostEntity } from '../entities/post.entity';
+import { getPostIncludeQueryExamples } from '../examples/post-include-query.example';
+import { getPostExcludeQueryExamples } from '../examples/post-exclude-query.example';
 
 export class PostPaginationQueryDto {
   @ApiProperty({
@@ -59,11 +61,24 @@ export class PostPaginationQueryDto {
     description: 'Comma-separated list of additional parameters',
     required: false,
     type: 'string',
-    examples: getPostsPaginationIncludeQueryExamples(),
+    examples: getPostIncludeQueryExamples(),
   })
   @Transform(({ value }) => value.split(','))
   @IsOptional()
   @IsArray()
-  @IsEnum(PaginationIncludeValueEnum, { each: true })
-  public include: PaginationIncludeValueEnum[] = [];
+  @IsEnum(PostIncludeValueEnum, { each: true })
+  public include: PostIncludeValueEnum[] = [];
+
+  @ApiProperty({
+    description: 'Comma-separated list of fields to exclude',
+    required: false,
+    type: 'string',
+    example: 'content',
+    examples: getPostExcludeQueryExamples(),
+  })
+  @Transform(({ value }) => value.split(','))
+  @IsOptional()
+  @IsArray()
+  @IsIn(PostEntity.FETCH_COLUMNS, { each: true })
+  public exclude: (keyof PostEntity)[] = [];
 }

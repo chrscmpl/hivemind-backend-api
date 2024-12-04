@@ -40,10 +40,9 @@ import { ForbiddenExceptionDto } from 'src/common/dto/exceptions/forbidden-excep
 import { BadRequestExceptionDto } from 'src/common/dto/exceptions/bad-request-exception.dto';
 import { PostsFetchService } from './services/posts-fetch.service';
 import { noMsIso } from 'src/common/helpers/no-ms-iso.helper';
-import { PaginationIncludeValueEnum } from './enum/pagination-include-value.enum';
+import { PostIncludeValueEnum } from './enum/post-include-value.enum';
 import { PostPaginationQueryDto } from './dto/post-pagination-query.dto';
 import { GetPostQueryDto } from './dto/get-post-query.dto';
-import { GetPostIncludeValueEnum } from './enum/get-post-include-value.enum';
 import { getPostExample } from './examples/post.example';
 import { getCreatedPostExample } from './examples/created-post.example';
 
@@ -117,12 +116,9 @@ export class PostsController {
     @Query() query: PostPaginationQueryDto,
   ): Observable<PostPaginationDto> {
     const includeVote: boolean =
-      query.include.includes(PaginationIncludeValueEnum.MY_VOTE) && !!user;
-    const includeContent: boolean = query.include.includes(
-      PaginationIncludeValueEnum.CONTENT,
-    );
+      query.include.includes(PostIncludeValueEnum.MY_VOTE) && !!user;
     const includeUser: boolean = query.include.includes(
-      PaginationIncludeValueEnum.USER,
+      PostIncludeValueEnum.USER,
     );
 
     const after = query.age ? new Date(Date.now() - query.age) : null;
@@ -132,7 +128,7 @@ export class PostsController {
         page: query.page,
         limit: query.limit,
         sort: query.sort,
-        includeContent,
+        exclude: query.exclude,
         includeUser,
         after,
         includeVoteOf: includeVote ? user!.id : null,
@@ -179,16 +175,17 @@ export class PostsController {
     query: GetPostQueryDto,
   ): Observable<PostDto> {
     const includeVote: boolean =
-      query.include.includes(GetPostIncludeValueEnum.MY_VOTE) && !!user;
+      query.include.includes(PostIncludeValueEnum.MY_VOTE) && !!user;
 
     const includeUser: boolean = query.include.includes(
-      GetPostIncludeValueEnum.USER,
+      PostIncludeValueEnum.USER,
     );
 
     return this.postsFetchService
       .findOne(id, {
         includeUser,
         includeVoteOf: includeVote ? user!.id : null,
+        exclude: query.exclude,
       })
       .pipe(
         map((post) => new PostDto(post)),

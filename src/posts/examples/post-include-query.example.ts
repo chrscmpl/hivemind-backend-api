@@ -1,4 +1,4 @@
-export function getGetPostIncludeQueryExamples() {
+export function getPostIncludeQueryExamples() {
   return {
     nothing: {
       summary: 'Default',

@@ -12,24 +12,14 @@ import { PostSortEnum } from '../enum/post-sort.enum';
 
 interface PostsQueryOptions {
   includeVoteOf?: number | null;
-  includeContent?: boolean | null;
   includeUser?: boolean | null;
+  exclude?: (keyof PostEntity)[] | null;
   sort?: PostSortEnum | null;
   after?: Date | null;
 }
 
 @Injectable()
 export class PostsFetchService {
-  private static readonly standardColumns: `p.${keyof PostEntity}`[] = [
-    'p.id',
-    'p.title',
-    'p.upvoteCount',
-    'p.downvoteCount',
-    'p.createdAt',
-    'p.updatedAt',
-    'p.userId',
-  ];
-
   public constructor(
     @InjectRepository(PostEntity)
     private readonly postsRepository: Repository<PostEntity>,
@@ -37,7 +27,10 @@ export class PostsFetchService {
 
   public findOne(
     id: number,
-    options?: { includeUser?: boolean; includeVoteOf?: number | null },
+    options?: Pick<
+      PostsQueryOptions,
+      'includeUser' | 'includeVoteOf' | 'exclude'
+    >,
   ): Observable<PostEntity> {
     const queryBuilder = this.createBasicQueryBuilder();
 
@@ -45,6 +38,10 @@ export class PostsFetchService {
 
     if (options?.includeUser) {
       queryBuilder.leftJoinAndSelect('p.user', 'u');
+    }
+
+    if (options?.exclude?.length) {
+      queryBuilder.select(this.getColumns(options));
     }
 
     if (
@@ -109,7 +106,7 @@ export class PostsFetchService {
 
   private addSelect(
     queryBuilder: SelectQueryBuilder<PostEntity>,
-    options?: Pick<PostsQueryOptions, 'includeContent'>,
+    options?: Pick<PostsQueryOptions, 'exclude'>,
   ): SelectQueryBuilder<PostEntity> {
     return queryBuilder.select(this.getColumns(options));
   }
@@ -179,10 +176,13 @@ export class PostsFetchService {
   }
 
   private getColumns(
-    options?: Pick<PostsQueryOptions, 'includeContent'>,
+    options?: Pick<PostsQueryOptions, 'exclude'>,
   ): `p.${keyof PostEntity}`[] {
-    return options?.includeContent
-      ? [...PostsFetchService.standardColumns, 'p.content']
-      : PostsFetchService.standardColumns;
+    let columns = PostEntity.FETCH_COLUMNS;
+    if (options?.exclude?.length) {
+      const excludeSet = new Set(options.exclude);
+      columns = columns.filter((column) => !excludeSet.has(column));
+    }
+    return columns.map((column) => `p.${column}` as `p.${keyof PostEntity}`);
   }
 }

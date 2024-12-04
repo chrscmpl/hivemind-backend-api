@@ -1,19 +1,33 @@
 import { Transform } from 'class-transformer';
-import { IsArray, IsEnum, IsOptional } from 'class-validator';
+import { IsArray, IsEnum, IsIn, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { GetPostIncludeValueEnum } from '../enum/get-post-include-value.enum';
-import { getGetPostIncludeQueryExamples } from '../examples/get-post-include-query.example';
+import { PostIncludeValueEnum } from '../enum/post-include-value.enum';
+import { getPostIncludeQueryExamples } from '../examples/post-include-query.example';
+import { PostEntity } from '../entities/post.entity';
+import { getPostExcludeQueryExamples } from '../examples/post-exclude-query.example';
 
 export class GetPostQueryDto {
   @ApiProperty({
     description: 'Comma-separated list of additional parameters',
     required: false,
     type: 'string',
-    examples: getGetPostIncludeQueryExamples(),
+    examples: getPostIncludeQueryExamples(),
   })
   @Transform(({ value }) => value.split(','))
   @IsOptional()
   @IsArray()
-  @IsEnum(GetPostIncludeValueEnum, { each: true })
-  public include: GetPostIncludeValueEnum[] = [];
+  @IsEnum(PostIncludeValueEnum, { each: true })
+  public include: PostIncludeValueEnum[] = [];
+
+  @ApiProperty({
+    description: 'Comma-separated list of fields to exclude',
+    required: false,
+    type: 'string',
+    examples: getPostExcludeQueryExamples(),
+  })
+  @Transform(({ value }) => value.split(','))
+  @IsOptional()
+  @IsArray()
+  @IsIn(PostEntity.FETCH_COLUMNS, { each: true })
+  public exclude: (keyof PostEntity)[] = [];
 }
