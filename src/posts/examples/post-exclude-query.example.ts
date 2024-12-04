@@ -1,9 +1,9 @@
-import { PostEntity } from '../entities/post.entity';
+import { postExcludeValuesDto } from '../dto/post-exclude-values.dto';
 
 export function getPostExcludeQueryExamples() {
   const examples: { [key: string]: object } = {};
 
-  for (const column of PostEntity.FETCH_COLUMNS) {
+  for (const column of postExcludeValuesDto) {
     examples[column] = {
       summary: `Exclude ${column}`,
       description: `Excludes the ${column} field`,
@@ -20,7 +20,7 @@ export function getPostExcludeQueryExamples() {
     all: {
       summary: 'Exclude all',
       description: 'Excludes all fields (why?)',
-      value: PostEntity.FETCH_COLUMNS.join(','),
+      value: postExcludeValuesDto.join(','),
     },
   };
 }

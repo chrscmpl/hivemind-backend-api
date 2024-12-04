@@ -5,6 +5,7 @@ import { PostIncludeValueEnum } from '../enum/post-include-value.enum';
 import { getPostIncludeQueryExamples } from '../examples/post-include-query.example';
 import { PostEntity } from '../entities/post.entity';
 import { getPostExcludeQueryExamples } from '../examples/post-exclude-query.example';
+import { postExcludeValuesDto } from './post-exclude-values.dto';
 
 export class GetPostQueryDto {
   @ApiProperty({
@@ -28,6 +29,6 @@ export class GetPostQueryDto {
   @Transform(({ value }) => value.split(','))
   @IsOptional()
   @IsArray()
-  @IsIn(PostEntity.FETCH_COLUMNS, { each: true })
+  @IsIn(postExcludeValuesDto, { each: true })
   public exclude: (keyof PostEntity)[] = [];
 }

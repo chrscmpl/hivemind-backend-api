@@ -8,6 +8,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { PostEntity } from '../entities/post.entity';
 import { getPostIncludeQueryExamples } from '../examples/post-include-query.example';
 import { getPostExcludeQueryExamples } from '../examples/post-exclude-query.example';
+import { postExcludeValuesDto } from './post-exclude-values.dto';
 
 export class PostPaginationQueryDto {
   @ApiProperty({
@@ -79,6 +80,6 @@ export class PostPaginationQueryDto {
   @Transform(({ value }) => value.split(','))
   @IsOptional()
   @IsArray()
-  @IsIn(PostEntity.FETCH_COLUMNS, { each: true })
+  @IsIn(postExcludeValuesDto, { each: true })
   public exclude: (keyof PostEntity)[] = [];
 }
