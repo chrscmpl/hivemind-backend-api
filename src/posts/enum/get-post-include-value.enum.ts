@@ -1,4 +1,4 @@
 export enum GetPostIncludeValueEnum {
-  OWN_VOTE = 'ownVote',
+  MY_VOTE = 'myVote',
   USER = 'user',
 }

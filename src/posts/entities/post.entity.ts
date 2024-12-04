@@ -38,7 +38,7 @@ export class PostEntity {
   @OneToMany(() => PostVoteEntity, (vote) => vote.post)
   public votes!: PostVoteEntity[];
 
-  public ownVote?: boolean;
+  public myVote?: boolean;
 
   @CreateDateColumn()
   public createdAt!: Date;

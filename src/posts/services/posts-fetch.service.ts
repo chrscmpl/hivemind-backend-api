@@ -59,7 +59,7 @@ export class PostsFetchService {
     return from(queryBuilder.getOneOrFail()).pipe(
       tap((post) => {
         if (options?.includeVoteOf) {
-          this.fillOwnVote(post);
+          this.fillMyVote(post);
         }
       }),
     );
@@ -74,16 +74,16 @@ export class PostsFetchService {
       tap((pagination) => {
         if (options.includeVoteOf) {
           pagination.items.forEach((post) => {
-            this.fillOwnVote(post);
+            this.fillMyVote(post);
           });
         }
       }),
     );
   }
 
-  private fillOwnVote(post: PostEntity): void {
+  private fillMyVote(post: PostEntity): void {
     if (post.votes.length === 1) {
-      post.ownVote = post.votes[0].value;
+      post.myVote = post.votes[0].value;
     }
   }
 
@@ -157,9 +157,13 @@ export class PostsFetchService {
 
     switch (options.sort) {
       case PostSortEnum.POPULAR:
-        return queryBuilder.orderBy('p.upvoteCount', 'DESC');
+        return queryBuilder
+          .addSelect('p.upvoteCount - p.downvoteCount', 'popularScore')
+          .orderBy('popularScore', 'DESC');
       case PostSortEnum.UNPOPULAR:
-        return queryBuilder.orderBy('p.downvoteCount', 'DESC');
+        return queryBuilder
+          .addSelect('p.downvoteCount - p.upvoteCount', 'unpopularScore')
+          .orderBy('unpopularScore', 'DESC');
       case PostSortEnum.CONTROVERSIAL:
         return queryBuilder
           .addSelect(

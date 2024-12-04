@@ -10,6 +10,6 @@ export function getCreatedPostExample() {
     user: {
       id: 1,
     },
-    ownVote: 'up',
+    myVote: 'up',
   };
 }

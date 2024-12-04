@@ -85,7 +85,7 @@ export class PostsController {
   ): Observable<PostDto> {
     return this.postsMutationService.create(createPostDto, user.id).pipe(
       map((post) => {
-        post.ownVote = true;
+        post.myVote = true;
         return new PostDto(post);
       }),
     );
@@ -96,7 +96,7 @@ export class PostsController {
     description:
       'Posts do not contain their content by default, unless the "include" query parameter contains the value "content".<br/><br/>' +
       'Similarly, they only contain user data if the "include" query parameter contains the value "user" (except for the id).<br/><br/>' +
-      'Authentication is required for the value "ownVote" of the "include" query parameter to take effect.',
+      'Authentication is required for the value "myVote" of the "include" query parameter to take effect.',
   })
   @ApiBearerAuth()
   @ApiResponse({
@@ -117,7 +117,7 @@ export class PostsController {
     @Query() query: PostPaginationQueryDto,
   ): Observable<PostPaginationDto> {
     const includeVote: boolean =
-      query.include.includes(PaginationIncludeValueEnum.OWN_VOTE) && !!user;
+      query.include.includes(PaginationIncludeValueEnum.MY_VOTE) && !!user;
     const includeContent: boolean = query.include.includes(
       PaginationIncludeValueEnum.CONTENT,
     );
@@ -150,7 +150,7 @@ export class PostsController {
   @ApiOperation({
     summary: 'Find a post by ID',
     description:
-      'Authentication is required for the value "ownVote" of the "include" query parameter to take effect.',
+      'Authentication is required for the value "myVote" of the "include" query parameter to take effect.',
   })
   @ApiBearerAuth()
   @ApiParam({ name: 'id', required: true, type: 'number', example: 1 })
@@ -179,7 +179,7 @@ export class PostsController {
     query: GetPostQueryDto,
   ): Observable<PostDto> {
     const includeVote: boolean =
-      query.include.includes(GetPostIncludeValueEnum.OWN_VOTE) && !!user;
+      query.include.includes(GetPostIncludeValueEnum.MY_VOTE) && !!user;
 
     const includeUser: boolean = query.include.includes(
       GetPostIncludeValueEnum.USER,
