@@ -5,7 +5,7 @@ import { noMsIso } from 'src/common/helpers/no-ms-iso.helper';
 
 // different from UserDto mainly because of the nullable properties
 class UserPreviewDto {
-  @ApiProperty({ nullable: false, type: 'number', example: 1 })
+  @ApiProperty({ nullable: true, type: 'number', example: 1 })
   public id: number;
 
   @ApiProperty({ nullable: true, type: 'string', example: 'chrscmpl' })
@@ -33,8 +33,8 @@ export class PostDto {
   @ApiProperty({ nullable: false, type: 'number', example: 1 })
   public id: number;
 
-  @ApiProperty({ nullable: false, type: 'string', example: 'My first post' })
-  public title: string;
+  @ApiProperty({ nullable: true, type: 'string', example: 'My first post' })
+  public title?: string;
 
   @ApiProperty({
     nullable: true,
@@ -44,49 +44,53 @@ export class PostDto {
   public content?: string;
 
   @ApiProperty({
-    nullable: false,
+    nullable: true,
     type: 'number',
     example: 10,
   })
-  public upvoteCount: number;
+  public upvoteCount?: number;
 
   @ApiProperty({
-    nullable: false,
+    nullable: true,
     type: 'number',
     example: 2,
   })
-  public downvoteCount: number;
+  public downvoteCount?: number;
 
   @ApiProperty({
-    nullable: false,
+    nullable: true,
     type: 'string',
     example: '2024-12-12T12:00:00Z',
   })
-  public createdAt: string;
+  public createdAt?: string;
 
   @ApiProperty({
-    nullable: false,
+    nullable: true,
     type: 'string',
     example: '2024-12-13T18:30:00Z',
   })
-  public updatedAt: string;
+  public updatedAt?: string;
 
   @ApiProperty({ nullable: false, type: UserPreviewDto, example: { id: 1 } })
-  public user: UserPreviewDto;
+  public user?: UserPreviewDto;
 
   @ApiProperty({ nullable: true, type: 'string', example: 'up' })
   public myVote?: 'up' | 'down';
 
-  public constructor(post: PostEntity) {
-    this.id = post.id;
+  public constructor(post: Partial<PostEntity>) {
+    this.id = post.id as number;
     this.title = post.title;
     if (post.content) {
       this.content = post.content;
     }
     this.upvoteCount = post.upvoteCount;
     this.downvoteCount = post.downvoteCount;
-    this.createdAt = noMsIso(post.createdAt);
-    this.updatedAt = noMsIso(post.updatedAt);
+    if (post.createdAt) {
+      this.createdAt = noMsIso(post.createdAt);
+    }
+    if (post.updatedAt) {
+      this.updatedAt = noMsIso(post.updatedAt);
+    }
     this.user = new UserPreviewDto(defaults({ id: post.userId }, post.user));
     if (post.myVote != null) {
       this.myVote = post.myVote ? 'up' : 'down';
