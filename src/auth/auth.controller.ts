@@ -26,10 +26,10 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { UnauthorizedExceptionDto } from 'src/common/dto/exceptions/unauthorized-exception.dto';
-import { ConflictExceptionDto } from 'src/common/dto/exceptions/conflict-exception.dto';
-import { BadRequestExceptionDto } from 'src/common/dto/exceptions/bad-request-exception.dto';
 import { AuthTokenDto } from './dto/auth-token.dto';
+import { UnauthorizedExceptionExample } from 'src/common/examples/exceptions/unauthorized-exception.example';
+import { BadRequestExceptionExample } from 'src/common/examples/exceptions/bad-request-exception.example';
+import { ConflictExceptionExample } from 'src/common/examples/exceptions/conflict-exception.example';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -49,7 +49,7 @@ export class AuthController {
   @ApiResponse({
     status: 401,
     description: 'User is not authenticated.',
-    type: UnauthorizedExceptionDto,
+    example: UnauthorizedExceptionExample(),
   })
   @Get('account')
   @UseGuards(AuthGuard())
@@ -72,12 +72,12 @@ export class AuthController {
   @ApiResponse({
     status: 400,
     description: 'Invalid request payload.',
-    type: BadRequestExceptionDto,
+    example: BadRequestExceptionExample(),
   })
   @ApiResponse({
     status: 401,
     description: 'Invalid email or password.',
-    type: UnauthorizedExceptionDto,
+    example: UnauthorizedExceptionExample(),
   })
   @Post('login')
   @HttpCode(HttpStatus.OK)
@@ -99,12 +99,12 @@ export class AuthController {
   @ApiResponse({
     status: 400,
     description: 'Invalid request payload.',
-    type: BadRequestExceptionDto,
+    example: BadRequestExceptionExample(),
   })
   @ApiResponse({
     status: 409,
     description: 'User with this email or username already exists.',
-    type: ConflictExceptionDto,
+    example: ConflictExceptionExample(),
   })
   @Post('signup')
   public signup(@Body() signupDto: SignupDto): Observable<AuthTokenDto> {
@@ -128,7 +128,7 @@ export class AuthController {
   @ApiResponse({
     status: 401,
     description: 'User is not authenticated.',
-    type: UnauthorizedExceptionDto,
+    example: UnauthorizedExceptionExample(),
   })
   @Post('refresh')
   @HttpCode(HttpStatus.OK)

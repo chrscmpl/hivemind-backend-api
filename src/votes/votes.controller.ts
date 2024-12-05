@@ -27,7 +27,8 @@ import {
 import { PostVoteEnum } from './enum/vote.enum';
 import { catchError, map, Observable, throwError } from 'rxjs';
 import { PostVoteDto } from './dto/vote.dto';
-import { NotFoundExceptionDto } from 'src/common/dto/exceptions/not-found-exception.dto';
+import { NotFoundExceptionExample } from 'src/common/examples/exceptions/not-found-exception.example';
+import { BadRequestExceptionExample } from 'src/common/examples/exceptions/bad-request-exception.example';
 
 @ApiTags('Votes')
 @ApiParam({ name: 'id', description: "The post's ID",  required: true, type: 'number', example: 1 }) // prettier-ignore
@@ -47,9 +48,14 @@ export class VotesController {
     type: PostVoteDto,
   })
   @ApiResponse({
+    status: 400,
+    description: 'Invalid parameters or payload.',
+    example: BadRequestExceptionExample(),
+  })
+  @ApiResponse({
     status: 404,
     description: 'Post not found.',
-    type: NotFoundExceptionDto,
+    example: NotFoundExceptionExample(),
   })
   @Put('votes')
   @UseGuards(AuthGuard())

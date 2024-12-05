@@ -18,16 +18,16 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { CreateCommentDto } from './dto/create-comment.dto';
-import { BadRequestExceptionDto } from 'src/common/dto/exceptions/bad-request-exception.dto';
-import { UnauthorizedExceptionDto } from 'src/common/dto/exceptions/unauthorized-exception.dto';
 import { AuthGuard } from '@nestjs/passport';
 import {
   AuthenticatedUser,
   AuthUser,
 } from 'src/common/decorators/auth-user.decorator';
 import { catchError, map, Observable, throwError } from 'rxjs';
-import { NotFoundExceptionDto } from 'src/common/dto/exceptions/not-found-exception.dto';
 import { CommentDto } from './dto/comment.dto';
+import { BadRequestExceptionExample } from 'src/common/examples/exceptions/bad-request-exception.example';
+import { UnauthorizedExceptionExample } from 'src/common/examples/exceptions/unauthorized-exception.example';
+import { NotFoundExceptionExample } from 'src/common/examples/exceptions/not-found-exception.example';
 
 @ApiTags('Comments')
 @ApiParam({ name: 'postId', description: "The post's ID",  required: true, type: 'number', example: 1 }) // prettier-ignore
@@ -52,18 +52,17 @@ export class CommentsController {
   @ApiResponse({
     status: 400,
     description: 'Invalid parameters or payload.',
-    type: BadRequestExceptionDto,
+    example: BadRequestExceptionExample(),
   })
   @ApiResponse({
     status: 401,
     description: 'User is not authenticated.',
-    type: UnauthorizedExceptionDto,
+    example: UnauthorizedExceptionExample(),
   })
   @ApiResponse({
     status: 404,
     description: 'Post not found.',
-    type: NotFoundExceptionDto,
-    example: { message: 'Post not found.', error: 'Not Found', statusCode: 404 }, // prettier-ignore
+    example: NotFoundExceptionExample('Post not found'),
   })
   @Post()
   @UseGuards(AuthGuard())
@@ -76,7 +75,7 @@ export class CommentsController {
       .create(createCommentDto, postId, user.id)
       .pipe(
         catchError(() =>
-          throwError(() => new NotFoundException('Post not found.')),
+          throwError(() => new NotFoundException('Post not found')),
         ),
         map((comment) => new CommentDto(comment)),
       );

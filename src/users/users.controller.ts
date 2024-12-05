@@ -9,8 +9,8 @@ import { UsersService } from './services/users.service';
 import { UserDto } from './dto/user.dto';
 import { Observable, catchError, map, throwError } from 'rxjs';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { NotFoundExceptionDto } from 'src/common/dto/exceptions/not-found-exception.dto';
-import { BadRequestExceptionDto } from 'src/common/dto/exceptions/bad-request-exception.dto';
+import { BadRequestExceptionExample } from 'src/common/examples/exceptions/bad-request-exception.example';
+import { NotFoundExceptionExample } from 'src/common/examples/exceptions/not-found-exception.example';
 
 @ApiTags('Users')
 @Controller('users')
@@ -27,12 +27,12 @@ export class UsersController {
   @ApiResponse({
     status: 400,
     description: 'Invalid parameters (id not numeric).',
-    type: BadRequestExceptionDto,
+    example: BadRequestExceptionExample(),
   })
   @ApiResponse({
     status: 404,
     description: 'User not found.',
-    type: NotFoundExceptionDto,
+    example: NotFoundExceptionExample(),
   })
   @Get(':id')
   public findOne(@Param('id', ParseIntPipe) id: number): Observable<UserDto> {

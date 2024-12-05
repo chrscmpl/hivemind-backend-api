@@ -33,11 +33,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { PostDto } from './dto/post.dto';
-import { UnauthorizedExceptionDto } from 'src/common/dto/exceptions/unauthorized-exception.dto';
 import { PostPaginationDto } from './dto/post-pagination.dto';
-import { NotFoundExceptionDto } from 'src/common/dto/exceptions/not-found-exception.dto';
-import { ForbiddenExceptionDto } from 'src/common/dto/exceptions/forbidden-exception.dto';
-import { BadRequestExceptionDto } from 'src/common/dto/exceptions/bad-request-exception.dto';
 import { PostsFetchService } from './services/posts-fetch.service';
 import { noMsIso } from 'src/common/helpers/no-ms-iso.helper';
 import { PostIncludeEnum } from './enum/post-include.enum';
@@ -45,6 +41,10 @@ import { PostPaginationQueryDto } from './dto/post-pagination-query.dto';
 import { GetPostQueryDto } from './dto/get-post-query.dto';
 import { getPostExample } from './examples/post.example';
 import { getCreatedPostExample } from './examples/created-post.example';
+import { BadRequestExceptionExample } from 'src/common/examples/exceptions/bad-request-exception.example';
+import { UnauthorizedExceptionExample } from 'src/common/examples/exceptions/unauthorized-exception.example';
+import { NotFoundExceptionExample } from 'src/common/examples/exceptions/not-found-exception.example';
+import { ForbiddenExceptionExample } from 'src/common/examples/exceptions/forbidden-exception.example';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -69,12 +69,12 @@ export class PostsController {
   @ApiResponse({
     status: 400,
     description: 'Invalid parameters or payload.',
-    type: BadRequestExceptionDto,
+    example: BadRequestExceptionExample(),
   })
   @ApiResponse({
     status: 401,
     description: 'User is not authenticated.',
-    type: UnauthorizedExceptionDto,
+    example: UnauthorizedExceptionExample(),
   })
   @Post()
   @UseGuards(AuthGuard())
@@ -106,7 +106,7 @@ export class PostsController {
   @ApiResponse({
     status: 400,
     description: 'Invalid parameters or query parameters.',
-    type: BadRequestExceptionDto,
+    example: BadRequestExceptionExample(),
   })
   @Get()
   @UseGuards(OptionalAuthGuard)
@@ -157,12 +157,12 @@ export class PostsController {
   @ApiResponse({
     status: 400,
     description: 'Invalid parameters (id not numeric).',
-    type: BadRequestExceptionDto,
+    example: BadRequestExceptionExample(),
   })
   @ApiResponse({
     status: 404,
     description: 'User not found.',
-    type: NotFoundExceptionDto,
+    example: NotFoundExceptionExample(),
   })
   @Get(':id')
   @UseGuards(OptionalAuthGuard)
@@ -204,22 +204,22 @@ export class PostsController {
   @ApiResponse({
     status: 400,
     description: 'Invalid parameters or payload.',
-    type: BadRequestExceptionDto,
+    example: BadRequestExceptionExample(),
   })
   @ApiResponse({
     status: 401,
     description: 'User is not authenticated.',
-    type: UnauthorizedExceptionDto,
+    example: UnauthorizedExceptionExample(),
   })
   @ApiResponse({
     status: 403,
     description: 'User is not the owner of the post.',
-    type: ForbiddenExceptionDto,
+    example: ForbiddenExceptionExample(),
   })
   @ApiResponse({
     status: 404,
     description: 'Post not found.',
-    type: NotFoundExceptionDto,
+    example: NotFoundExceptionExample(),
   })
   @Patch(':id')
   @UseGuards(AuthGuard())
@@ -251,26 +251,27 @@ export class PostsController {
     status: 200,
     description: 'The post has been successfully deleted.',
     type: PostDto,
+    example: getPostExample(),
   })
   @ApiResponse({
     status: 400,
     description: 'Invalid parameters.',
-    type: BadRequestExceptionDto,
+    example: BadRequestExceptionExample(),
   })
   @ApiResponse({
     status: 401,
     description: 'User is not authenticated.',
-    type: UnauthorizedExceptionDto,
+    example: UnauthorizedExceptionExample(),
   })
   @ApiResponse({
     status: 403,
     description: 'User is not the owner of the post.',
-    type: ForbiddenExceptionDto,
+    example: ForbiddenExceptionExample(),
   })
   @ApiResponse({
     status: 404,
     description: 'Post not found.',
-    type: NotFoundExceptionDto,
+    example: NotFoundExceptionExample(),
   })
   @Delete(':id')
   @UseGuards(AuthGuard())

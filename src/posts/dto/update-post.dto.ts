@@ -1,7 +1,28 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreatePostDto } from './create-post.dto';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, Length, MaxLength } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  Length,
+  MaxLength,
+  Validate,
+  ValidationArguments,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+} from 'class-validator';
+
+@ValidatorConstraint()
+class AtLeastOnePostFieldConstraint implements ValidatorConstraintInterface {
+  public validate(_: unknown, args: ValidationArguments): boolean {
+    const object = args.object as UpdatePostDto;
+    return !!(object.title || object.content);
+  }
+
+  public defaultMessage(): string {
+    return 'At least one of the fields (title, content) must be provided.';
+  }
+}
 
 export class UpdatePostDto extends PartialType(CreatePostDto) {
   @ApiProperty({
@@ -26,4 +47,7 @@ export class UpdatePostDto extends PartialType(CreatePostDto) {
   @IsString()
   @MaxLength(1000)
   public content?: string;
+
+  @Validate(AtLeastOnePostFieldConstraint)
+  private _: unknown;
 }
