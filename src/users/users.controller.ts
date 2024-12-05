@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './services/users.service';
 import { UserDto } from './dto/user.dto';
-import { Observable, catchError, map, throwError } from 'rxjs';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BadRequestExceptionExample } from 'src/common/examples/exceptions/bad-request-exception.example';
 import { NotFoundExceptionExample } from 'src/common/examples/exceptions/not-found-exception.example';
@@ -35,12 +34,14 @@ export class UsersController {
     example: NotFoundExceptionExample('User not found'),
   })
   @Get(':id')
-  public findOne(@Param('id', ParseIntPipe) id: number): Observable<UserDto> {
-    return this.usersService.findOne(id).pipe(
-      catchError(() =>
-        throwError(() => new NotFoundException('User not found')),
-      ),
-      map((user) => new UserDto(user)),
-    );
+  public async findOne(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<UserDto> {
+    return this.usersService
+      .findOne(id)
+      .catch(() => {
+        throw new NotFoundException('User not found');
+      })
+      .then((user) => new UserDto(user));
   }
 }

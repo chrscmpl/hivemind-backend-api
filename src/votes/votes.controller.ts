@@ -25,7 +25,6 @@ import {
   AuthUser,
 } from 'src/common/decorators/auth-user.decorator';
 import { PostVoteEnum } from './enum/vote.enum';
-import { catchError, map, Observable, throwError } from 'rxjs';
 import { PostVoteDto } from './dto/vote.dto';
 import { NotFoundExceptionExample } from 'src/common/examples/exceptions/not-found-exception.example';
 import { BadRequestExceptionExample } from 'src/common/examples/exceptions/bad-request-exception.example';
@@ -60,20 +59,19 @@ export class VotesController {
   @Put('votes')
   @UseGuards(AuthGuard())
   @HttpCode(HttpStatus.OK)
-  public setVote(
+  public async setVote(
     @AuthUser() user: AuthenticatedUser,
     @Param('id', ParseIntPipe) postId: number,
     @Body() setVoteDto: SetPostVoteDto,
-  ): Observable<PostVoteDto> {
+  ): Promise<PostVoteDto> {
     return (
       setVoteDto.vote === PostVoteEnum.NONE
         ? this.votesService.delete(user.id, postId)
         : this.votesService.set(user.id, postId, setVoteDto.vote)
-    ).pipe(
-      catchError(() =>
-        throwError(() => new NotFoundException('Post not found')),
-      ),
-      map(() => new PostVoteDto(user.id, postId, setVoteDto.vote)),
-    );
+    )
+      .catch(() => {
+        throw new NotFoundException('Post not found');
+      })
+      .then(() => new PostVoteDto(user.id, postId, setVoteDto.vote));
   }
 }

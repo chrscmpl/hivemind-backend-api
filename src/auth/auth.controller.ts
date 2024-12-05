@@ -16,7 +16,6 @@ import {
 } from '../common/decorators/auth-user.decorator';
 import { SignupDto } from './dto/signup.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { catchError, map, Observable, switchMap, throwError } from 'rxjs';
 import { PrivateUserDto } from './dto/private-user.dto';
 import { AuthService } from './services/auth.service';
 import {
@@ -53,13 +52,15 @@ export class AuthController {
   })
   @Get('account')
   @UseGuards(AuthGuard())
-  public getAccountData(
+  public async getAccountData(
     @AuthUser() user: AuthenticatedUser,
-  ): Observable<PrivateUserDto> {
-    return this.authService.getUser(user.id).pipe(
-      catchError(() => throwError(() => new UnauthorizedException())),
-      map((user) => new PrivateUserDto(user)),
-    );
+  ): Promise<PrivateUserDto> {
+    return this.authService
+      .getUser(user.id)
+      .catch(() => {
+        throw new UnauthorizedException();
+      })
+      .then((user) => new PrivateUserDto(user));
   }
 
   @ApiOperation({ summary: 'Log in to an existing account' })
@@ -81,14 +82,14 @@ export class AuthController {
   })
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  public login(@Body() loginDto: LoginDto): Observable<AuthTokenDto> {
-    return this.authService.login(loginDto.email, loginDto.password).pipe(
-      catchError(() =>
-        throwError(() => new UnauthorizedException('Invalid credentials')),
-      ),
-      switchMap((user) => this.authService.signToken(user)),
-      map((token) => new AuthTokenDto(token)),
-    );
+  public async login(@Body() loginDto: LoginDto): Promise<AuthTokenDto> {
+    return this.authService
+      .login(loginDto.email, loginDto.password)
+      .catch(() => {
+        throw new UnauthorizedException('Invalid credentials');
+      })
+      .then((user) => this.authService.signToken(user))
+      .then((token) => new AuthTokenDto(token));
   }
 
   @ApiOperation({ summary: 'Create a new user' })
@@ -111,19 +112,16 @@ export class AuthController {
     ),
   })
   @Post('signup')
-  public signup(@Body() signupDto: SignupDto): Observable<AuthTokenDto> {
-    return this.authService.signup(signupDto).pipe(
-      catchError(() =>
-        throwError(
-          () =>
-            new ConflictException(
-              'User with this email or username already exists',
-            ),
-        ),
-      ),
-      switchMap((user) => this.authService.signToken(user)),
-      map((token) => new AuthTokenDto(token)),
-    );
+  public async signup(@Body() signupDto: SignupDto): Promise<AuthTokenDto> {
+    return this.authService
+      .signup(signupDto)
+      .catch(() => {
+        throw new ConflictException(
+          'User with this email or username already exists',
+        );
+      })
+      .then((user) => this.authService.signToken(user))
+      .then((token) => new AuthTokenDto(token));
   }
 
   @ApiOperation({
@@ -144,13 +142,15 @@ export class AuthController {
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard())
-  public refresh(
+  public async refresh(
     @AuthUser() user: AuthenticatedUser,
-  ): Observable<AuthTokenDto> {
-    return this.authService.getUser(user.id).pipe(
-      catchError(() => throwError(() => new UnauthorizedException())),
-      switchMap((user) => this.authService.signToken(user)),
-      map((token) => new AuthTokenDto(token)),
-    );
+  ): Promise<AuthTokenDto> {
+    return this.authService
+      .getUser(user.id)
+      .catch(() => {
+        throw new UnauthorizedException();
+      })
+      .then((user) => this.authService.signToken(user))
+      .then((token) => new AuthTokenDto(token));
   }
 }

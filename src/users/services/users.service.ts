@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../entities/user.entity';
 import { Repository } from 'typeorm';
-import { from, Observable } from 'rxjs';
 
 @Injectable()
 export class UsersService {
@@ -11,15 +10,15 @@ export class UsersService {
     private readonly usersRepository: Repository<UserEntity>,
   ) {}
 
-  public findOne(id: number): Observable<UserEntity> {
-    return from(this.usersRepository.findOneByOrFail({ id }));
+  public async findOne(id: number): Promise<UserEntity> {
+    return this.usersRepository.findOneByOrFail({ id });
   }
 
-  public findOneByEmail(email: string): Observable<UserEntity> {
-    return from(this.usersRepository.findOneByOrFail({ email }));
+  public async findOneByEmail(email: string): Promise<UserEntity> {
+    return this.usersRepository.findOneByOrFail({ email });
   }
 
-  public create(
+  public async create(
     user: Omit<
       UserEntity,
       | 'id'
@@ -30,8 +29,8 @@ export class UsersService {
       | 'updatedAt'
       | 'validatePassword'
     >,
-  ): Observable<UserEntity> {
+  ): Promise<UserEntity> {
     const userEntity = this.usersRepository.create(user);
-    return from(this.usersRepository.save(userEntity));
+    return this.usersRepository.save(userEntity);
   }
 }

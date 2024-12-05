@@ -23,7 +23,6 @@ import {
   AuthenticatedUser,
   AuthUser,
 } from 'src/common/decorators/auth-user.decorator';
-import { catchError, map, Observable, throwError } from 'rxjs';
 import { CommentDto } from './dto/comment.dto';
 import { BadRequestExceptionExample } from 'src/common/examples/exceptions/bad-request-exception.example';
 import { UnauthorizedExceptionExample } from 'src/common/examples/exceptions/unauthorized-exception.example';
@@ -66,18 +65,16 @@ export class CommentsController {
   })
   @Post()
   @UseGuards(AuthGuard())
-  public create(
+  public async create(
     @Param('postId', ParseIntPipe) postId: number,
     @Body() createCommentDto: CreateCommentDto,
     @AuthUser() user: AuthenticatedUser,
-  ): Observable<CommentDto> {
+  ): Promise<CommentDto> {
     return this.commentsMutationService
       .create(createCommentDto, postId, user.id)
-      .pipe(
-        catchError(() =>
-          throwError(() => new NotFoundException('Post not found')),
-        ),
-        map((comment) => new CommentDto(comment)),
-      );
+      .catch(() => {
+        throw new NotFoundException('Post not found');
+      })
+      .then((comment) => new CommentDto(comment));
   }
 }
