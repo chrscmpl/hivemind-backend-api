@@ -4,6 +4,7 @@ import { PostEntity } from '../entities/post.entity';
 export enum PostExcludeEnum {
   TITLE = 'title',
   CONTENT = 'content',
+  COMMENT_COUNT = 'commentCount',
   UPVOTE_COUNT = 'upvoteCount',
   DOWNVOTE_COUNT = 'downvoteCount',
   CREATED_AT = 'createdAt',

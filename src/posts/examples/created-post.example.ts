@@ -5,11 +5,10 @@ export function getCreatedPostExample() {
     content: 'This is my first post.',
     upvoteCount: 1,
     downvoteCount: 0,
+    commentCount: 0,
     createdAt: '2024-12-12T12:00:00Z',
     updatedAt: '2024-12-13T18:30:00Z',
-    user: {
-      id: 1,
-    },
+    user: { id: 1 },
     myVote: 'up',
   };
 }

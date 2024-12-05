@@ -24,6 +24,7 @@ export class PostsFetchService {
     'id',
     'title',
     'content',
+    'commentCount',
     'upvoteCount',
     'downvoteCount',
     'createdAt',

@@ -36,6 +36,9 @@ export class PostEntity {
   @OneToMany(() => VoteEntity, (vote) => vote.post)
   public votes!: VoteEntity[];
 
+  @Column({ default: 0, nullable: false })
+  public commentCount!: number;
+
   @Column({ default: 1, nullable: false })
   public upvoteCount!: number;
 

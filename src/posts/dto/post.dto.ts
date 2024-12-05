@@ -59,6 +59,13 @@ export class PostDto {
 
   @ApiProperty({
     nullable: true,
+    type: 'number',
+    example: 3,
+  })
+  public commentCount?: number;
+
+  @ApiProperty({
+    nullable: true,
     type: 'string',
     example: '2024-12-12T12:00:00Z',
   })
@@ -85,6 +92,7 @@ export class PostDto {
     }
     this.upvoteCount = post.upvoteCount;
     this.downvoteCount = post.downvoteCount;
+    this.commentCount = post.commentCount;
     if (post.createdAt) {
       this.createdAt = noMsIso(post.createdAt);
     }
