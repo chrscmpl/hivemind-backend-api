@@ -161,8 +161,8 @@ export class PostsController {
   })
   @ApiResponse({
     status: 404,
-    description: 'User not found.',
-    example: NotFoundExceptionExample(),
+    description: 'Post not found.',
+    example: NotFoundExceptionExample('Post not found'),
   })
   @Get(':id')
   @UseGuards(OptionalAuthGuard)
@@ -185,7 +185,9 @@ export class PostsController {
       })
       .pipe(
         map((post) => new PostDto(post)),
-        catchError(() => throwError(() => new NotFoundException())),
+        catchError(() =>
+          throwError(() => new NotFoundException('Post not found')),
+        ),
       );
   }
 
@@ -213,13 +215,13 @@ export class PostsController {
   })
   @ApiResponse({
     status: 403,
-    description: 'User is not the owner of the post.',
-    example: ForbiddenExceptionExample(),
+    description: 'User is not the author of the post.',
+    example: ForbiddenExceptionExample('User is not the author of the post'),
   })
   @ApiResponse({
     status: 404,
     description: 'Post not found.',
-    example: NotFoundExceptionExample(),
+    example: NotFoundExceptionExample('Post not found'),
   })
   @Patch(':id')
   @UseGuards(AuthGuard())
@@ -265,13 +267,13 @@ export class PostsController {
   })
   @ApiResponse({
     status: 403,
-    description: 'User is not the owner of the post.',
-    example: ForbiddenExceptionExample(),
+    description: 'User is not the author of the post.',
+    example: ForbiddenExceptionExample('User is not the author of the post'),
   })
   @ApiResponse({
     status: 404,
     description: 'Post not found.',
-    example: NotFoundExceptionExample(),
+    example: NotFoundExceptionExample('Post not found'),
   })
   @Delete(':id')
   @UseGuards(AuthGuard())
@@ -291,10 +293,12 @@ export class PostsController {
     user: AuthenticatedUser,
   ): Observable<PostEntity> {
     return this.postsFetchService.findOne(postId).pipe(
-      catchError(() => throwError(() => new NotFoundException())),
+      catchError(() =>
+        throwError(() => new NotFoundException('Post not found')),
+      ),
       tap((post) => {
         if (post.userId !== user.id) {
-          throw new ForbiddenException();
+          throw new ForbiddenException('User is not the author of the post');
         }
       }),
     );

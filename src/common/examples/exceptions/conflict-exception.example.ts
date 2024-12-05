@@ -1,6 +1,6 @@
 import { HttpExceptionExample } from './http-exception.example';
 
-export function ConflictExceptionExample(message?: string) {
+export function ConflictExceptionExample(message?: string | string[]) {
   return HttpExceptionExample({
     message,
     error: 'Conflict',

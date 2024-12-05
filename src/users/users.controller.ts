@@ -32,13 +32,15 @@ export class UsersController {
   @ApiResponse({
     status: 404,
     description: 'User not found.',
-    example: NotFoundExceptionExample(),
+    example: NotFoundExceptionExample('User not found'),
   })
   @Get(':id')
   public findOne(@Param('id', ParseIntPipe) id: number): Observable<UserDto> {
     return this.usersService.findOne(id).pipe(
+      catchError(() =>
+        throwError(() => new NotFoundException('User not found')),
+      ),
       map((user) => new UserDto(user)),
-      catchError(() => throwError(() => new NotFoundException())),
     );
   }
 }

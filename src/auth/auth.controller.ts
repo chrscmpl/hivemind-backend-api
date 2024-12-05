@@ -77,13 +77,15 @@ export class AuthController {
   @ApiResponse({
     status: 401,
     description: 'Invalid email or password.',
-    example: UnauthorizedExceptionExample(),
+    example: UnauthorizedExceptionExample('Invalid credentials'),
   })
   @Post('login')
   @HttpCode(HttpStatus.OK)
   public login(@Body() loginDto: LoginDto): Observable<AuthTokenDto> {
     return this.authService.login(loginDto.email, loginDto.password).pipe(
-      catchError(() => throwError(() => new UnauthorizedException())),
+      catchError(() =>
+        throwError(() => new UnauthorizedException('Invalid credentials')),
+      ),
       switchMap((user) => this.authService.signToken(user)),
       map((token) => new AuthTokenDto(token)),
     );
@@ -104,12 +106,21 @@ export class AuthController {
   @ApiResponse({
     status: 409,
     description: 'User with this email or username already exists.',
-    example: ConflictExceptionExample(),
+    example: ConflictExceptionExample(
+      'User with this email or username already exists',
+    ),
   })
   @Post('signup')
   public signup(@Body() signupDto: SignupDto): Observable<AuthTokenDto> {
     return this.authService.signup(signupDto).pipe(
-      catchError(() => throwError(() => new ConflictException())),
+      catchError(() =>
+        throwError(
+          () =>
+            new ConflictException(
+              'User with this email or username already exists',
+            ),
+        ),
+      ),
       switchMap((user) => this.authService.signToken(user)),
       map((token) => new AuthTokenDto(token)),
     );

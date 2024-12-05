@@ -55,7 +55,7 @@ export class VotesController {
   @ApiResponse({
     status: 404,
     description: 'Post not found.',
-    example: NotFoundExceptionExample(),
+    example: NotFoundExceptionExample('Post not found'),
   })
   @Put('votes')
   @UseGuards(AuthGuard())
@@ -70,7 +70,9 @@ export class VotesController {
         ? this.votesService.delete(user.id, postId)
         : this.votesService.set(user.id, postId, setVoteDto.vote)
     ).pipe(
-      catchError(() => throwError(() => new NotFoundException())),
+      catchError(() =>
+        throwError(() => new NotFoundException('Post not found')),
+      ),
       map(() => new PostVoteDto(user.id, postId, setVoteDto.vote)),
     );
   }

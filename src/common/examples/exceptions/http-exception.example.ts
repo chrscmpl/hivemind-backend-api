@@ -1,9 +1,9 @@
 export function HttpExceptionExample(descriptor: {
-  message?: string;
+  message?: string | string[];
   error: string;
   statusCode: number;
 }) {
-  return descriptor.message
+  return descriptor.message?.length
     ? descriptor
     : {
         message: descriptor.error,
