@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { PostEntity } from '../entities/post.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { from, Observable, tap } from 'rxjs';
 import {
   IPaginationOptions,
   paginate,
@@ -37,13 +36,13 @@ export class PostsFetchService {
     private readonly postsRepository: Repository<PostEntity>,
   ) {}
 
-  public findOne(
+  public async findOne(
     id: number,
     options?: Pick<
       PostsQueryOptions,
       'includeUser' | 'includeVoteOf' | 'exclude'
     >,
-  ): Observable<PostEntity> {
+  ): Promise<PostEntity> {
     const queryBuilder = this.createBasicQueryBuilder();
 
     queryBuilder.where('p.id = :id', { id });
@@ -65,28 +64,26 @@ export class PostsFetchService {
       });
     }
 
-    return from(queryBuilder.getOneOrFail()).pipe(
-      tap((post) => {
-        if (options?.includeVoteOf) {
-          this.fillMyVote(post);
-        }
-      }),
-    );
+    return queryBuilder.getOneOrFail().then((post) => {
+      if (options?.includeVoteOf) {
+        this.fillMyVote(post);
+      }
+      return post;
+    });
   }
 
   public paginate(
     options: IPaginationOptions & PostsQueryOptions,
-  ): Observable<Pagination<PostEntity>> {
-    return from(
-      paginate<PostEntity>(this.getQueryBuilder(options), options),
-    ).pipe(
-      tap((pagination) => {
+  ): Promise<Pagination<PostEntity>> {
+    return paginate<PostEntity>(this.getQueryBuilder(options), options).then(
+      (pagination) => {
         if (options.includeVoteOf) {
           pagination.items.forEach((post) => {
             this.fillMyVote(post);
           });
         }
-      }),
+        return pagination;
+      },
     );
   }
 

@@ -4,7 +4,6 @@ import { UpdatePostDto } from '../dto/update-post.dto';
 import { Repository } from 'typeorm';
 import { PostEntity } from '../entities/post.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { from, Observable } from 'rxjs';
 
 @Injectable()
 export class PostsMutationService {
@@ -13,25 +12,25 @@ export class PostsMutationService {
     private readonly postsRepository: Repository<PostEntity>,
   ) {}
 
-  public create(
+  public async create(
     createPostDto: CreatePostDto,
     userId: number,
-  ): Observable<PostEntity> {
+  ): Promise<PostEntity> {
     const post = this.postsRepository.create({
       ...createPostDto,
       userId,
     });
-    return from(this.postsRepository.save(post));
+    return this.postsRepository.save(post);
   }
 
-  public update(
+  public async update(
     id: number,
     updatePostDto: UpdatePostDto,
-  ): Observable<Partial<PostEntity>> {
-    return from(this.postsRepository.save({ id, ...updatePostDto }));
+  ): Promise<Partial<PostEntity>> {
+    return this.postsRepository.save({ id, ...updatePostDto });
   }
 
-  public delete(id: number): Observable<unknown> {
-    return from(this.postsRepository.delete(id));
+  public async delete(id: number): Promise<unknown> {
+    return this.postsRepository.delete(id);
   }
 }

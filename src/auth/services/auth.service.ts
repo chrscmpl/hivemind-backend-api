@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/services/users.service';
-import { from, map, Observable, switchMap } from 'rxjs';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
@@ -11,40 +10,35 @@ export class AuthService {
     private readonly jwt: JwtService,
   ) {}
 
-  public getUser(id: number): Observable<UserEntity> {
+  public async getUser(id: number): Promise<UserEntity> {
     return this.usersService.findOne(id);
   }
 
-  public login(email: string, password: string): Observable<UserEntity> {
-    return this.usersService
-      .findOneByEmail(email)
-      .pipe(
-        switchMap((user) =>
-          this.validatePassword(password, user).pipe(map(() => user)),
-        ),
-      );
+  public async login(email: string, password: string): Promise<UserEntity> {
+    return this.usersService.findOneByEmail(email).then((user) => {
+      this.validatePassword(password, user);
+      return user;
+    });
   }
 
-  public signup(
+  public async signup(
     user: Parameters<UsersService['create']>[0],
-  ): Observable<UserEntity> {
+  ): Promise<UserEntity> {
     return this.usersService.create(user);
   }
 
-  public signToken(user: UserEntity): Observable<string> {
-    return from(this.jwt.signAsync({ sub: user.id, username: user.handle }));
+  public async signToken(user: UserEntity): Promise<string> {
+    return this.jwt.signAsync({ sub: user.id, username: user.handle });
   }
 
-  private validatePassword(
+  private async validatePassword(
     password: string,
     user: UserEntity,
-  ): Observable<void> {
-    return from(
-      user.validatePassword(password).then((PasswordIsValid) => {
-        if (!PasswordIsValid) {
-          throw new Error('Invalid password');
-        }
-      }),
-    );
+  ): Promise<void> {
+    return user.validatePassword(password).then((PasswordIsValid) => {
+      if (!PasswordIsValid) {
+        throw new Error('Invalid password');
+      }
+    });
   }
 }

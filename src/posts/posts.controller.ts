@@ -22,7 +22,6 @@ import {
 import { OptionalAuthGuard } from 'src/common/guards/optional-auth.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { PostEntity } from './entities/post.entity';
-import { catchError, map, Observable, switchMap, tap, throwError } from 'rxjs';
 import { defaults, isNil, omitBy } from 'lodash';
 import {
   ApiBearerAuth,
@@ -33,11 +32,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { PostDto } from './dto/post.dto';
-import { UnauthorizedExceptionDto } from 'src/common/dto/exceptions/unauthorized-exception.dto';
 import { PostPaginationDto } from './dto/post-pagination.dto';
-import { NotFoundExceptionDto } from 'src/common/dto/exceptions/not-found-exception.dto';
-import { ForbiddenExceptionDto } from 'src/common/dto/exceptions/forbidden-exception.dto';
-import { BadRequestExceptionDto } from 'src/common/dto/exceptions/bad-request-exception.dto';
 import { PostsFetchService } from './services/posts-fetch.service';
 import { noMsIso } from 'src/common/helpers/no-ms-iso.helper';
 import { PostIncludeEnum } from './enum/post-include.enum';
@@ -45,6 +40,10 @@ import { PostPaginationQueryDto } from './dto/post-pagination-query.dto';
 import { GetPostQueryDto } from './dto/get-post-query.dto';
 import { getPostExample } from './examples/post.example';
 import { getCreatedPostExample } from './examples/created-post.example';
+import { BadRequestExceptionExample } from 'src/common/examples/exceptions/bad-request-exception.example';
+import { UnauthorizedExceptionExample } from 'src/common/examples/exceptions/unauthorized-exception.example';
+import { NotFoundExceptionExample } from 'src/common/examples/exceptions/not-found-exception.example';
+import { ForbiddenExceptionExample } from 'src/common/examples/exceptions/forbidden-exception.example';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -69,25 +68,25 @@ export class PostsController {
   @ApiResponse({
     status: 400,
     description: 'Invalid parameters or payload.',
-    type: BadRequestExceptionDto,
+    example: BadRequestExceptionExample(),
   })
   @ApiResponse({
     status: 401,
     description: 'User is not authenticated.',
-    type: UnauthorizedExceptionDto,
+    example: UnauthorizedExceptionExample(),
   })
   @Post()
   @UseGuards(AuthGuard())
-  public create(
+  public async create(
     @Body() createPostDto: CreatePostDto,
     @AuthUser() user: AuthenticatedUser,
-  ): Observable<PostDto> {
-    return this.postsMutationService.create(createPostDto, user.id).pipe(
-      map((post) => {
+  ): Promise<PostDto> {
+    return this.postsMutationService
+      .create(createPostDto, user.id)
+      .then((post) => {
         post.myVote = true;
         return new PostDto(post);
-      }),
-    );
+      });
   }
 
   @ApiOperation({
@@ -106,15 +105,15 @@ export class PostsController {
   @ApiResponse({
     status: 400,
     description: 'Invalid parameters or query parameters.',
-    type: BadRequestExceptionDto,
+    example: BadRequestExceptionExample(),
   })
   @Get()
   @UseGuards(OptionalAuthGuard)
-  public findAll(
+  public async findAll(
     @AuthUser({ nullable: true })
     user: AuthenticatedUser | null,
     @Query() query: PostPaginationQueryDto,
-  ): Observable<PostPaginationDto> {
+  ): Promise<PostPaginationDto> {
     const includeVote: boolean =
       query.include.includes(PostIncludeEnum.MY_VOTE) && !!user;
     const includeUser: boolean = query.include.includes(PostIncludeEnum.USER);
@@ -131,14 +130,12 @@ export class PostsController {
         after,
         includeVoteOf: includeVote ? user!.id : null,
       })
-      .pipe(
-        map((pagination) => {
-          pagination.meta.sorting = query.sort;
-          pagination.meta.after = after ? noMsIso(after) : null;
-          pagination.meta.includes = query.include;
-          return new PostPaginationDto(pagination);
-        }),
-      );
+      .then((pagination) => {
+        pagination.meta.sorting = query.sort;
+        pagination.meta.after = after ? noMsIso(after) : null;
+        pagination.meta.includes = query.include;
+        return new PostPaginationDto(pagination);
+      });
   }
 
   @ApiOperation({
@@ -157,21 +154,21 @@ export class PostsController {
   @ApiResponse({
     status: 400,
     description: 'Invalid parameters (id not numeric).',
-    type: BadRequestExceptionDto,
+    example: BadRequestExceptionExample(),
   })
   @ApiResponse({
     status: 404,
-    description: 'User not found.',
-    type: NotFoundExceptionDto,
+    description: 'Post not found.',
+    example: NotFoundExceptionExample('Post not found'),
   })
   @Get(':id')
   @UseGuards(OptionalAuthGuard)
-  public findOne(
+  public async findOne(
     @AuthUser({ nullable: true }) user: AuthenticatedUser | null,
     @Param('id', ParseIntPipe) id: number,
     @Query()
     query: GetPostQueryDto,
-  ): Observable<PostDto> {
+  ): Promise<PostDto> {
     const includeVote: boolean =
       query.include.includes(PostIncludeEnum.MY_VOTE) && !!user;
 
@@ -183,10 +180,10 @@ export class PostsController {
         includeVoteOf: includeVote ? user!.id : null,
         exclude: query.exclude,
       })
-      .pipe(
-        map((post) => new PostDto(post)),
-        catchError(() => throwError(() => new NotFoundException())),
-      );
+      .catch(() => {
+        throw new NotFoundException('Post not found');
+      })
+      .then((post) => new PostDto(post));
   }
 
   @ApiOperation({
@@ -204,41 +201,39 @@ export class PostsController {
   @ApiResponse({
     status: 400,
     description: 'Invalid parameters or payload.',
-    type: BadRequestExceptionDto,
+    example: BadRequestExceptionExample(),
   })
   @ApiResponse({
     status: 401,
     description: 'User is not authenticated.',
-    type: UnauthorizedExceptionDto,
+    example: UnauthorizedExceptionExample(),
   })
   @ApiResponse({
     status: 403,
-    description: 'User is not the owner of the post.',
-    type: ForbiddenExceptionDto,
+    description: 'User is not the author of the post.',
+    example: ForbiddenExceptionExample('User is not the author of the post'),
   })
   @ApiResponse({
     status: 404,
     description: 'Post not found.',
-    type: NotFoundExceptionDto,
+    example: NotFoundExceptionExample('Post not found'),
   })
   @Patch(':id')
   @UseGuards(AuthGuard())
-  public update(
+  public async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updatePostDto: UpdatePostDto,
     @AuthUser() user: AuthenticatedUser,
-  ): Observable<PostDto> {
-    return this.checkAuthorization(id, user).pipe(
-      switchMap((oldPost) =>
-        this.postsMutationService.update(id, updatePostDto).pipe(
-          map(
-            (newPost) =>
-              // returns the updated post, adding the old values that were not updated
-              new PostDto(defaults(omitBy(newPost, isNil), oldPost)),
+  ): Promise<PostDto> {
+    return this.checkAuthorization(id, user) //
+      .then((oldPost) =>
+        this.postsMutationService
+          .update(id, updatePostDto) //
+          .then(
+            // returns the updated post, adding the old values that were not updated
+            (newPost) => new PostDto(defaults(omitBy(newPost, isNil), oldPost)),
           ),
-        ),
-      ),
-    );
+      );
   }
 
   @ApiOperation({
@@ -251,51 +246,56 @@ export class PostsController {
     status: 200,
     description: 'The post has been successfully deleted.',
     type: PostDto,
+    example: getPostExample(),
   })
   @ApiResponse({
     status: 400,
     description: 'Invalid parameters.',
-    type: BadRequestExceptionDto,
+    example: BadRequestExceptionExample(),
   })
   @ApiResponse({
     status: 401,
     description: 'User is not authenticated.',
-    type: UnauthorizedExceptionDto,
+    example: UnauthorizedExceptionExample(),
   })
   @ApiResponse({
     status: 403,
-    description: 'User is not the owner of the post.',
-    type: ForbiddenExceptionDto,
+    description: 'User is not the author of the post.',
+    example: ForbiddenExceptionExample('User is not the author of the post'),
   })
   @ApiResponse({
     status: 404,
     description: 'Post not found.',
-    type: NotFoundExceptionDto,
+    example: NotFoundExceptionExample('Post not found'),
   })
   @Delete(':id')
   @UseGuards(AuthGuard())
-  public remove(
+  public async remove(
     @Param('id', ParseIntPipe) id: number,
     @AuthUser() user: AuthenticatedUser,
-  ): Observable<PostDto> {
-    return this.checkAuthorization(id, user).pipe(
-      switchMap((post) =>
-        this.postsMutationService.delete(id).pipe(map(() => new PostDto(post))),
-      ),
-    );
+  ): Promise<PostDto> {
+    return this.checkAuthorization(id, user) //
+      .then((post) =>
+        this.postsMutationService
+          .delete(id) //
+          .then(() => new PostDto(post)),
+      );
   }
 
-  private checkAuthorization(
+  private async checkAuthorization(
     postId: number,
     user: AuthenticatedUser,
-  ): Observable<PostEntity> {
-    return this.postsFetchService.findOne(postId).pipe(
-      catchError(() => throwError(() => new NotFoundException())),
-      tap((post) => {
+  ): Promise<PostEntity> {
+    return this.postsFetchService
+      .findOne(postId)
+      .catch(() => {
+        throw new NotFoundException('Post not found');
+      })
+      .then((post) => {
         if (post.userId !== user.id) {
-          throw new ForbiddenException();
+          throw new ForbiddenException('User is not the author of the post');
         }
-      }),
-    );
+        return post;
+      });
   }
 }

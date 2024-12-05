@@ -16,7 +16,6 @@ import {
 } from '../common/decorators/auth-user.decorator';
 import { SignupDto } from './dto/signup.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { catchError, map, Observable, switchMap, throwError } from 'rxjs';
 import { PrivateUserDto } from './dto/private-user.dto';
 import { AuthService } from './services/auth.service';
 import {
@@ -26,10 +25,10 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { UnauthorizedExceptionDto } from 'src/common/dto/exceptions/unauthorized-exception.dto';
-import { ConflictExceptionDto } from 'src/common/dto/exceptions/conflict-exception.dto';
-import { BadRequestExceptionDto } from 'src/common/dto/exceptions/bad-request-exception.dto';
 import { AuthTokenDto } from './dto/auth-token.dto';
+import { UnauthorizedExceptionExample } from 'src/common/examples/exceptions/unauthorized-exception.example';
+import { BadRequestExceptionExample } from 'src/common/examples/exceptions/bad-request-exception.example';
+import { ConflictExceptionExample } from 'src/common/examples/exceptions/conflict-exception.example';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -49,17 +48,19 @@ export class AuthController {
   @ApiResponse({
     status: 401,
     description: 'User is not authenticated.',
-    type: UnauthorizedExceptionDto,
+    example: UnauthorizedExceptionExample(),
   })
   @Get('account')
   @UseGuards(AuthGuard())
-  public getAccountData(
+  public async getAccountData(
     @AuthUser() user: AuthenticatedUser,
-  ): Observable<PrivateUserDto> {
-    return this.authService.getUser(user.id).pipe(
-      catchError(() => throwError(() => new UnauthorizedException())),
-      map((user) => new PrivateUserDto(user)),
-    );
+  ): Promise<PrivateUserDto> {
+    return this.authService
+      .getUser(user.id)
+      .catch(() => {
+        throw new UnauthorizedException();
+      })
+      .then((user) => new PrivateUserDto(user));
   }
 
   @ApiOperation({ summary: 'Log in to an existing account' })
@@ -72,21 +73,23 @@ export class AuthController {
   @ApiResponse({
     status: 400,
     description: 'Invalid request payload.',
-    type: BadRequestExceptionDto,
+    example: BadRequestExceptionExample(),
   })
   @ApiResponse({
     status: 401,
     description: 'Invalid email or password.',
-    type: UnauthorizedExceptionDto,
+    example: UnauthorizedExceptionExample('Invalid credentials'),
   })
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  public login(@Body() loginDto: LoginDto): Observable<AuthTokenDto> {
-    return this.authService.login(loginDto.email, loginDto.password).pipe(
-      catchError(() => throwError(() => new UnauthorizedException())),
-      switchMap((user) => this.authService.signToken(user)),
-      map((token) => new AuthTokenDto(token)),
-    );
+  public async login(@Body() loginDto: LoginDto): Promise<AuthTokenDto> {
+    return this.authService
+      .login(loginDto.email, loginDto.password)
+      .catch(() => {
+        throw new UnauthorizedException('Invalid credentials');
+      })
+      .then((user) => this.authService.signToken(user))
+      .then((token) => new AuthTokenDto(token));
   }
 
   @ApiOperation({ summary: 'Create a new user' })
@@ -99,20 +102,26 @@ export class AuthController {
   @ApiResponse({
     status: 400,
     description: 'Invalid request payload.',
-    type: BadRequestExceptionDto,
+    example: BadRequestExceptionExample(),
   })
   @ApiResponse({
     status: 409,
     description: 'User with this email or username already exists.',
-    type: ConflictExceptionDto,
+    example: ConflictExceptionExample(
+      'User with this email or username already exists',
+    ),
   })
   @Post('signup')
-  public signup(@Body() signupDto: SignupDto): Observable<AuthTokenDto> {
-    return this.authService.signup(signupDto).pipe(
-      catchError(() => throwError(() => new ConflictException())),
-      switchMap((user) => this.authService.signToken(user)),
-      map((token) => new AuthTokenDto(token)),
-    );
+  public async signup(@Body() signupDto: SignupDto): Promise<AuthTokenDto> {
+    return this.authService
+      .signup(signupDto)
+      .catch(() => {
+        throw new ConflictException(
+          'User with this email or username already exists',
+        );
+      })
+      .then((user) => this.authService.signToken(user))
+      .then((token) => new AuthTokenDto(token));
   }
 
   @ApiOperation({
@@ -128,18 +137,20 @@ export class AuthController {
   @ApiResponse({
     status: 401,
     description: 'User is not authenticated.',
-    type: UnauthorizedExceptionDto,
+    example: UnauthorizedExceptionExample(),
   })
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard())
-  public refresh(
+  public async refresh(
     @AuthUser() user: AuthenticatedUser,
-  ): Observable<AuthTokenDto> {
-    return this.authService.getUser(user.id).pipe(
-      catchError(() => throwError(() => new UnauthorizedException())),
-      switchMap((user) => this.authService.signToken(user)),
-      map((token) => new AuthTokenDto(token)),
-    );
+  ): Promise<AuthTokenDto> {
+    return this.authService
+      .getUser(user.id)
+      .catch(() => {
+        throw new UnauthorizedException();
+      })
+      .then((user) => this.authService.signToken(user))
+      .then((token) => new AuthTokenDto(token));
   }
 }
