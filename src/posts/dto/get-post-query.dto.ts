@@ -1,11 +1,10 @@
 import { Transform } from 'class-transformer';
-import { IsArray, IsEnum, IsIn, IsOptional } from 'class-validator';
+import { IsArray, IsEnum, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { PostIncludeValueEnum } from '../enum/post-include-value.enum';
+import { PostIncludeEnum } from '../enum/post-include.enum';
 import { getPostIncludeQueryExamples } from '../examples/post-include-query.example';
-import { PostEntity } from '../entities/post.entity';
 import { getPostExcludeQueryExamples } from '../examples/post-exclude-query.example';
-import { postExcludeValuesDto } from './post-exclude-values.dto';
+import { PostExcludeEnum } from '../enum/post-exclude.enum';
 
 export class GetPostQueryDto {
   @ApiProperty({
@@ -17,8 +16,8 @@ export class GetPostQueryDto {
   @Transform(({ value }) => value.split(','))
   @IsOptional()
   @IsArray()
-  @IsEnum(PostIncludeValueEnum, { each: true })
-  public include: PostIncludeValueEnum[] = [];
+  @IsEnum(PostIncludeEnum, { each: true })
+  public include: PostIncludeEnum[] = [];
 
   @ApiProperty({
     description: 'Comma-separated list of fields to exclude',
@@ -29,6 +28,6 @@ export class GetPostQueryDto {
   @Transform(({ value }) => value.split(','))
   @IsOptional()
   @IsArray()
-  @IsIn(postExcludeValuesDto, { each: true })
-  public exclude: (keyof PostEntity)[] = [];
+  @IsEnum(PostExcludeEnum, { each: true })
+  public exclude: PostExcludeEnum[] = [];
 }

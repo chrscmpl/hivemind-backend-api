@@ -1,14 +1,13 @@
 import { Transform } from 'class-transformer';
-import { IsArray, IsEnum, IsIn, IsInt, IsOptional, Min } from 'class-validator';
+import { IsArray, IsEnum, IsInt, IsOptional, Min } from 'class-validator';
 import { PostSortEnum } from '../enum/post-sort.enum';
 import parse from 'parse-duration';
-import { PostIncludeValueEnum } from '../enum/post-include-value.enum';
+import { PostIncludeEnum } from '../enum/post-include.enum';
 import { BadRequestException } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
-import { PostEntity } from '../entities/post.entity';
 import { getPostIncludeQueryExamples } from '../examples/post-include-query.example';
 import { getPostExcludeQueryExamples } from '../examples/post-exclude-query.example';
-import { postExcludeValuesDto } from './post-exclude-values.dto';
+import { PostExcludeEnum } from '../enum/post-exclude.enum';
 
 export class PostPaginationQueryDto {
   @ApiProperty({
@@ -67,8 +66,8 @@ export class PostPaginationQueryDto {
   @Transform(({ value }) => value.split(','))
   @IsOptional()
   @IsArray()
-  @IsEnum(PostIncludeValueEnum, { each: true })
-  public include: PostIncludeValueEnum[] = [];
+  @IsEnum(PostIncludeEnum, { each: true })
+  public include: PostIncludeEnum[] = [];
 
   @ApiProperty({
     description: 'Comma-separated list of fields to exclude',
@@ -80,6 +79,6 @@ export class PostPaginationQueryDto {
   @Transform(({ value }) => value.split(','))
   @IsOptional()
   @IsArray()
-  @IsIn(postExcludeValuesDto, { each: true })
-  public exclude: (keyof PostEntity)[] = [];
+  @IsEnum(PostExcludeEnum, { each: true })
+  public exclude: PostExcludeEnum[] = [];
 }

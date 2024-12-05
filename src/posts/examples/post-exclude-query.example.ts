@@ -1,9 +1,10 @@
-import { postExcludeValuesDto } from '../dto/post-exclude-values.dto';
+import { PostExcludeEnum } from '../enum/post-exclude.enum';
 
 export function getPostExcludeQueryExamples() {
+  const postExcludeEnumValues = Object.values(PostExcludeEnum);
   const examples: { [key: string]: object } = {};
 
-  for (const column of postExcludeValuesDto) {
+  for (const column of postExcludeEnumValues) {
     examples[column] = {
       summary: `Exclude ${column}`,
       description: `Excludes the ${column} field`,
@@ -20,7 +21,7 @@ export function getPostExcludeQueryExamples() {
     all: {
       summary: 'Exclude all',
       description: 'Excludes all fields (why?)',
-      value: postExcludeValuesDto.join(','),
+      value: postExcludeEnumValues.join(','),
     },
   };
 }

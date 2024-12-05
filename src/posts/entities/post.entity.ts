@@ -45,15 +45,4 @@ export class PostEntity {
 
   @UpdateDateColumn()
   public updatedAt!: Date;
-
-  public static readonly FETCH_COLUMNS: (keyof PostEntity)[] = [
-    'id',
-    'title',
-    'content',
-    'upvoteCount',
-    'downvoteCount',
-    'createdAt',
-    'updatedAt',
-    'userId',
-  ];
 }

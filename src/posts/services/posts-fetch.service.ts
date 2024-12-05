@@ -20,6 +20,17 @@ interface PostsQueryOptions {
 
 @Injectable()
 export class PostsFetchService {
+  public static readonly FETCH_COLUMNS: (keyof PostEntity)[] = [
+    'id',
+    'title',
+    'content',
+    'upvoteCount',
+    'downvoteCount',
+    'createdAt',
+    'updatedAt',
+    'userId',
+  ];
+
   public constructor(
     @InjectRepository(PostEntity)
     private readonly postsRepository: Repository<PostEntity>,
@@ -178,7 +189,7 @@ export class PostsFetchService {
   private getColumns(
     options?: Pick<PostsQueryOptions, 'exclude'>,
   ): `p.${keyof PostEntity}`[] {
-    let columns = PostEntity.FETCH_COLUMNS;
+    let columns = PostsFetchService.FETCH_COLUMNS;
     if (options?.exclude?.length) {
       const excludeSet = new Set(options.exclude);
       columns = columns.filter((column) => !excludeSet.has(column));

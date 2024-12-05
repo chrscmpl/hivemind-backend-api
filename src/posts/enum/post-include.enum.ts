@@ -1,4 +1,4 @@
-export enum PostIncludeValueEnum {
+export enum PostIncludeEnum {
   MY_VOTE = 'myVote',
   USER = 'user',
 }

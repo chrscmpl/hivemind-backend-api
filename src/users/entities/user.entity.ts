@@ -45,22 +45,16 @@ export class UserEntity {
   private loadedPassword?: string;
 
   @AfterLoad()
-  // @ts-expect-error disable ts(6133) from the option noUnusedLocals
-  // the private method is actually used by the lifecycle decorator
   private afterLoad(): void {
     this.loadedPassword = this.password;
   }
 
   @BeforeInsert()
-  // @ts-expect-error disable ts(6133) from the option noUnusedLocals
-  // the private method is actually used by the lifecycle decorator
   private async beforeInsert(): Promise<void> {
     await this.hashPassword();
   }
 
   @BeforeUpdate()
-  // @ts-expect-error disable ts(6133) from the option noUnusedLocals
-  // the private method is actually used by the lifecycle decorator
   private async beforeUpdate(): Promise<void> {
     if (!this.password || this.password === this.loadedPassword) {
       return;

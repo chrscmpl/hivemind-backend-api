@@ -40,7 +40,7 @@ import { ForbiddenExceptionDto } from 'src/common/dto/exceptions/forbidden-excep
 import { BadRequestExceptionDto } from 'src/common/dto/exceptions/bad-request-exception.dto';
 import { PostsFetchService } from './services/posts-fetch.service';
 import { noMsIso } from 'src/common/helpers/no-ms-iso.helper';
-import { PostIncludeValueEnum } from './enum/post-include-value.enum';
+import { PostIncludeEnum } from './enum/post-include.enum';
 import { PostPaginationQueryDto } from './dto/post-pagination-query.dto';
 import { GetPostQueryDto } from './dto/get-post-query.dto';
 import { getPostExample } from './examples/post.example';
@@ -116,10 +116,8 @@ export class PostsController {
     @Query() query: PostPaginationQueryDto,
   ): Observable<PostPaginationDto> {
     const includeVote: boolean =
-      query.include.includes(PostIncludeValueEnum.MY_VOTE) && !!user;
-    const includeUser: boolean = query.include.includes(
-      PostIncludeValueEnum.USER,
-    );
+      query.include.includes(PostIncludeEnum.MY_VOTE) && !!user;
+    const includeUser: boolean = query.include.includes(PostIncludeEnum.USER);
 
     const after = query.age ? new Date(Date.now() - query.age) : null;
 
@@ -175,11 +173,9 @@ export class PostsController {
     query: GetPostQueryDto,
   ): Observable<PostDto> {
     const includeVote: boolean =
-      query.include.includes(PostIncludeValueEnum.MY_VOTE) && !!user;
+      query.include.includes(PostIncludeEnum.MY_VOTE) && !!user;
 
-    const includeUser: boolean = query.include.includes(
-      PostIncludeValueEnum.USER,
-    );
+    const includeUser: boolean = query.include.includes(PostIncludeEnum.USER);
 
     return this.postsFetchService
       .findOne(id, {
