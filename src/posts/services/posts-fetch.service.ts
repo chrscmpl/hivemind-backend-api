@@ -72,19 +72,18 @@ export class PostsFetchService {
     });
   }
 
-  public paginate(
+  public async paginate(
     options: IPaginationOptions & PostsQueryOptions,
   ): Promise<Pagination<PostEntity>> {
-    return paginate<PostEntity>(this.getQueryBuilder(options), options).then(
-      (pagination) => {
+    return paginate<PostEntity>(this.getQueryBuilder(options), options) //
+      .then((pagination) => {
         if (options.includeVoteOf) {
           pagination.items.forEach((post) => {
             this.fillMyVote(post);
           });
         }
         return pagination;
-      },
-    );
+      });
   }
 
   private fillMyVote(post: PostEntity): void {

@@ -30,8 +30,8 @@ import { NotFoundExceptionExample } from 'src/common/examples/exceptions/not-fou
 import { BadRequestExceptionExample } from 'src/common/examples/exceptions/bad-request-exception.example';
 
 @ApiTags('Votes')
-@ApiParam({ name: 'id', description: "The post's ID",  required: true, type: 'number', example: 1 }) // prettier-ignore
-@Controller('posts/:id')
+@ApiParam({ name: 'postId', description: "The post's ID",  required: true, type: 'number', example: 1 }) // prettier-ignore
+@Controller('posts/:postId/votes')
 export class VotesController {
   constructor(private readonly votesService: VotesService) {}
 
@@ -56,12 +56,12 @@ export class VotesController {
     description: 'Post not found.',
     example: NotFoundExceptionExample('Post not found'),
   })
-  @Put('votes')
+  @Put()
   @UseGuards(AuthGuard())
   @HttpCode(HttpStatus.OK)
   public async setVote(
     @AuthUser() user: AuthenticatedUser,
-    @Param('id', ParseIntPipe) postId: number,
+    @Param('postId', ParseIntPipe) postId: number,
     @Body() setVoteDto: SetPostVoteDto,
   ): Promise<PostVoteDto> {
     return (

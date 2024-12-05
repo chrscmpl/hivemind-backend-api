@@ -195,7 +195,8 @@ export class PostsController {
   @ApiBody({ type: UpdatePostDto, required: true })
   @ApiResponse({
     status: 200,
-    description: 'The post has been successfully updated.',
+    description:
+      'The post has been successfully updated. Returns the updated post.',
     type: PostDto,
   })
   @ApiResponse({
@@ -244,7 +245,8 @@ export class PostsController {
   @ApiParam({ name: 'id', required: true, type: 'number', example: 1 })
   @ApiResponse({
     status: 200,
-    description: 'The post has been successfully deleted.',
+    description:
+      'The post has been successfully deleted. Returns the deleted post.',
     type: PostDto,
     example: getPostExample(),
   })

@@ -21,14 +21,20 @@ export class CommentEntity {
   @Column({ name: 'postId', nullable: false })
   public postId!: number;
 
-  @ManyToOne(() => PostEntity, (post) => post.comments, { nullable: false })
+  @ManyToOne(() => PostEntity, (post) => post.comments, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'postId' })
   public post!: PostEntity;
 
   @Column({ name: 'userId', nullable: false })
   public userId!: number;
 
-  @ManyToOne(() => UserEntity, (user) => user.comments, { nullable: false })
+  @ManyToOne(() => UserEntity, (user) => user.comments, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'userId' })
   public user!: UserEntity;
 
