@@ -9,7 +9,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { PostVoteEntity } from 'src/votes/entities/vote.entity';
+import { VoteEntity } from 'src/votes/entities/vote.entity';
+import { CommentEntity } from 'src/comments/entities/comment.entity';
 
 @Entity({ name: 'posts' })
 export class PostEntity {
@@ -29,20 +30,24 @@ export class PostEntity {
   @JoinColumn({ name: 'userId' })
   public user!: UserEntity;
 
+  @OneToMany(() => CommentEntity, (comment) => comment.post)
+  public comments!: CommentEntity[];
+
+  @OneToMany(() => VoteEntity, (vote) => vote.post)
+  public votes!: VoteEntity[];
+
   @Column({ default: 1, nullable: false })
   public upvoteCount!: number;
 
   @Column({ default: 0, nullable: false })
   public downvoteCount!: number;
 
-  @OneToMany(() => PostVoteEntity, (vote) => vote.post)
-  public votes!: PostVoteEntity[];
-
-  public myVote?: boolean;
-
   @CreateDateColumn()
   public createdAt!: Date;
 
   @UpdateDateColumn()
   public updatedAt!: Date;
+
+  // not a column
+  public myVote?: boolean;
 }

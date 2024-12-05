@@ -1,6 +1,7 @@
+import { CommentEntity } from 'src/comments/entities/comment.entity';
 import { compare, hash } from 'src/common/helpers/hashing-utils.helper';
 import { PostEntity } from 'src/posts/entities/post.entity';
-import { PostVoteEntity } from 'src/votes/entities/vote.entity';
+import { VoteEntity } from 'src/votes/entities/vote.entity';
 import {
   AfterLoad,
   BeforeInsert,
@@ -33,8 +34,11 @@ export class UserEntity {
   @OneToMany(() => PostEntity, (post) => post.user)
   public posts!: PostEntity[];
 
-  @OneToMany(() => PostVoteEntity, (vote) => vote.user)
-  public postVotes!: PostVoteEntity[];
+  @OneToMany(() => CommentEntity, (comment) => comment.user)
+  public comments!: CommentEntity[];
+
+  @OneToMany(() => VoteEntity, (vote) => vote.user)
+  public votes!: VoteEntity[];
 
   @CreateDateColumn()
   public createdAt!: Date;

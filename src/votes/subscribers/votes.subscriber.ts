@@ -7,14 +7,12 @@ import {
   Repository,
   UpdateEvent,
 } from 'typeorm';
-import { PostVoteEntity } from '../entities/vote.entity';
+import { VoteEntity } from '../entities/vote.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostEntity } from 'src/posts/entities/post.entity';
 
 @EventSubscriber()
-export class VotesSubscriber
-  implements EntitySubscriberInterface<PostVoteEntity>
-{
+export class VotesSubscriber implements EntitySubscriberInterface<VoteEntity> {
   constructor(
     @InjectRepository(PostEntity)
     private readonly postsRepository: Repository<PostEntity>,
@@ -24,10 +22,10 @@ export class VotesSubscriber
   }
 
   public listenTo() {
-    return PostVoteEntity;
+    return VoteEntity;
   }
 
-  public async afterInsert(event: InsertEvent<PostVoteEntity>) {
+  public async afterInsert(event: InsertEvent<VoteEntity>) {
     const post = await this.getPost(event.entity);
     if (!post) {
       return;
@@ -40,11 +38,11 @@ export class VotesSubscriber
     this.postsRepository.save(post);
   }
 
-  public async afterUpdate(event: UpdateEvent<PostVoteEntity>) {
+  public async afterUpdate(event: UpdateEvent<VoteEntity>) {
     if (!event.entity || !event.databaseEntity) {
       throw new Error('Votes need to be loaded before being updated');
     }
-    const post = await this.getPost(event.entity as PostVoteEntity);
+    const post = await this.getPost(event.entity as VoteEntity);
     if (!post) {
       return;
     }
@@ -58,7 +56,7 @@ export class VotesSubscriber
     this.postsRepository.save(post);
   }
 
-  public async afterRemove(event: RemoveEvent<PostVoteEntity>) {
+  public async afterRemove(event: RemoveEvent<VoteEntity>) {
     if (!event.entity) {
       throw new Error('Votes need to be loaded before being removed');
     }
@@ -74,7 +72,7 @@ export class VotesSubscriber
     this.postsRepository.save(post);
   }
 
-  private async getPost(entity: PostVoteEntity) {
+  private async getPost(entity: VoteEntity) {
     return this.postsRepository.findOne({
       where: { id: entity.postId },
       select: ['id', 'upvoteCount', 'downvoteCount'],

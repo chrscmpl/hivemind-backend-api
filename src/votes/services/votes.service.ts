@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { PostVoteEntity } from '../entities/vote.entity';
+import { VoteEntity } from '../entities/vote.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { from, Observable } from 'rxjs';
 import { PostVoteEnum } from '../enum/vote.enum';
@@ -8,20 +8,20 @@ import { PostVoteEnum } from '../enum/vote.enum';
 @Injectable()
 export class VotesService {
   public constructor(
-    @InjectRepository(PostVoteEntity)
-    private readonly votesRepository: Repository<PostVoteEntity>,
+    @InjectRepository(VoteEntity)
+    private readonly votesRepository: Repository<VoteEntity>,
   ) {}
 
   public set(
     userId: number,
     postId: number,
     value: PostVoteEnum.UP | PostVoteEnum.DOWN,
-  ): Observable<PostVoteEntity> {
+  ): Observable<VoteEntity> {
     return from(
       (async () => {
         const voteBool: boolean = value === PostVoteEnum.UP;
 
-        let vote: PostVoteEntity | null = await this.votesRepository.findOne({
+        let vote: VoteEntity | null = await this.votesRepository.findOne({
           where: { userId, postId },
         });
 

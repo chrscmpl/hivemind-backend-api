@@ -24,7 +24,8 @@ export class UsersService {
       UserEntity,
       | 'id'
       | 'posts'
-      | 'postVotes'
+      | 'comments'
+      | 'votes'
       | 'createdAt'
       | 'updatedAt'
       | 'validatePassword'

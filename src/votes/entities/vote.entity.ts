@@ -11,7 +11,7 @@ import {
 
 @Entity({ name: 'post_votes' })
 @Unique(['user', 'post'])
-export class PostVoteEntity {
+export class VoteEntity {
   @PrimaryGeneratedColumn()
   public id!: number;
 

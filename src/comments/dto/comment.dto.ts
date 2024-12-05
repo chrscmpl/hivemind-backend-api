@@ -1,7 +1,8 @@
 import { defaults } from 'lodash';
-import { PostEntity } from '../entities/post.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { noMsIso } from 'src/common/helpers/no-ms-iso.helper';
+import { CommentEntity } from '../entities/comment.entity';
+import { PostDto } from 'src/posts/dto/post.dto';
 
 // different from UserDto mainly because of the nullable properties
 class UserPreviewDto {
@@ -18,7 +19,7 @@ class UserPreviewDto {
   })
   public displayName?: string;
 
-  public constructor(user: PostEntity['user']) {
+  public constructor(user: CommentEntity['user']) {
     this.id = user.id;
     if (user.handle) {
       this.handle = user.handle;
@@ -29,33 +30,16 @@ class UserPreviewDto {
   }
 }
 
-export class PostDto {
+export class CommentDto {
   @ApiProperty({ nullable: false, type: 'number', example: 1 })
   public id: number;
-
-  @ApiProperty({ nullable: true, type: 'string', example: 'My first post' })
-  public title?: string;
 
   @ApiProperty({
     nullable: true,
     type: 'string',
-    example: 'This is my first post.',
+    example: 'I agree with your post.',
   })
   public content?: string;
-
-  @ApiProperty({
-    nullable: true,
-    type: 'number',
-    example: 10,
-  })
-  public upvoteCount?: number;
-
-  @ApiProperty({
-    nullable: true,
-    type: 'number',
-    example: 2,
-  })
-  public downvoteCount?: number;
 
   @ApiProperty({
     nullable: true,
@@ -72,30 +56,25 @@ export class PostDto {
   public updatedAt?: string;
 
   @ApiProperty({ nullable: false, type: UserPreviewDto, example: { id: 1 } })
-  public user?: UserPreviewDto;
+  public user!: UserPreviewDto;
 
-  @ApiProperty({ nullable: true, type: 'string', example: 'up' })
-  public myVote?: 'up' | 'down';
+  @ApiProperty({ nullable: false, type: PostDto, example: { id: 1 } })
+  public post!: PostDto;
 
-  public constructor(post: Partial<PostEntity>) {
-    this.id = post.id as number;
-    this.title = post.title;
-    if (post.content) {
-      this.content = post.content;
+  public constructor(comment: Partial<CommentEntity>) {
+    this.id = comment.id as number;
+    if (comment.content) {
+      this.content = comment.content;
     }
-    this.upvoteCount = post.upvoteCount;
-    this.downvoteCount = post.downvoteCount;
-    if (post.createdAt) {
-      this.createdAt = noMsIso(post.createdAt);
+    if (comment.createdAt) {
+      this.createdAt = noMsIso(comment.createdAt);
     }
-    if (post.updatedAt) {
-      this.updatedAt = noMsIso(post.updatedAt);
+    if (comment.updatedAt) {
+      this.updatedAt = noMsIso(comment.updatedAt);
     }
-    if (post.user || post.userId) {
-      this.user = new UserPreviewDto(defaults({ id: post.userId }, post.user));
-    }
-    if (post.myVote != null) {
-      this.myVote = post.myVote ? 'up' : 'down';
-    }
+    this.user = new UserPreviewDto(
+      defaults({ id: comment.userId }, comment.user),
+    );
+    this.post = new PostDto(defaults({ id: comment.postId }, comment.post));
   }
 }

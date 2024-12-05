@@ -5,15 +5,15 @@ import {
   InsertEvent,
   Repository,
 } from 'typeorm';
-import { PostVoteEntity } from '../entities/vote.entity';
+import { VoteEntity } from '../entities/vote.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostEntity } from 'src/posts/entities/post.entity';
 
 @EventSubscriber()
 export class PostsSubscriber implements EntitySubscriberInterface<PostEntity> {
   constructor(
-    @InjectRepository(PostVoteEntity)
-    private readonly votesRepository: Repository<PostVoteEntity>,
+    @InjectRepository(VoteEntity)
+    private readonly votesRepository: Repository<VoteEntity>,
     dataSource: DataSource,
   ) {
     dataSource.subscribers.push(this);
