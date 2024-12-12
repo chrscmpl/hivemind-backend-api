@@ -20,10 +20,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
-import {
-  AuthenticatedUser,
-  AuthUser,
-} from 'src/common/decorators/auth-user.decorator';
+import { AuthUser, Auth } from 'src/common/decorators/auth.decorator';
 import { PostVoteEnum } from './enum/vote.enum';
 import { PostVoteDto } from './dto/vote.dto';
 import { NotFoundExceptionExample } from 'src/common/examples/exceptions/not-found-exception.example';
@@ -60,7 +57,7 @@ export class VotesController {
   @UseGuards(AuthGuard())
   @HttpCode(HttpStatus.OK)
   public async setVote(
-    @AuthUser() user: AuthenticatedUser,
+    @Auth() user: AuthUser,
     @Param('postId', ParseIntPipe) postId: number,
     @Body() setVoteDto: SetPostVoteDto,
   ): Promise<PostVoteDto> {

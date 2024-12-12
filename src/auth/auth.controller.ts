@@ -10,10 +10,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
-import {
-  AuthUser,
-  AuthenticatedUser,
-} from '../common/decorators/auth-user.decorator';
+import { Auth, AuthUser } from '../common/decorators/auth.decorator';
 import { SignupDto } from './dto/signup.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { PrivateUserDto } from './dto/private-user.dto';
@@ -52,9 +49,7 @@ export class AuthController {
   })
   @Get('account')
   @UseGuards(AuthGuard())
-  public async getAccountData(
-    @AuthUser() user: AuthenticatedUser,
-  ): Promise<PrivateUserDto> {
+  public async getAccountData(@Auth() user: AuthUser): Promise<PrivateUserDto> {
     return this.authService
       .getUser(user.id)
       .catch(() => {
@@ -142,9 +137,7 @@ export class AuthController {
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard())
-  public async refresh(
-    @AuthUser() user: AuthenticatedUser,
-  ): Promise<AuthTokenDto> {
+  public async refresh(@Auth() user: AuthUser): Promise<AuthTokenDto> {
     return this.authService
       .getUser(user.id)
       .catch(() => {

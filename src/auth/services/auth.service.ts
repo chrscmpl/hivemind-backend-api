@@ -28,7 +28,11 @@ export class AuthService {
   }
 
   public async signToken(user: UserEntity): Promise<string> {
-    return this.jwt.signAsync({ sub: user.id, username: user.handle });
+    return this.jwt.signAsync({
+      sub: user.id,
+      handle: user.handle,
+      displayName: user.displayName,
+    });
   }
 
   private async validatePassword(

@@ -4,6 +4,13 @@ export class AuthTokenDto {
   @ApiProperty({
     nullable: false,
     type: 'string',
+    example: 'Bearer',
+  })
+  public tokenType: string = 'Bearer';
+
+  @ApiProperty({
+    nullable: false,
+    type: 'string',
     example:
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsInVzZXJuYW1lIjoiY2hyc2NtcGwiLCJpYXQiOjE3MzI0NTgxNjQsImV4cCI6MTczMjU0NDU2NH0.SXX3SHiDK1fFcHsXAVrEDxU3HGvnyjbptj4Lswo-_I8',
   })

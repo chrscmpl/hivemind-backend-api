@@ -2,23 +2,26 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 class AuthTokenPayload {
   sub!: number;
-  username!: string;
+  handle!: string;
+  displayName!: string;
   iat!: number;
   exp!: number;
 }
 
-export class AuthenticatedUser {
+export class AuthUser {
   id: number;
-  username: string;
+  handle: string;
+  displayName: string;
 
   public constructor(payload: AuthTokenPayload) {
     this.id = payload.sub;
-    this.username = payload.username;
+    this.handle = payload.handle;
+    this.displayName = payload.displayName;
   }
 }
 
 // Req.user is set by AuthGuard
-export const AuthUser = createParamDecorator(
+export const Auth = createParamDecorator(
   (data: { nullable?: boolean } = {}, context: ExecutionContext) => {
     const user = context.switchToHttp().getRequest().user as
       | AuthTokenPayload
@@ -29,6 +32,6 @@ export const AuthUser = createParamDecorator(
       throw new Error('@AuthUser: Unexpected null or undefined user');
     }
 
-    return user ? new AuthenticatedUser(user) : null;
+    return user ? new AuthUser(user) : null;
   },
 );

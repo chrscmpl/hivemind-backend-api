@@ -15,10 +15,7 @@ import {
 import { PostsMutationService } from './services/posts-mutation.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import {
-  AuthUser,
-  AuthenticatedUser,
-} from 'src/common/decorators/auth-user.decorator';
+import { Auth, AuthUser } from 'src/common/decorators/auth.decorator';
 import { OptionalAuthGuard } from 'src/common/guards/optional-auth.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { PostEntity } from './entities/post.entity';
@@ -79,7 +76,7 @@ export class PostsController {
   @UseGuards(AuthGuard())
   public async create(
     @Body() createPostDto: CreatePostDto,
-    @AuthUser() user: AuthenticatedUser,
+    @Auth() user: AuthUser,
   ): Promise<PostDto> {
     return this.postsMutationService
       .create(createPostDto, user.id)
@@ -110,8 +107,8 @@ export class PostsController {
   @Get()
   @UseGuards(OptionalAuthGuard)
   public async findAll(
-    @AuthUser({ nullable: true })
-    user: AuthenticatedUser | null,
+    @Auth({ nullable: true })
+    user: AuthUser | null,
     @Query() query: PostPaginationQueryDto,
   ): Promise<PostPaginationDto> {
     const includeVote: boolean =
@@ -164,7 +161,7 @@ export class PostsController {
   @Get(':id')
   @UseGuards(OptionalAuthGuard)
   public async findOne(
-    @AuthUser({ nullable: true }) user: AuthenticatedUser | null,
+    @Auth({ nullable: true }) user: AuthUser | null,
     @Param('id', ParseIntPipe) id: number,
     @Query()
     query: GetPostQueryDto,
@@ -224,7 +221,7 @@ export class PostsController {
   public async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updatePostDto: UpdatePostDto,
-    @AuthUser() user: AuthenticatedUser,
+    @Auth() user: AuthUser,
   ): Promise<PostDto> {
     return this.checkAuthorization(id, user) //
       .then((oldPost) =>
@@ -274,7 +271,7 @@ export class PostsController {
   @UseGuards(AuthGuard())
   public async remove(
     @Param('id', ParseIntPipe) id: number,
-    @AuthUser() user: AuthenticatedUser,
+    @Auth() user: AuthUser,
   ): Promise<PostDto> {
     return this.checkAuthorization(id, user) //
       .then((post) =>
@@ -286,7 +283,7 @@ export class PostsController {
 
   private async checkAuthorization(
     postId: number,
-    user: AuthenticatedUser,
+    user: AuthUser,
   ): Promise<PostEntity> {
     return this.postsFetchService
       .findOne(postId)

@@ -19,10 +19,7 @@ import {
 } from '@nestjs/swagger';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { AuthGuard } from '@nestjs/passport';
-import {
-  AuthenticatedUser,
-  AuthUser,
-} from 'src/common/decorators/auth-user.decorator';
+import { AuthUser, Auth } from 'src/common/decorators/auth.decorator';
 import { CommentDto } from './dto/comment.dto';
 import { BadRequestExceptionExample } from 'src/common/examples/exceptions/bad-request-exception.example';
 import { UnauthorizedExceptionExample } from 'src/common/examples/exceptions/unauthorized-exception.example';
@@ -68,7 +65,7 @@ export class CommentsController {
   public async create(
     @Param('postId', ParseIntPipe) postId: number,
     @Body() createCommentDto: CreateCommentDto,
-    @AuthUser() user: AuthenticatedUser,
+    @Auth() user: AuthUser,
   ): Promise<CommentDto> {
     return this.commentsMutationService
       .create(createCommentDto, postId, user.id)
