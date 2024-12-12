@@ -47,7 +47,7 @@ export class AuthController {
     description: 'User is not authenticated.',
     example: UnauthorizedExceptionExample(),
   })
-  @Get('account')
+  @Get('me')
   @UseGuards(AuthGuard())
   public async getAccountData(@Auth() user: AuthUser): Promise<PrivateUserDto> {
     return this.authService

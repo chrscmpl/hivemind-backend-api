@@ -2,21 +2,15 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 class AuthTokenPayload {
   sub!: number;
-  handle!: string;
-  displayName!: string;
   iat!: number;
   exp!: number;
 }
 
 export class AuthUser {
   id: number;
-  handle: string;
-  displayName: string;
 
   public constructor(payload: AuthTokenPayload) {
     this.id = payload.sub;
-    this.handle = payload.handle;
-    this.displayName = payload.displayName;
   }
 }
 
