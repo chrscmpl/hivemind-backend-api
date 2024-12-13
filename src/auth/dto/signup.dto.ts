@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsEmail,
   IsNotEmpty,
@@ -6,6 +7,8 @@ import {
   Length,
   Matches,
 } from 'class-validator';
+
+import * as sanitizeHtml from 'sanitize-html';
 
 export class SignupDto {
   @ApiProperty({
@@ -23,6 +26,7 @@ export class SignupDto {
     minLength: 4,
     maxLength: 30,
   })
+  @Transform(({ value }) => sanitizeHtml(value))
   @IsNotEmpty()
   @IsString()
   @Length(4, 30)
@@ -38,6 +42,7 @@ export class SignupDto {
     minLength: 2,
     maxLength: 50,
   })
+  @Transform(({ value }) => sanitizeHtml(value).trim())
   @IsNotEmpty()
   @IsString()
   @Length(2, 50)
