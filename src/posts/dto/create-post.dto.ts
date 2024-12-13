@@ -7,7 +7,7 @@ import {
   Length,
   MaxLength,
 } from 'class-validator';
-import * as sanitizeHtml from 'sanitize-html';
+import { Sanitize } from 'src/common/decorators/sanitize.decorator';
 
 export class CreatePostDto {
   @ApiProperty({
@@ -17,7 +17,8 @@ export class CreatePostDto {
     minLength: 5,
     maxLength: 100,
   })
-  @Transform(({ value }) => sanitizeHtml(value).trim())
+  @Sanitize()
+  @Transform(({ value }) => value.trim())
   @IsNotEmpty()
   @IsString()
   @Length(5, 100)
@@ -29,7 +30,8 @@ export class CreatePostDto {
     example: 'This is my first post.',
     maxLength: 1000,
   })
-  @Transform(({ value }) => sanitizeHtml(value).trim())
+  @Sanitize()
+  @Transform(({ value }) => value.trim())
   @IsOptional()
   @IsString()
   @MaxLength(1000)

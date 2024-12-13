@@ -7,8 +7,7 @@ import {
   Length,
   Matches,
 } from 'class-validator';
-
-import * as sanitizeHtml from 'sanitize-html';
+import { Sanitize } from 'src/common/decorators/sanitize.decorator';
 
 export class SignupDto {
   @ApiProperty({
@@ -16,6 +15,7 @@ export class SignupDto {
     type: 'string',
     example: 'chrscmpl@example.com',
   })
+  @Sanitize()
   @IsEmail()
   email!: string;
 
@@ -26,7 +26,7 @@ export class SignupDto {
     minLength: 4,
     maxLength: 30,
   })
-  @Transform(({ value }) => sanitizeHtml(value))
+  @Sanitize()
   @IsNotEmpty()
   @IsString()
   @Length(4, 30)
@@ -42,7 +42,8 @@ export class SignupDto {
     minLength: 2,
     maxLength: 50,
   })
-  @Transform(({ value }) => sanitizeHtml(value).trim())
+  @Sanitize()
+  @Transform(({ value }) => value.trim())
   @IsNotEmpty()
   @IsString()
   @Length(2, 50)

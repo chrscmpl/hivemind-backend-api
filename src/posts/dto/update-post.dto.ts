@@ -12,7 +12,7 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
-import * as sanitizeHtml from 'sanitize-html';
+import { Sanitize } from 'src/common/decorators/sanitize.decorator';
 
 @ValidatorConstraint()
 class AtLeastOnePostFieldConstraint implements ValidatorConstraintInterface {
@@ -34,7 +34,8 @@ export class UpdatePostDto extends PartialType(CreatePostDto) {
     minLength: 5,
     maxLength: 100,
   })
-  @Transform(({ value }) => sanitizeHtml(value).trim())
+  @Sanitize()
+  @Transform(({ value }) => value.trim())
   @IsOptional()
   @IsString()
   @Length(5, 100)
@@ -46,7 +47,8 @@ export class UpdatePostDto extends PartialType(CreatePostDto) {
     example: 'This is my first post. EDIT: I have updated this post.',
     maxLength: 1000,
   })
-  @Transform(({ value }) => sanitizeHtml(value).trim())
+  @Sanitize()
+  @Transform(({ value }) => value.trim())
   @IsOptional()
   @IsString()
   @MaxLength(1000)

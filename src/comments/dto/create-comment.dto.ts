@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
-import * as sanitizeHtml from 'sanitize-html';
+import { Sanitize } from 'src/common/decorators/sanitize.decorator';
 
 export class CreateCommentDto {
   @ApiProperty({
@@ -10,7 +10,8 @@ export class CreateCommentDto {
     example: 'I agree with your post.',
     maxLength: 500,
   })
-  @Transform(({ value }) => sanitizeHtml(value).trim())
+  @Sanitize()
+  @Transform(({ value }) => value.trim())
   @IsNotEmpty()
   @IsString()
   @MaxLength(500)
