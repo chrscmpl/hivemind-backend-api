@@ -3,9 +3,22 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Request, Response } from 'express';
-import { ValidationPipe } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 
-function setupSwagger(app: Parameters<typeof SwaggerModule.createDocument>[0]) {
+function setupCors(app: INestApplication) {
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN || undefined,
+    allowedHeaders: process.env.CORS_ALLOWED_HEADERS || undefined,
+    exposedHeaders: process.env.CORS_EXPOSED_HEADERS || undefined,
+    credentials: process.env.CORS_CREDENTIALS === 'true',
+    maxAge: process.env.CORS_MAX_AGE
+      ? parseInt(process.env.CORS_MAX_AGE)
+      : undefined,
+    methods: process.env.CORS_METHODS!.split(','),
+  });
+}
+
+function setupSwagger(app: INestApplication) {
   const swaggerBuilder = new DocumentBuilder()
     .setTitle('HiveMind API')
     .setDescription('The HiveMind API specification')
@@ -27,12 +40,11 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
-  app.enableCors({
-    origin: '*',
-  });
+  setupCors(app);
 
   setupSwagger(app);
 
   await app.listen(process.env.PORT ?? 80);
 }
+
 bootstrap();
