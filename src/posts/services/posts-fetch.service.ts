@@ -64,12 +64,13 @@ export class PostsFetchService {
       });
     }
 
-    return queryBuilder.getOneOrFail().then((post) => {
-      if (options?.includeVoteOf) {
-        this.fillMyVote(post);
-      }
-      return post;
-    });
+    const post = await queryBuilder.getOneOrFail();
+
+    if (options?.includeVoteOf) {
+      this.fillMyVote(post);
+    }
+
+    return post;
   }
 
   public async paginate(

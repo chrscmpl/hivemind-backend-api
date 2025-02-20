@@ -46,12 +46,10 @@ export class VotesService {
   public async delete(userId: number, postId: number): Promise<unknown> {
     // Votes need to be loaded before being updated or removed
     // so that the subscriber can be triggered
-    return this.votesRepository
-      .findOneOrFail({
-        where: { userId, postId },
-      })
-      .then((vote) => {
-        this.votesRepository.remove(vote);
-      });
+    const vote = await this.votesRepository.findOneOrFail({
+      where: { userId, postId },
+    });
+
+    return await this.votesRepository.remove(vote);
   }
 }

@@ -32,26 +32,26 @@ export class UpdatePostDto extends PartialType(CreatePostDto) {
     type: 'string',
     example: 'My first post (updated)',
     minLength: 5,
-    maxLength: 100,
+    maxLength: 300,
   })
   @Sanitize()
   @Transform(({ value }) => value.trim())
   @IsOptional()
   @IsString()
-  @Length(5, 100)
+  @Length(5, 300)
   public title!: string;
 
   @ApiProperty({
     nullable: true,
     type: 'string',
     example: 'This is my first post. EDIT: I have updated this post.',
-    maxLength: 1000,
+    maxLength: 3000,
   })
   @Sanitize()
   @Transform(({ value }) => value.trim())
   @IsOptional()
   @IsString()
-  @MaxLength(1000)
+  @MaxLength(3000)
   public content?: string;
 
   @Validate(AtLeastOnePostFieldConstraint)

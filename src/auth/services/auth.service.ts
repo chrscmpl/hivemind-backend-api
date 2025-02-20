@@ -15,10 +15,9 @@ export class AuthService {
   }
 
   public async login(email: string, password: string): Promise<UserEntity> {
-    return this.usersService.findOneByEmail(email).then((user) => {
-      this.validatePassword(password, user);
-      return user;
-    });
+    const user = await this.usersService.findOneByEmail(email);
+    await this.validatePassword(password, user);
+    return user;
   }
 
   public async signup(
@@ -35,10 +34,9 @@ export class AuthService {
     password: string,
     user: UserEntity,
   ): Promise<void> {
-    return user.validatePassword(password).then((PasswordIsValid) => {
-      if (!PasswordIsValid) {
-        throw new Error('Invalid password');
-      }
-    });
+    const isPasswordValid = await user.validatePassword(password);
+    if (!isPasswordValid) {
+      throw new Error('Invalid password');
+    }
   }
 }

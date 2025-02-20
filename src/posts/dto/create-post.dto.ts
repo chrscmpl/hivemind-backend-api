@@ -15,25 +15,25 @@ export class CreatePostDto {
     type: 'string',
     example: 'My first post',
     minLength: 5,
-    maxLength: 100,
+    maxLength: 300,
   })
   @Sanitize()
   @Transform(({ value }) => value.trim())
   @IsNotEmpty()
   @IsString()
-  @Length(5, 100)
+  @Length(5, 300)
   public title!: string;
 
   @ApiProperty({
     nullable: true,
     type: 'string',
     example: 'This is my first post.',
-    maxLength: 1000,
+    maxLength: 3000,
   })
   @Sanitize()
   @Transform(({ value }) => value.trim())
   @IsOptional()
   @IsString()
-  @MaxLength(1000)
+  @MaxLength(3000)
   public content?: string;
 }

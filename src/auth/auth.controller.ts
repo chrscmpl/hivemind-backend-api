@@ -73,7 +73,7 @@ export class AuthController {
   @ApiResponse({
     status: 401,
     description: 'Invalid email or password.',
-    example: UnauthorizedExceptionExample('Invalid credentials'),
+    example: UnauthorizedExceptionExample('Invalid email or password'),
   })
   @Post('login')
   @HttpCode(HttpStatus.OK)
@@ -81,7 +81,7 @@ export class AuthController {
     return this.authService
       .login(loginDto.email, loginDto.password)
       .catch(() => {
-        throw new UnauthorizedException('Invalid credentials');
+        throw new UnauthorizedException('Invalid email or password');
       })
       .then((user) => this.authService.signToken(user))
       .then((token) => new AuthTokenDto(token));
