@@ -35,7 +35,7 @@ export class VotesSubscriber implements EntitySubscriberInterface<VoteEntity> {
     } else {
       post.downvoteCount++;
     }
-    this.postsRepository.save(post);
+    this.updatePost(post);
   }
 
   public async afterUpdate(event: UpdateEvent<VoteEntity>) {
@@ -53,7 +53,7 @@ export class VotesSubscriber implements EntitySubscriberInterface<VoteEntity> {
       post.upvoteCount--;
       post.downvoteCount++;
     }
-    this.postsRepository.save(post);
+    this.updatePost(post);
   }
 
   public async afterRemove(event: RemoveEvent<VoteEntity>) {
@@ -69,7 +69,15 @@ export class VotesSubscriber implements EntitySubscriberInterface<VoteEntity> {
     } else {
       post.downvoteCount--;
     }
-    this.postsRepository.save(post);
+    this.updatePost(post);
+  }
+
+  private async updatePost(post: PostEntity) {
+    return await this.postsRepository.update(post.id, {
+      upvoteCount: post.upvoteCount,
+      downvoteCount: post.downvoteCount,
+      updatedAt: () => '"updatedAt"',
+    });
   }
 
   private async getPost(entity: VoteEntity) {
