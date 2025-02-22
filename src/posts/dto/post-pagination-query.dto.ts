@@ -1,5 +1,12 @@
 import { Transform } from 'class-transformer';
-import { IsArray, IsEnum, IsInt, IsOptional, Min } from 'class-validator';
+import {
+  IsArray,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  MaxLength,
+  Min,
+} from 'class-validator';
 import { PostSortEnum } from '../enum/post-sort.enum';
 import parse from 'parse-duration';
 import { PostIncludeEnum } from '../enum/post-include.enum';
@@ -14,8 +21,11 @@ export class PostPaginationQueryDto {
     required: false,
     type: 'string',
     example: 'Apple pie',
+    maxLength: 512,
   })
+  @Transform(({ value }) => value.trim() || undefined)
   @IsOptional()
+  @MaxLength(512)
   public q?: string;
 
   @ApiProperty({

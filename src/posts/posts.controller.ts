@@ -123,7 +123,7 @@ export class PostsController {
         limit: query.limit,
         sort: query.sort,
         exclude: query.exclude,
-        query: query.q?.trim(),
+        query: query.q,
         includeUser,
         after,
         includeVoteOf: includeVote ? user!.id : null,
