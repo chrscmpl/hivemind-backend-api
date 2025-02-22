@@ -13,6 +13,7 @@ interface PostsQueryOptions {
   includeVoteOf?: number | null;
   includeUser?: boolean | null;
   exclude?: (keyof PostEntity)[] | null;
+  query?: string | null;
   sort?: PostSortEnum | null;
   after?: Date | null;
 }
@@ -122,15 +123,22 @@ export class PostsFetchService {
 
   private addWhere(
     queryBuilder: SelectQueryBuilder<PostEntity>,
-    options?: Pick<PostsQueryOptions, 'after'>,
+    options?: Pick<PostsQueryOptions, 'after' | 'query'>,
   ): SelectQueryBuilder<PostEntity> {
-    if (!options?.after) {
-      return queryBuilder;
+    if (options?.after) {
+      queryBuilder = queryBuilder.where('p.createdAt > :after', {
+        after: options.after,
+      });
     }
 
-    return queryBuilder.where('p.createdAt > :after', {
-      after: options.after,
-    });
+    if (options?.query) {
+      queryBuilder = queryBuilder.andWhere(
+        'LOWER(p.title) LIKE LOWER(:query) OR LOWER(p.content) LIKE LOWER(:query)',
+        { query: `%${options.query}%` },
+      );
+    }
+
+    return queryBuilder;
   }
 
   private addRelations(

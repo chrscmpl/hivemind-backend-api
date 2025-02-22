@@ -12,6 +12,14 @@ import { PostExcludeEnum } from '../enum/post-exclude.enum';
 export class PostPaginationQueryDto {
   @ApiProperty({
     required: false,
+    type: 'string',
+    example: 'Apple pie',
+  })
+  @IsOptional()
+  public q?: string;
+
+  @ApiProperty({
+    required: false,
     type: 'number',
     example: 1,
     default: 1,
