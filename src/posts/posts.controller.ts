@@ -78,12 +78,9 @@ export class PostsController {
     @Body() createPostDto: CreatePostDto,
     @Auth() user: AuthUser,
   ): Promise<PostDto> {
-    return this.postsMutationService
-      .create(createPostDto, user.id)
-      .then((post) => {
-        post.myVote = true;
-        return new PostDto(post);
-      });
+    const post = await this.postsMutationService.create(createPostDto, user.id);
+    post.myVote = true;
+    return new PostDto(post);
   }
 
   @ApiOperation({
@@ -117,23 +114,21 @@ export class PostsController {
 
     const after = query.age ? new Date(Date.now() - query.age) : null;
 
-    return this.postsFetchService
-      .paginate({
-        page: query.page,
-        limit: query.limit,
-        sort: query.sort,
-        exclude: query.exclude,
-        query: query.q,
-        includeUser,
-        after,
-        includeVoteOf: includeVote ? user!.id : null,
-      })
-      .then((pagination) => {
-        pagination.meta.sorting = query.sort;
-        pagination.meta.after = after ? noMsIso(after) : null;
-        pagination.meta.includes = query.include;
-        return new PostPaginationDto(pagination);
-      });
+    const pagination = await this.postsFetchService.paginate({
+      page: query.page,
+      limit: query.limit,
+      sort: query.sort,
+      exclude: query.exclude,
+      query: query.q,
+      includeUser,
+      after,
+      includeVoteOf: includeVote ? user!.id : null,
+    });
+
+    pagination.meta.sorting = query.sort;
+    pagination.meta.after = after ? noMsIso(after) : null;
+    pagination.meta.includes = query.include;
+    return new PostPaginationDto(pagination);
   }
 
   @ApiOperation({
@@ -172,16 +167,16 @@ export class PostsController {
 
     const includeUser: boolean = query.include.includes(PostIncludeEnum.USER);
 
-    return this.postsFetchService
-      .findOne(id, {
+    try {
+      const post = await this.postsFetchService.findOne(id, {
         includeUser,
         includeVoteOf: includeVote ? user!.id : null,
         exclude: query.exclude,
-      })
-      .catch(() => {
-        throw new NotFoundException('Post not found');
-      })
-      .then((post) => new PostDto(post));
+      });
+      return new PostDto(post);
+    } catch {
+      throw new NotFoundException('Post not found');
+    }
   }
 
   @ApiOperation({

@@ -8,13 +8,14 @@ import {
   Min,
 } from 'class-validator';
 import { PostSortEnum } from '../enum/post-sort.enum';
-import parse from 'parse-duration';
+import parseDuration from 'parse-duration';
 import { PostIncludeEnum } from '../enum/post-include.enum';
 import { BadRequestException } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 import { getPostIncludeQueryExamples } from '../examples/post-include-query.example';
 import { getPostExcludeQueryExamples } from '../examples/post-exclude-query.example';
 import { PostExcludeEnum } from '../enum/post-exclude.enum';
+import { getAgeStringExamples } from 'src/common/examples/misc/age-string.example';
 
 export class PostPaginationQueryDto {
   @ApiProperty({
@@ -64,9 +65,16 @@ export class PostPaginationQueryDto {
   @IsEnum(PostSortEnum)
   public sort: PostSortEnum = PostSortEnum.CONTROVERSIAL;
 
-  @ApiProperty({ required: false, type: 'string', example: '7d' })
+  @ApiProperty({
+    required: false,
+    type: 'string',
+    examples: getAgeStringExamples(),
+  })
   @Transform(({ value }) => {
-    const parsed = parse(value);
+    if (value === 'all') {
+      return null;
+    }
+    const parsed = parseDuration(value);
     if (parsed === null) {
       throw new BadRequestException(['age must be a valid duration string.']);
     }
