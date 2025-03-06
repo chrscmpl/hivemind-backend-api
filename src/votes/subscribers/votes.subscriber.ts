@@ -72,18 +72,18 @@ export class VotesSubscriber implements EntitySubscriberInterface<VoteEntity> {
     this.updatePost(post);
   }
 
+  private async getPost(entity: VoteEntity) {
+    return this.postsRepository.findOne({
+      where: { id: entity.postId },
+      select: ['id', 'upvoteCount', 'downvoteCount'],
+    });
+  }
+
   private async updatePost(post: PostEntity) {
     return await this.postsRepository.update(post.id, {
       upvoteCount: post.upvoteCount,
       downvoteCount: post.downvoteCount,
       updatedAt: () => '"updatedAt"',
-    });
-  }
-
-  private async getPost(entity: VoteEntity) {
-    return this.postsRepository.findOne({
-      where: { id: entity.postId },
-      select: ['id', 'upvoteCount', 'downvoteCount'],
     });
   }
 }

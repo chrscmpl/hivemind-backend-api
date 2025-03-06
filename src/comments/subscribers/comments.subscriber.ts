@@ -32,7 +32,7 @@ export class CommentsSubscriber
       return;
     }
     post.commentCount++;
-    this.postsRepository.save(post);
+    this.updatePost(post);
   }
 
   public async afterRemove(event: RemoveEvent<CommentEntity>) {
@@ -44,13 +44,20 @@ export class CommentsSubscriber
       return;
     }
     post.commentCount--;
-    this.postsRepository.save(post);
+    this.updatePost(post);
   }
 
   private async getPost(entity: CommentEntity) {
     return this.postsRepository.findOne({
       where: { id: entity.postId },
       select: ['id', 'commentCount'],
+    });
+  }
+
+  private async updatePost(post: PostEntity) {
+    return await this.postsRepository.update(post.id, {
+      commentCount: post.commentCount,
+      updatedAt: () => '"updatedAt"',
     });
   }
 }

@@ -2,7 +2,6 @@ import { defaults } from 'lodash';
 import { ApiProperty } from '@nestjs/swagger';
 import { noMsIso } from 'src/common/helpers/no-ms-iso.helper';
 import { CommentEntity } from '../entities/comment.entity';
-import { PostDto } from 'src/posts/dto/post.dto';
 
 // different from UserDto mainly because of the nullable properties
 class UserPreviewDto {
@@ -58,9 +57,6 @@ export class CommentDto {
   @ApiProperty({ nullable: false, type: UserPreviewDto, example: { id: 1 } })
   public user!: UserPreviewDto;
 
-  @ApiProperty({ nullable: false, type: PostDto, example: { id: 1 } })
-  public post!: PostDto;
-
   public constructor(comment: Partial<CommentEntity>) {
     this.id = comment.id as number;
     if (comment.content) {
@@ -75,6 +71,5 @@ export class CommentDto {
     this.user = new UserPreviewDto(
       defaults({ id: comment.userId }, comment.user),
     );
-    this.post = new PostDto(defaults({ id: comment.postId }, comment.post));
   }
 }

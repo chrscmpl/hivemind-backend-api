@@ -84,7 +84,7 @@ export class PostsController {
   }
 
   @ApiOperation({
-    summary: 'Request for paginated  posts',
+    summary: 'Request for paginated posts',
     description:
       'Posts do not contain their content by default, unless the "include" query parameter contains the value "content".<br/><br/>' +
       'Similarly, they only contain user data if the "include" query parameter contains the value "user" (except for the id).<br/><br/>' +

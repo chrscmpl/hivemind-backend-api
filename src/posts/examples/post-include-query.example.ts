@@ -11,7 +11,7 @@ export function getPostIncludeQueryExamples() {
     },
     user: {
       summary: 'Include user',
-      description: 'Includes data about the creators of the posts',
+      description: "Includes data about the post's author",
       value: 'user',
     },
     all: {

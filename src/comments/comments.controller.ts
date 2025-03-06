@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Get,
   NotFoundException,
   Param,
   ParseIntPipe,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { CommentsFetchService } from './services/comments-fetch.service';
@@ -24,6 +26,10 @@ import { CommentDto } from './dto/comment.dto';
 import { BadRequestExceptionExample } from 'src/common/examples/exceptions/bad-request-exception.example';
 import { UnauthorizedExceptionExample } from 'src/common/examples/exceptions/unauthorized-exception.example';
 import { NotFoundExceptionExample } from 'src/common/examples/exceptions/not-found-exception.example';
+import { CommentPaginationDto } from './dto/comment-pagination.dto';
+import { noMsIso } from 'src/common/helpers/no-ms-iso.helper';
+import { CommentsPaginationQueryDto } from './dto/comment-pagination-query.dto';
+import { CommentIncludeEnum } from './enum/comment-include.enum';
 
 @ApiTags('Comments')
 @ApiParam({ name: 'postId', description: "The post's ID",  required: true, type: 'number', example: 1 }) // prettier-ignore
@@ -73,5 +79,46 @@ export class CommentsController {
         throw new NotFoundException('Post not found');
       })
       .then((comment) => new CommentDto(comment));
+  }
+
+  @ApiOperation({
+    summary: 'Request for paginated comments',
+    description:
+      'Comments contain user data only if the include query parameter contains the string "user".<br/><br/>',
+  })
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description: 'The comments have been successfully found.',
+    type: CommentPaginationDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid parameters or query parameters.',
+    example: BadRequestExceptionExample(),
+  })
+  @Get()
+  public async findAll(
+    @Param('postId', ParseIntPipe) postId: number,
+    @Query() query: CommentsPaginationQueryDto,
+  ): Promise<CommentPaginationDto> {
+    const includeUser: boolean = query.include.includes(
+      CommentIncludeEnum.USER,
+    );
+
+    const after = query.age ? new Date(Date.now() - query.age) : null;
+
+    const pagination = await this.commentsFetchService.paginate({
+      page: query.page,
+      limit: query.limit,
+      postId,
+      exclude: query.exclude,
+      includeUser,
+      after,
+    });
+
+    pagination.meta.after = after ? noMsIso(after) : null;
+    pagination.meta.includes = query.include;
+    return new CommentPaginationDto(pagination);
   }
 }

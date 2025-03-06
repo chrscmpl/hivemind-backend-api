@@ -126,7 +126,7 @@ export class PostsFetchService {
     options?: Pick<PostsQueryOptions, 'after' | 'query'>,
   ): SelectQueryBuilder<PostEntity> {
     if (options?.after) {
-      queryBuilder = queryBuilder.where('p.createdAt > :after', {
+      queryBuilder = queryBuilder.andWhere('p.createdAt > :after', {
         after: options.after,
       });
     }

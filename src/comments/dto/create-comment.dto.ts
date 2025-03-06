@@ -8,12 +8,12 @@ export class CreateCommentDto {
     nullable: false,
     type: 'string',
     example: 'I agree with your post.',
-    maxLength: 500,
+    maxLength: 1000,
   })
   @Sanitize()
   @Transform(({ value }) => value.trim())
   @IsNotEmpty()
   @IsString()
-  @MaxLength(500)
+  @MaxLength(1000)
   public content?: string;
 }

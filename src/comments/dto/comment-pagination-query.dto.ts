@@ -1,34 +1,15 @@
 import { Transform } from 'class-transformer';
-import {
-  IsArray,
-  IsEnum,
-  IsInt,
-  IsOptional,
-  MaxLength,
-  Min,
-} from 'class-validator';
-import { PostSortEnum } from '../enum/post-sort.enum';
+import { IsArray, IsEnum, IsInt, IsOptional, Min } from 'class-validator';
 import parseDuration from 'parse-duration';
-import { PostIncludeEnum } from '../enum/post-include.enum';
 import { BadRequestException } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
-import { getPostIncludeQueryExamples } from '../examples/post-include-query.example';
-import { getPostExcludeQueryExamples } from '../examples/post-exclude-query.example';
-import { PostExcludeEnum } from '../enum/post-exclude.enum';
 import { getAgeStringExamples } from 'src/common/examples/misc/age-string.example';
+import { getCommentIncludeQueryExamples } from '../example/comment-include-query.example';
+import { CommentIncludeEnum } from '../enum/comment-include.enum';
+import { getCommentExcludeQueryExamples } from '../example/comment-exclude-query.example';
+import { CommentExcludeEnum } from '../enum/comment-exclude.enum';
 
-export class PostPaginationQueryDto {
-  @ApiProperty({
-    required: false,
-    type: 'string',
-    example: 'Apple pie',
-    maxLength: 512,
-  })
-  @Transform(({ value }) => value.trim() || undefined)
-  @IsOptional()
-  @MaxLength(512)
-  public q?: string;
-
+export class CommentsPaginationQueryDto {
   @ApiProperty({
     required: false,
     type: 'number',
@@ -57,16 +38,6 @@ export class PostPaginationQueryDto {
 
   @ApiProperty({
     required: false,
-    enum: PostSortEnum,
-    example: PostSortEnum.CONTROVERSIAL,
-    default: PostSortEnum.CONTROVERSIAL,
-  })
-  @IsOptional()
-  @IsEnum(PostSortEnum)
-  public sort: PostSortEnum = PostSortEnum.CONTROVERSIAL;
-
-  @ApiProperty({
-    required: false,
     type: 'string',
     examples: getAgeStringExamples(),
   })
@@ -87,24 +58,24 @@ export class PostPaginationQueryDto {
     description: 'Comma-separated list of additional parameters',
     required: false,
     type: 'string',
-    examples: getPostIncludeQueryExamples(),
+    examples: getCommentIncludeQueryExamples(),
   })
   @Transform(({ value }) => value.split(',').map((v: string) => v.trim()))
   @IsOptional()
   @IsArray()
-  @IsEnum(PostIncludeEnum, { each: true })
-  public include: PostIncludeEnum[] = [];
+  @IsEnum(CommentIncludeEnum, { each: true })
+  public include: CommentIncludeEnum[] = [];
 
   @ApiProperty({
     description: 'Comma-separated list of fields to exclude',
     required: false,
     type: 'string',
     example: 'content',
-    examples: getPostExcludeQueryExamples(),
+    examples: getCommentExcludeQueryExamples(),
   })
   @Transform(({ value }) => value.split(',').map((v: string) => v.trim()))
   @IsOptional()
   @IsArray()
-  @IsEnum(PostExcludeEnum, { each: true })
-  public exclude: PostExcludeEnum[] = [];
+  @IsEnum(CommentExcludeEnum, { each: true })
+  public exclude: CommentExcludeEnum[] = [];
 }
