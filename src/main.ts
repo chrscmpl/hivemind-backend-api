@@ -4,6 +4,9 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import parseDuration from 'parse-duration';
+
+parseDuration.mo = parseDuration.month;
 
 function setupCors(app: INestApplication) {
   app.enableCors({

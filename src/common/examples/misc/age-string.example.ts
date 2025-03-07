@@ -18,7 +18,7 @@ export function getAgeStringExamples() {
     '1 month': {
       summary: 'Past month',
       description: 'Includes posts from the past month',
-      value: '1 month',
+      value: '1mo',
     },
     '1 year': {
       summary: 'Past year',
