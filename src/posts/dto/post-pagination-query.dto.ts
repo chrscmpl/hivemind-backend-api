@@ -68,6 +68,7 @@ export class PostPaginationQueryDto {
   @ApiProperty({
     required: false,
     type: 'string',
+    example: '7d',
     examples: getAgeStringExamples(),
   })
   @Transform(({ value }) => {

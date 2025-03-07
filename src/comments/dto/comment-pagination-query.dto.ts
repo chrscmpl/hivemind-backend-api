@@ -39,6 +39,7 @@ export class CommentsPaginationQueryDto {
   @ApiProperty({
     required: false,
     type: 'string',
+    example: '7d',
     examples: getAgeStringExamples(),
   })
   @Transform(({ value }) => {
@@ -70,7 +71,6 @@ export class CommentsPaginationQueryDto {
     description: 'Comma-separated list of fields to exclude',
     required: false,
     type: 'string',
-    example: 'content',
     examples: getCommentExcludeQueryExamples(),
   })
   @Transform(({ value }) => value.split(',').map((v: string) => v.trim()))
