@@ -111,13 +111,15 @@ export class CommentsFetchService {
   }
 
   private getColumns(
-    options?: Pick<CommentsQueryOptions, 'exclude'>,
-  ): `c.${keyof CommentEntity}`[] {
+    options?: Pick<CommentsQueryOptions, 'exclude' | 'includeUser'>,
+  ): string[] {
     let columns = CommentsFetchService.FETCH_COLUMNS;
     if (options?.exclude?.length) {
       const excludeSet = new Set(options.exclude);
       columns = columns.filter((column) => !excludeSet.has(column));
     }
-    return columns.map((column) => `c.${column}` as `c.${keyof CommentEntity}`);
+    return columns
+      .map((column) => `c.${column}`)
+      .concat(options?.includeUser ? ['u.handle', 'u.displayName'] : []);
   }
 }

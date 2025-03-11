@@ -193,13 +193,15 @@ export class PostsFetchService {
   }
 
   private getColumns(
-    options?: Pick<PostsQueryOptions, 'exclude'>,
-  ): `p.${keyof PostEntity}`[] {
+    options?: Pick<PostsQueryOptions, 'exclude' | 'includeUser'>,
+  ): string[] {
     let columns = PostsFetchService.FETCH_COLUMNS;
     if (options?.exclude?.length) {
       const excludeSet = new Set(options.exclude);
       columns = columns.filter((column) => !excludeSet.has(column));
     }
-    return columns.map((column) => `p.${column}` as `p.${keyof PostEntity}`);
+    return columns
+      .map((column) => `p.${column}`)
+      .concat(options?.includeUser ? ['u.handle', 'u.displayName'] : []);
   }
 }

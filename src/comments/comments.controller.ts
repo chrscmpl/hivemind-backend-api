@@ -7,6 +7,7 @@ import {
   NotFoundException,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -35,6 +36,8 @@ import { CommentIncludeEnum } from './enum/comment-include.enum';
 import { CommentEntity } from './entities/comment.entity';
 import { ForbiddenExceptionExample } from 'src/common/examples/exceptions/forbidden-exception.example';
 import { GetCommentQueryDto } from './dto/get-comment-query.dto';
+import { UpdateCommentDto } from './dto/update-comment.dto';
+import { defaults, isNil, omitBy } from 'lodash';
 
 @ApiTags('Comments')
 @ApiParam({ name: 'postId', description: "The post's ID",  required: true, type: 'number', example: 1 }) // prettier-ignore
@@ -162,6 +165,59 @@ export class CommentsController {
     } catch {
       throw new NotFoundException('Comment not found');
     }
+  }
+
+  @ApiOperation({
+    summary: 'Update a comment',
+    description: 'Requires authorization',
+  })
+  @ApiBearerAuth()
+  @ApiParam({ name: 'id', required: true, type: 'number', example: 1 })
+  @ApiBody({ type: UpdateCommentDto, required: true })
+  @ApiResponse({
+    status: 200,
+    description:
+      'The comment has been successfully updated. Returns the updated comment.',
+    type: CommentDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid parameters or payload.',
+    example: BadRequestExceptionExample(),
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'User is not authenticated.',
+    example: UnauthorizedExceptionExample(),
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'User is not the author of the comment.',
+    example: ForbiddenExceptionExample('User is not the author of the comment'),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Post not found.',
+    example: NotFoundExceptionExample('Post not found'),
+  })
+  @Patch(':id')
+  @UseGuards(AuthGuard())
+  public async update(
+    @Param('postId', ParseIntPipe) postId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateCommentDto: UpdateCommentDto,
+    @Auth() user: AuthUser,
+  ): Promise<CommentDto> {
+    return this.checkAuthorization(postId, id, user) //
+      .then((oldComment) =>
+        this.commentsMutationService
+          .update(id, updateCommentDto) //
+          .then(
+            // returns the updated comment, adding the old values that were not updated
+            (newComment) =>
+              new CommentDto(defaults(omitBy(newComment, isNil), oldComment)),
+          ),
+      );
   }
 
   @ApiOperation({

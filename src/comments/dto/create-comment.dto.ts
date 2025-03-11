@@ -15,5 +15,5 @@ export class CreateCommentDto {
   @IsNotEmpty()
   @IsString()
   @MaxLength(1000)
-  public content?: string;
+  public content!: string;
 }
