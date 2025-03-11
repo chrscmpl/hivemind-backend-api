@@ -27,8 +27,24 @@ export class CommentsFetchService {
     private readonly commentsRepository: Repository<CommentEntity>,
   ) {}
 
-  public async findOne(id: number): Promise<CommentEntity> {
-    return this.commentsRepository.findOneByOrFail({ id });
+  public async findOne(
+    id: number,
+    options: Pick<CommentsQueryOptions, 'includeUser' | 'exclude' | 'postId'>,
+  ): Promise<CommentEntity> {
+    const queryBuilder = this.createBasicQueryBuilder();
+
+    queryBuilder.where('c.id = :id', { id });
+    queryBuilder.andWhere('c.postId = :postId', { postId: options.postId });
+
+    if (options.includeUser) {
+      queryBuilder.leftJoinAndSelect('c.user', 'u');
+    }
+
+    if (options.exclude?.length) {
+      queryBuilder.select(this.getColumns(options));
+    }
+
+    return await queryBuilder.getOneOrFail();
   }
 
   public async paginate(options: IPaginationOptions & CommentsQueryOptions) {

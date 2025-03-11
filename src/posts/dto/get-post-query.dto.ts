@@ -13,7 +13,7 @@ export class GetPostQueryDto {
     type: 'string',
     examples: getPostIncludeQueryExamples(),
   })
-  @Transform(({ value }) => value.split(','))
+  @Transform(({ value }) => value.split(',').map((v: string) => v.trim()))
   @IsOptional()
   @IsArray()
   @IsEnum(PostIncludeEnum, { each: true })
@@ -25,7 +25,7 @@ export class GetPostQueryDto {
     type: 'string',
     examples: getPostExcludeQueryExamples(),
   })
-  @Transform(({ value }) => value.split(','))
+  @Transform(({ value }) => value.split(',').map((v: string) => v.trim()))
   @IsOptional()
   @IsArray()
   @IsEnum(PostExcludeEnum, { each: true })
