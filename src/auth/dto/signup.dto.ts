@@ -13,7 +13,7 @@ export class SignupDto {
   @ApiProperty({
     nullable: false,
     type: 'string',
-    example: 'chrscmpl@example.com',
+    example: 'example@email.com',
   })
   @Sanitize()
   @IsEmail()
@@ -22,9 +22,10 @@ export class SignupDto {
   @ApiProperty({
     nullable: false,
     type: 'string',
-    example: 'chrscmpl',
+    example: 'smith97',
     minLength: 4,
     maxLength: 30,
+    pattern: '^[a-zA-Z0-9_]*$',
   })
   @Sanitize()
   @IsNotEmpty()
@@ -38,7 +39,7 @@ export class SignupDto {
   @ApiProperty({
     nullable: false,
     type: 'string',
-    example: 'Christian Campolongo',
+    example: 'John Smith',
     minLength: 2,
     maxLength: 50,
   })
@@ -55,6 +56,7 @@ export class SignupDto {
     example: 'examplePassword22?',
     minLength: 8,
     maxLength: 32,
+    pattern: '^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^\\w\\s]).*$',
   })
   @IsNotEmpty()
   @IsString()

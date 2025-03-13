@@ -5,13 +5,13 @@ export class UserDto {
   @ApiProperty({ nullable: false, type: 'number', example: 1 })
   id: number;
 
-  @ApiProperty({ nullable: false, type: 'string', example: 'chrscmpl' })
+  @ApiProperty({ nullable: false, type: 'string', example: 'smith97' })
   handle: string;
 
   @ApiProperty({
     nullable: false,
     type: 'string',
-    example: 'Christian Campolongo',
+    example: 'John Smith',
   })
   displayName: string;
 

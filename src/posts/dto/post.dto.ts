@@ -8,13 +8,13 @@ class UserPreviewDto {
   @ApiProperty({ nullable: true, type: 'number', example: 1 })
   public id: number;
 
-  @ApiProperty({ nullable: true, type: 'string', example: 'chrscmpl' })
+  @ApiProperty({ nullable: true, type: 'string', example: 'smith97' })
   public handle?: string;
 
   @ApiProperty({
     nullable: true,
     type: 'string',
-    example: 'Christian Campolongo',
+    example: 'John Smith',
   })
   public displayName?: string;
 

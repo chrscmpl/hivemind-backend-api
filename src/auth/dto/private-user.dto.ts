@@ -6,20 +6,20 @@ export class PrivateUserDto {
   @ApiProperty({ nullable: false, type: 'number', example: 1 })
   public id: number;
 
-  @ApiProperty({ nullable: false, type: 'string', example: 'chrscmpl' })
+  @ApiProperty({ nullable: false, type: 'string', example: 'smith97' })
   public handle: string;
 
   @ApiProperty({
     nullable: false,
     type: 'string',
-    example: 'Christian Campolongo',
+    example: 'John Smith',
   })
   public displayName: string;
 
   @ApiProperty({
     nullable: false,
     type: 'string',
-    example: 'chrscmpl@example.com',
+    example: 'example@email.com',
   })
   public email: string;
 
