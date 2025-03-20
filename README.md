@@ -13,7 +13,7 @@ It is designed with the objectives of respecting REST principles as much as poss
 
 ## Build instructions
 
-To run the project, hosting it on `http://localhost/`, run one of the following commands:
+To run the project, hosting it on `http://localhost/`, first you will need to rename the file `.env.example` to `.env`, then run one of the following commands:
 
 ```bash
 # development
